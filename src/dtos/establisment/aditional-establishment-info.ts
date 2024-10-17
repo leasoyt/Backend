@@ -1,4 +1,4 @@
-import { UpdateMenuDto } from "dtos pf/menu/update-menu.dto"
+import { UpdateMenuDto } from "../menu/update-menu.dto"
 import { UpdateWaiterDto } from "./updateWaiter.dto"
 
 // Información adicional para la actualización

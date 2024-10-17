@@ -9,9 +9,11 @@ export class RegisterUserDto {
     @Length(3, 80)
     @IsString()
     name: string 
+
     @IsNotEmpty()
     @IsEmail()
     email: string
+
     @IsNotEmpty()
     @IsString()
     @Matches(
@@ -22,13 +24,16 @@ export class RegisterUserDto {
         },
     )
     password: string
+
     @IsNotEmpty()
     @IsString()
     // @Validate(IsPasswordMatch)
     confirmPassword: string
+
     @IsOptional()
     @IsUrl()
     profile_image?: string
+    
     @IsNotEmpty()
     @ValidateNested()
     @Type(() => RegisterEstablishmentDto) 
