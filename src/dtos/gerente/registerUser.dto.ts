@@ -1,7 +1,6 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUrl, Length, Matches, Validate, ValidateNested } from "class-validator"
+import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUrl, Length, Matches, ValidateNested } from "class-validator"
 import { RegisterEstablishmentDto } from "../establisment/register-establishment.dto"
 import { Type } from "class-transformer"
-import { IsPasswordMatch } from "./validator/password-match.validator"
 
 //  Dto para el registro del dueño del restaurante
 
@@ -25,7 +24,7 @@ export class RegisterUserDto {
     password: string
     @IsNotEmpty()
     @IsString()
-    @Validate(IsPasswordMatch)
+    // @Validate(IsPasswordMatch)
     confirmPassword: string
     @IsOptional()
     @IsUrl()
