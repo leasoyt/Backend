@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsPhoneNumber, IsString } from "class-validator";
+// import { IsNotEmpty, IsPhoneNumber, IsString } from "class-validator";
 //SIN USAR POR AHORA
 // export class AditionalInfoRegisterClient {
 //     @IsNotEmpty()
