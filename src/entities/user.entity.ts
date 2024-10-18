@@ -24,24 +24,24 @@ export class User {
   @Column({ length: 100, nullable: false })
   password!: string;
 
-  @Column({default:false})
-  isAdmin:boolean
+  @Column({ default: false })
+  isAdmin: boolean;
 
   @Column({
     type: 'enum',
     enum: UserRole,
-    default: UserRole.CONSUMER, 
+    default: UserRole.CONSUMER,
   })
   role: UserRole;
 
-   // Asociación para meseros (un mesero solo puede estar en un restaurante)
-   @ManyToOne(() => Restaurant, (restaurant) => restaurant.waiters, { nullable: true })
-   waiterRestaurant: Restaurant;
- 
-   // Asociación para gerentes (un gerente puede estar en varios restaurantes)
-   @OneToMany(() => Restaurant, (restaurant) => restaurant.manager)
-   managedRestaurants: Restaurant[];
+  // Asociación para meseros (un mesero solo puede estar en un restaurante)
+  @ManyToOne(() => Restaurant, (restaurant) => restaurant.waiters, { nullable: true })
+  waiterRestaurant: Restaurant;
 
-   @OneToMany(()=>Reservation,(reservation)=>reservation.user)
-   reservations:Reservation[];
+  // Asociación para gerentes (un gerente puede estar en varios restaurantes)
+  @OneToMany(() => Restaurant, (restaurant) => restaurant.manager, { nullable: true })
+  managedRestaurants: Restaurant[];
+
+  @OneToMany(() => Reservation, (reservation) => reservation.user, { nullable: true })
+  reservations: Reservation[];
 }
