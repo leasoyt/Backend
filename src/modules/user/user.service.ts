@@ -6,7 +6,7 @@ import { UserRepository } from "./user.repository";
 import { UpdateUserDto } from "src/dtos/user/updateUser.dto";
 import { SanitizedUserDto } from "src/dtos/user/sanitizedUser.dto";
 import { RegisterDto } from "src/dtos/auth/register.dto";
-import { UpdatePasswordDto } from "src/dtos/user/updatePassword.dto";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class UserService {
@@ -34,7 +34,8 @@ export class UserService {
     async updatePassword(id: string, oldPassword, newPassword): Promise<SanitizedUserDto> {
         const user = await this.userRepository.getUserById(id);
 
-        //compare HASH here
+        const is_valid_password = await bcrypt.compare(oldPassword, user.password);
+        
         if (oldPassword !== user.password) {
             throw new BadRequestException("Old password is incorrect!");
         }
