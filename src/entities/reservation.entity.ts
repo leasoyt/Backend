@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 import { User } from './user.entity';
 import { Restaurant_Table } from './tables.entity';
 import { ReservationStatus } from 'src/enums/reservationStatus.enum';
@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
   name: 'reservations',
 })
 export class Reservation {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn()
   id: string = uuidv4();
 
   @Column('date')
@@ -28,4 +28,11 @@ export class Reservation {
     nullable: false,
   })
   table: Restaurant_Table;
+
+  @BeforeInsert()
+  generateUuid() {
+    if (!this.id) {
+      this.id = uuidv4();
+    }
+  }
 }

@@ -21,8 +21,8 @@ export class User {
   @Column({ length: 50, nullable: true })
   country: string;
 
-  @Column({ length: 100, nullable: false })
-  password!: string;
+  @Column({ length: 128, nullable: false })
+  password: string;
 
   @Column({ default: false })
   isAdmin: boolean;
