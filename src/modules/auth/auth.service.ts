@@ -6,6 +6,7 @@ import { User } from "src/entities/user.entity";
 import { isNotEmpty } from "class-validator";
 import { LoginDto } from "src/dtos/auth/login.dto";
 import { LoginResponseDto } from "src/dtos/auth/loginResponse.dto";
+import { UpdatePasswordDto } from "src/dtos/user/updatePassword.dto";
 
 @Injectable()
 export class AuthService {
@@ -20,20 +21,31 @@ export class AuthService {
         }
 
         const is_existent: User | undefined = await this.userService.getUserByMail(email);
-
         if (isNotEmpty(is_existent)) {
             throw new BadRequestException("Email already on use!");
         }
+        //HASH here
 
         const user: SanitizedUserDto = await this.userService.createUser({ ...rest_user, email, password });
         return user;
 
     }
 
+    async updateAndHashPassword(id: string, passwordModification: UpdatePasswordDto): Promise<SanitizedUserDto> {
+        const { password, confirmPassword, old_password } = passwordModification;
+
+        if (password !== confirmPassword) {
+            throw new BadRequestException("Passwords Don't match!");
+        }
+
+        return await this.userService.updatePassword(id, old_password, password);
+    }
+
     async userLogin(credentials: LoginDto): Promise<LoginResponseDto> {
         const { email, password } = credentials;
 
         const user: User | undefined = await this.userService.getUserByMail(email);
+        //compare Hash here
 
         if (isNotEmpty(user) && password === user.password) {
             return {

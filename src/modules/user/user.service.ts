@@ -6,6 +6,7 @@ import { UserRepository } from "./user.repository";
 import { UpdateUserDto } from "src/dtos/user/updateUser.dto";
 import { SanitizedUserDto } from "src/dtos/user/sanitizedUser.dto";
 import { RegisterDto } from "src/dtos/auth/register.dto";
+import { UpdatePasswordDto } from "src/dtos/user/updatePassword.dto";
 
 @Injectable()
 export class UserService {
@@ -25,7 +26,24 @@ export class UserService {
 
             return filtered_user;
         } catch (err) {
-            throw new BadRequestException({message: "Something went wrong trying to update user", error: err});
+            throw new BadRequestException({ message: "Something went wrong trying to update user", error: err });
+        }
+
+    }
+
+    async updatePassword(id: string, oldPassword, newPassword): Promise<SanitizedUserDto> {
+        const user = await this.userRepository.getUserById(id);
+
+        //compare HASH here
+        if (oldPassword !== user.password) {
+            throw new BadRequestException("Old password is incorrect!");
+        }
+
+        try {
+            const updated_user: SanitizedUserDto = await this.updateUser(id, { password: newPassword });
+            return updated_user;
+        } catch (err) {
+            throw new BadRequestException({ message: "Something went wrong trying to change password", error: err });
         }
 
     }
@@ -33,11 +51,11 @@ export class UserService {
     async createUser(userObject: Omit<RegisterDto, "confirmPassword">): Promise<SanitizedUserDto> {
         try {
             const created_user: User = await this.userRepository.createUser(userObject);
-            const {password, isAdmin, ...filtered} = created_user;
-            
+            const { password, isAdmin, ...filtered } = created_user;
+
             return filtered;
         } catch (err) {
-            throw new BadRequestException({message: "Failed to register a new user", error: err})
+            throw new BadRequestException({ message: "Failed to register a new user", error: err })
         }
     }
 
@@ -55,7 +73,7 @@ export class UserService {
     async getUserByMail(mail: string): Promise<User | undefined> {
         const user: User | undefined = await this.userRepository.getUserByMail(mail);
 
-        if(isEmpty(user)) {
+        if (isEmpty(user)) {
             return undefined;
         }
         return user;
@@ -64,7 +82,7 @@ export class UserService {
     async deleteUser(id: string): Promise<SanitizedUserDto> {
         const to_delete: User | undefined = await this.userRepository.getUserById(id);
 
-        if(isEmpty(to_delete)) {
+        if (isEmpty(to_delete)) {
             throw new NotFoundException(`Failed to delete, user not found: ${id}`);
         }
         return await this.userRepository.deleteUser(to_delete);

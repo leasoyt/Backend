@@ -10,12 +10,12 @@ export class RegisterDto {
     @IsNotEmpty()
     @Length(3, 80)
     @IsString()
-    name: string
+    name: string;
 
     @IsNotEmpty()
     @IsEmail()
-    email: string
-
+    email: string;
+    
     @IsNotEmpty()
     @IsString()
     @Matches(
@@ -25,23 +25,23 @@ export class RegisterDto {
                 'Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character (!@#$%^&*), and be between 8 and 15 characters long.',
         },
     )
-    password: string
+    password: string;
 
     @IsNotEmpty()
     @IsString()
-    @Validate(MatchPassword)
-    confirmPassword: string
+    @Validate(MatchPassword, ["password"])
+    confirmPassword: string;
 
     @IsOptional()
     @IsUrl()
-    profile_image?: string
+    profile_image?: string;
 
     @IsOptional()
     @Length(3, 50)
-    country?: string
+    country?: string;
 
     @IsOptional()
     @ValidateNested()
     @Type(() => RegisterEstablishmentDto)
-    establishment?: RegisterEstablishmentDto
+    establishment?: RegisterEstablishmentDto;
 }
