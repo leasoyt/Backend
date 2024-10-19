@@ -6,7 +6,7 @@ import { UpdateDish } from "src/dtos/dish/update-dish.dto";
 import { isNotEmptyObject } from "class-validator";
 import { Dish } from "src/entities/dish.entity";
 
-@ApiTags("User")
+@ApiTags("Dish")
 @Controller('dish')
 export class DishController {
     constructor(private readonly dishService: DishService) {}
