@@ -1,8 +1,9 @@
-import { UserRole } from 'src/enums/roles.enum';
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { Restaurant } from './restaurant.entity';
 import { Reservation } from './reservation.entity';
+import { UserRole } from 'src/enums/roles.enum';
+
 
 @Entity({ name: 'users' })
 export class User {
