@@ -6,11 +6,10 @@ import { DishService } from "./dish.service";
 import { DishController } from "./dish.controller";
 import { Menu } from "src/entities/menu.entity";
 import { DishRepository } from "./dish.repository";
-import { MenuRepository } from "./PruebaMenuRepository";
 
 @Module({
     imports: [TypeOrmModule.forFeature([Dish, Menu])],
-    providers: [DishService, DishRepository, MenuRepository],
+    providers: [DishService,DishRepository],
     controllers: [DishController]
 })
 export class DishModule { }

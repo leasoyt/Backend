@@ -8,7 +8,7 @@ export class Dish {
   @PrimaryGeneratedColumn('uuid')
   id: string = uuidv4();
 
-  @Column()
+  @Column({unique:true})
   name: string;
 
   @Column()

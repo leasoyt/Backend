@@ -17,6 +17,7 @@ export class CreateDishDto {
 
     @IsOptional()
     @IsUrl()
+
     dish_image?: string;
 
     @IsNotEmpty()

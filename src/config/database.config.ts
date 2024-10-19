@@ -1,19 +1,25 @@
-// src/config/database.config.ts
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { registerAs } from '@nestjs/config';
 import { config as dotenvConfig } from 'dotenv';
+import { DataSource, DataSourceOptions } from 'typeorm';
 
-dotenvConfig(); // Cargar las variables de entorno
+dotenvConfig({path:'.env'}); 
 
-const typeOrmConfig: TypeOrmModuleOptions = {
+const typeOrmConfig={
   type: 'postgres',
   host: process.env.DB_HOST,
   port: parseInt(process.env.DB_PORT, 10),
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  entities: [__dirname + '/../**/*.entity{.ts,.js}'], // Asegúrate de que la ruta sea correcta
-  synchronize: true,
+  entities: ['dist/**/*.entity{.ts,.js}'],
+  autoLoadEntities:true,
+  dropSchema:false,
+  synchronize: false,
   logging: true,
+  migrations:['dist/migrations/*{.js,.ts}']
 };
 
-export default typeOrmConfig;
+export default registerAs('typeorm',()=>typeOrmConfig)
+
+
+export const connnectionSource=new DataSource(typeOrmConfig as DataSourceOptions)
