@@ -1,12 +1,12 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from "@nestjs/common";
 import { RegisterDto } from "src/dtos/auth/register.dto";
 import { UserService } from "../user/user.service";
-import { SanitizedUserDto } from "src/dtos/user/sanitizedUser.dto";
+import { SanitizedUserDto } from "src/dtos/user/sanitized-user.dto";
 import { User } from "src/entities/user.entity";
 import { isNotEmpty } from "class-validator";
 import { LoginDto } from "src/dtos/auth/login.dto";
-import { LoginResponseDto } from "src/dtos/auth/loginResponse.dto";
-import { UpdatePasswordDto } from "src/dtos/user/updatePassword.dto";
+import { LoginResponseDto } from "src/dtos/auth/login-response.dto";
+import { UpdatePasswordDto } from "src/dtos/user/update-password.dto";
 import * as bcrypt from "bcrypt";
 
 @Injectable()

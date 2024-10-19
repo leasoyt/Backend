@@ -12,4 +12,4 @@ import { DishRepository } from "./dish.repository";
     providers: [DishService,DishRepository],
     controllers: [DishController]
 })
-export class DishModule {}
+export class DishModule { }
