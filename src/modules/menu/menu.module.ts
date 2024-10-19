@@ -8,6 +8,6 @@ import { MenuRepository } from './menu.repository';
 @Module({
   imports: [TypeOrmModule.forFeature([Menu])],
   controllers: [MenuController],
-  providers: [MenuService,MenuRepository],
+  providers: [MenuService, MenuRepository],
 })
-export class AuthModule {}
+export class AuthModule { }

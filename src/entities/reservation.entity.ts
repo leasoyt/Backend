@@ -1,4 +1,4 @@
-import { BeforeInsert, Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { User } from './user.entity';
 import { Restaurant_Table } from './tables.entity';
 import { ReservationStatus } from 'src/enums/reservationStatus.enum';
@@ -22,6 +22,7 @@ export class Reservation {
   status: ReservationStatus;
 
   @ManyToOne(() => User, (user) => user.reservations, { nullable: false })
+  @JoinColumn({ name: "user" })
   user: User;
 
   @ManyToOne(() => Restaurant_Table, (table) => table.reservations, {

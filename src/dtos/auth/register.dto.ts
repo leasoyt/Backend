@@ -1,5 +1,5 @@
 import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUrl, Length, Matches, Validate, ValidateNested } from "class-validator"
-import { RegisterEstablishmentDto } from "../establisment/register-establishment.dto"
+import { RegisterRestaurantDto } from "../restaurant/register-restaurant.dto"
 import { Type } from "class-transformer"
 import { MatchPassword } from "src/validators/matchPassword.validator"
 
@@ -42,6 +42,6 @@ export class RegisterDto {
 
     @IsOptional()
     @ValidateNested()
-    @Type(() => RegisterEstablishmentDto)
-    establishment?: RegisterEstablishmentDto;
+    @Type(() => RegisterRestaurantDto)
+    establishment?: RegisterRestaurantDto;
 }

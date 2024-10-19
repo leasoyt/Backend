@@ -13,4 +13,4 @@ import { MenuRepository } from "./PruebaMenuRepository";
     providers: [DishService, DishRepository, MenuRepository],
     controllers: [DishController]
 })
-export class DishModule {}
+export class DishModule { }

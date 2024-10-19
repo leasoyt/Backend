@@ -3,8 +3,8 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import { isEmpty } from "class-validator";
 import { User } from "src/entities/user.entity";
 import { UserRepository } from "./user.repository";
-import { UpdateUserDto } from "src/dtos/user/updateUser.dto";
-import { SanitizedUserDto } from "src/dtos/user/sanitizedUser.dto";
+import { UpdateUserDto } from "src/dtos/user/update-user.dto";
+import { SanitizedUserDto } from "src/dtos/user/sanitized-user.dto";
 import { RegisterDto } from "src/dtos/auth/register.dto";
 import * as bcrypt from "bcrypt";
 
@@ -35,17 +35,20 @@ export class UserService {
         const user = await this.userRepository.getUserById(id);
 
         const is_valid_password = await bcrypt.compare(oldPassword, user.password);
-        
-        if (oldPassword !== user.password) {
-            throw new BadRequestException("Old password is incorrect!");
-        }
 
-        try {
-            const updated_user: SanitizedUserDto = await this.updateUser(id, { password: newPassword });
-            return updated_user;
-        } catch (err) {
-            throw new BadRequestException({ message: "Something went wrong trying to change password", error: err });
+        if (is_valid_password) {
+        
+            const hashed_password = await bcrypt.hash(newPassword, 10);
+
+            try {
+                const updated_user: SanitizedUserDto = await this.updateUser(id, { password: hashed_password });
+                return updated_user;
+            } catch (err) {
+                throw new BadRequestException({ message: "Something went wrong trying to change password", error: err });
+            }
         }
+        
+        throw new BadRequestException("Old password is incorrect!");
 
     }
 
