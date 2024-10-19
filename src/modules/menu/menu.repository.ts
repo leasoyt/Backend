@@ -5,12 +5,9 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class MenuRepository {
-  constructor(
-    @InjectRepository(Menu)
-    private menuRepository: Repository<Menu>,
-  ) {}
+  constructor(@InjectRepository(Menu) private menuRepository: Repository<Menu>,) { }
 
-  async createMenu(){
-    
+  async createMenu() {
+
   }
 }

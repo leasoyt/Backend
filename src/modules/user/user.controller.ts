@@ -1,9 +1,9 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, ParseUUIDPipe, Put } from "@nestjs/common";
-import { UpdateUserDto } from "src/dtos/user/updateUser.dto";
+import { UpdateUserDto } from "src/dtos/user/update-user.dto";
 import { UserService } from "./user.service";
 import { isNotEmpty, isNotEmptyObject } from "class-validator";
 import { ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { SanitizedUserDto } from "src/dtos/user/sanitizedUser.dto";
+import { SanitizedUserDto } from "src/dtos/user/sanitized-user.dto";
 
 @ApiTags("User")
 @Controller("user")

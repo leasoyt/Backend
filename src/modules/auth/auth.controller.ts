@@ -1,11 +1,11 @@
 import { BadRequestException, Body, Controller, Param, ParseUUIDPipe, Post, Put } from "@nestjs/common";
 import { ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
-import { SanitizedUserDto } from "src/dtos/user/sanitizedUser.dto";
+import { SanitizedUserDto } from "src/dtos/user/sanitized-user.dto";
 import { RegisterDto } from "../../dtos/auth/register.dto";
 import { LoginDto } from "src/dtos/auth/login.dto";
-import { LoginResponseDto } from "src/dtos/auth/loginResponse.dto";
-import { UpdatePasswordDto } from "src/dtos/user/updatePassword.dto";
+import { LoginResponseDto } from "src/dtos/auth/login-response.dto";
+import { UpdatePasswordDto } from "src/dtos/user/update-password.dto";
 import { isNotEmptyObject } from "class-validator";
 
 @ApiTags("Authentication")
@@ -44,9 +44,15 @@ export class AuthController {
         return await this.authService.userLogin(userCredentials);
     }
 
-    @Put("updatePassword")
+    @Put("updatePassword:id")
     @ApiBody({
-
+        schema: {
+            example: {
+                password: "Hellyea42!",
+                confirmPassword: "Hellyea42!",
+                old_password: "Password!1"
+            }
+        }
     })
     @ApiOperation({summary: "actualiza la contraseña"})
     async updatePassword(@Param("id", ParseUUIDPipe) id: string, @Body() passwordModification: UpdatePasswordDto): Promise<SanitizedUserDto> {
