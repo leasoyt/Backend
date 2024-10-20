@@ -12,4 +12,4 @@ import { MenuCategoryModule } from "../menu_category/menu_category.module";
     providers: [DishService,DishRepository],
     controllers: [DishController]
 })
-export class DishModule { }
+export class DishModule {}

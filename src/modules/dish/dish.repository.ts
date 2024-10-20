@@ -12,6 +12,7 @@ export class DishRepository {
     @InjectRepository(Dish) private dishRepository: Repository<Dish>,
     @InjectRepository(Menu_Category)
     private readonly menuCategoryRepository: Repository<Menu_Category>,
+
   ) {}
 
   async getDishById(id: string): Promise<undefined | Dish> {
@@ -67,8 +68,11 @@ export class DishRepository {
     return await this.dishRepository.remove(dishToRemove);
   }
 
-  async getDishesByIds(ids: string[]): Promise<Dish[]>{
-    const foundedDishes: Dish[] = await this.dishRepository.findBy({ id: In(ids) })
+
+  async getDishesByIds(ids: string[]): Promise<Dish[]> {
+    const foundedDishes: Dish[] = await this.dishRepository.findBy({
+      id: In(ids),
+    });
     return foundedDishes;
   }
 }
