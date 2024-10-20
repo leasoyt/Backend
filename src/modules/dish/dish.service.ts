@@ -1,17 +1,30 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateDishDto } from 'src/dtos/dish/create-dish.dto';
 import { UpdateDishDto } from 'src/dtos/dish/update-dish.dto';
 import { DishRepository } from './dish.repository';
 import { Dish } from 'src/entities/dish.entity';
-import { DishDeletionMessage, DishDeletionResultDto } from 'src/dtos/dish/delete-dish-result.dto';
+import {
+  DishDeletionMessage,
+  DishDeletionResultDto,
+} from 'src/dtos/dish/delete-dish-result.dto';
 import { MenuService } from '../menu/menu.service';
+import { OrderedDishesDto } from 'src/dtos/order/ordered_dishes.dto';
 
 @Injectable()
 export class DishService {
-  constructor(private readonly dishRepository: DishRepository, private readonly menuService: MenuService) { }
+  constructor(
+    private readonly dishRepository: DishRepository,
+    private readonly menuService: MenuService,
+  ) {}
 
   async getDishById(id: string): Promise<Dish> {
-    const found_dish: Dish | undefined = await this.dishRepository.getDishById(id);
+    const found_dish: Dish | undefined =
+      await this.dishRepository.getDishById(id);
 
     if (found_dish === undefined) {
       throw new NotFoundException(`Failed to find Dish with id: ${id}`);
@@ -21,27 +34,35 @@ export class DishService {
   }
 
   async createDish(dishToCreate: CreateDishDto): Promise<Dish> {
-    const menu = await this.menuService.getMenu(dishToCreate.menu)
+    const menu = await this.menuService.getMenu(dishToCreate.menu);
 
     try {
-      const newDish: Dish = await this.dishRepository.createDish(dishToCreate, menu);
+      const newDish: Dish = await this.dishRepository.createDish(
+        dishToCreate,
+        menu,
+      );
       return newDish;
-      
     } catch (err) {
-      throw new BadRequestException({message: "Failed to create a new dish, something went wrong", error: err});
+      throw new BadRequestException({
+        message: 'Failed to create a new dish, something went wrong',
+        error: err,
+      });
     }
-
   }
 
   async updateDish(id: string, modified_dish: UpdateDishDto): Promise<Dish> {
     const existingDish: Dish = await this.getDishById(id);
 
     try {
-      const updatedDish: Dish = await this.dishRepository.updateDish(existingDish, modified_dish,);
+      const updatedDish: Dish = await this.dishRepository.updateDish(
+        existingDish,
+        modified_dish,
+      );
       return updatedDish;
-
     } catch (err) {
-      throw new BadRequestException(`Error al actualizar el platillo ${err.message}`,);
+      throw new BadRequestException(
+        `Error al actualizar el platillo ${err.message}`,
+      );
     }
   }
 
@@ -51,9 +72,25 @@ export class DishService {
     try {
       await this.dishRepository.deleteDish(existing_dish);
       return { message: DishDeletionMessage.SUCCESSFUL };
-
     } catch (err) {
-      throw new InternalServerErrorException({ message: DishDeletionMessage.FAILED, error: err });
+      throw new InternalServerErrorException({
+        message: DishDeletionMessage.FAILED,
+        error: err,
+      });
     }
+  }
+  async getDishesByIds(dishes: OrderedDishesDto[]): Promise<Dish[]> {
+    const dishesId: string[] = dishes.map((dish) => dish.id);
+    const foundedDishes: Dish[] =
+      await this.dishRepository.getDishesByIds(dishesId);
+    const notFoundedDishes: string[] = dishesId.filter(
+      (dish) =>
+        !foundedDishes.map((foundedDish) => foundedDish.id).includes(dish),
+    );
+    if (notFoundedDishes)
+      throw new BadRequestException(
+        `No se pudieron encontrar los siguientes platillos: ${notFoundedDishes}`,
+      );
+    return foundedDishes;
   }
 }
