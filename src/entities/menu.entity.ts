@@ -1,6 +1,6 @@
 import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Restaurant } from './restaurant.entity';
-import { Dish } from './dish.entity';
+import { Menu_Category } from './menu_category.entity';
 
 @Entity()
 export class Menu {
@@ -13,6 +13,11 @@ export class Menu {
   @OneToOne(() => Restaurant, (restaurant) => restaurant.menu, { nullable: false })
   restaurant: Restaurant;
 
-  @OneToMany(() => Dish, (dish) => dish.menu, { cascade: true, onDelete: "CASCADE" })
-  dishes: Dish[];
+ 
+
+  @OneToMany(() => Menu_Category, (cat) => cat.menu)
+  categories: Menu_Category[]
+
+
+  
 }

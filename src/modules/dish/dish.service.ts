@@ -4,11 +4,11 @@ import { UpdateDishDto } from 'src/dtos/dish/update-dish.dto';
 import { DishRepository } from './dish.repository';
 import { Dish } from 'src/entities/dish.entity';
 import { DishDeletionMessage, DishDeletionResultDto } from 'src/dtos/dish/delete-dish-result.dto';
-import { MenuService } from '../menu/menu.service';
+import { OrderedDishesDto } from 'src/dtos/order/ordered_dishes.dto';
 
 @Injectable()
 export class DishService {
-  constructor(private readonly dishRepository: DishRepository, private readonly menuService: MenuService) { }
+  constructor(private readonly dishRepository: DishRepository) { }
 
   async getDishById(id: string): Promise<Dish> {
     const found_dish: Dish | undefined = await this.dishRepository.getDishById(id);
@@ -20,18 +20,10 @@ export class DishService {
     return found_dish;
   }
 
-  async createDish(dishToCreate: CreateDishDto): Promise<Dish> {
-    const menu = await this.menuService.getMenu(dishToCreate.menu)
-
-    try {
-      const newDish: Dish = await this.dishRepository.createDish(dishToCreate, menu);
-      return newDish;
-      
-    } catch (err) {
-      throw new BadRequestException({message: "Failed to create a new dish, something went wrong", error: err});
-    }
-
+   createDish(dishToCreate: CreateDishDto,categoryId:string): Promise<Dish> {
+    return this.dishRepository.createDish(dishToCreate,categoryId)
   }
+    
 
   async updateDish(id: string, modified_dish: UpdateDishDto): Promise<Dish> {
     const existingDish: Dish = await this.getDishById(id);
@@ -56,4 +48,13 @@ export class DishService {
       throw new InternalServerErrorException({ message: DishDeletionMessage.FAILED, error: err });
     }
   }
+
+
+  async getDishesByIds(dishes: OrderedDishesDto[]): Promise<Dish[]>{
+    const dishesId: string[] = dishes.map(dish => dish.id);
+    const foundedDishes: Dish[] = await this.dishRepository.getDishesByIds(dishesId);
+    const notFoundedDishes: string[] = dishesId.filter(dish => !foundedDishes.map(foundedDish => foundedDish.id).includes(dish));
+    if (notFoundedDishes) throw new BadRequestException(`No se pudieron encontrar los siguientes platillos: ${notFoundedDishes}`);
+    return foundedDishes;
+}
 }

@@ -21,5 +21,5 @@ export class CreateDishDto {
 
     @IsNotEmpty()
     @IsUUID()
-    menu: string;
+    menu_category: string;
 }

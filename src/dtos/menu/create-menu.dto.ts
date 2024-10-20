@@ -1,12 +1,17 @@
-// import { IsNotEmpty, IsString, Matches } from 'class-validator';
+import { IsNotEmpty, IsString, IsUUID, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { CreateMenuCategoryDto } from './menu_category.dto';
 
-// export class CreateMenuDto {
-  
-//   @IsString()
-//   @IsNotEmpty()
-//   @Matches(/^[a-zA-Z\s]+$/, {
-//     message: 'El nombre del menú solo puede contener letras y espacios',
-//   })
-//   name: string;
+export class CreateMenuDto {
+  @IsUUID()
+  @IsNotEmpty()
+  restaurantId: string;
 
-// }
+  @IsString()
+  @IsNotEmpty()
+  name: string = 'menu';
+
+  @ValidateNested({ each: true })
+  @Type(() => CreateMenuCategoryDto)
+  categories: CreateMenuCategoryDto[];
+}
