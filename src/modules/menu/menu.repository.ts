@@ -1,22 +1,54 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateMenuDto } from 'src/dtos/menu/create-menu.dto';
 import { Menu } from 'src/entities/menu.entity';
 import { Restaurant } from 'src/entities/restaurant.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class MenuRepository {
+  constructor(
+    @InjectRepository(Menu) private menuRepository: Repository<Menu>,
+    @InjectRepository(Restaurant)
+    private  restaurantRepository: Repository<Restaurant>,
+  ) {}
 
-  constructor(@InjectRepository(Menu) private menuRepository: Repository<Menu>) { }
-
-  async createMenu(restaurant: Restaurant): Promise<Menu> {
-    const newMenu: Menu = this.menuRepository.create({ restaurant: restaurant });
-    return await this.menuRepository.save(newMenu);
+  async createMenu(menu:CreateMenuDto,restaurant: Restaurant): Promise<Menu> {
+  const newMenu=this.menuRepository.create({...menu,restaurant})
+  return await this.menuRepository.save(newMenu);
   }
 
-  async getMenu(id: string): Promise<Menu | undefined> {
-    const found_menu: Menu | null = await this.menuRepository.findOne({ where: { id: id } });
-    return found_menu === null ? undefined : found_menu;
+  async getMenuWithDishes(restaurant: Restaurant): Promise<Menu | undefined> {
+    const menu = await this.menuRepository.findOne({
+      where: { id: restaurant.menu.id },
+      relations: ['categories', 'categories.dishes'],
+    });
+
+    if (!menu) {
+      throw new NotFoundException(
+        `Menu not found for restaurant with ID ${restaurant.id}`,
+      );
+    }
+
+    return menu;
   }
-  
+
+  async deleteMenu(id: string) {
+    const menu = await this.menuRepository.findOneBy({ id });
+    if (!menu) {
+      throw new NotFoundException('menu no encontrado');
+    }
+    return await this.menuRepository.delete(id);
+  }
+
+  async getMenuById(id: string): Promise<Menu> {
+    const menu = await this.menuRepository.findOne({
+      where: { id },
+      relations: ['categories', 'restaurant'], 
+    });
+    if (!menu) {
+      throw new NotFoundException('menu no encontrado');
+    }
+    return menu;
+  }
 }

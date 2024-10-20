@@ -1,21 +1,34 @@
-import { Controller, Get, Param, ParseUUIDPipe, Post, } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MenuService } from './menu.service';
 import { Menu } from 'src/entities/menu.entity';
+import { CreateMenuDto } from 'src/dtos/menu/create-menu.dto';
 
 @ApiTags('Restaurant Menus')
 @Controller('menu')
 export class MenuController {
   constructor(private readonly menuService: MenuService) { }
   
-  @Get(':id')
-  async getMenu(@Param('id', ParseUUIDPipe) menuId: string): Promise<Menu> {
-    return await this.menuService.getMenu(menuId);
+  @Get('withDishes/:restaurantId')
+  async getMenuWithDishes(@Param('restaurantId', ParseUUIDPipe) restaurantId: string): Promise<Menu> {
+    return await this.menuService.getMenuWithDishes(restaurantId);
+  }
+
+
+  @Post()
+  async createMenu(@Body() menu:CreateMenuDto): Promise<Menu> {
+    return  this.menuService.createMenu(menu);
   }
   
-  @Post('create/:id')
-  async createMenu(@Param('id', ParseUUIDPipe) restaurantId: string): Promise<Menu> {
-    return await this.menuService.createMenu(restaurantId);
+  @Get(':id')
+  getMenuById(@Param('id', ParseUUIDPipe) id: string){
+    return this.menuService.getMenuById(id)
+  }
+
+
+  @Delete(':id')
+  deleteMenu(@Param('id',ParseUUIDPipe) id:string){
+    return this.menuService.deleteMenu(id)
   }
 
 }
