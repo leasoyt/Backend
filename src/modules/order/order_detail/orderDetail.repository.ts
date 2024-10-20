@@ -8,8 +8,11 @@ import { Repository } from "typeorm"
 @Injectable()
 export class OrderDetailRepository{
     constructor(@InjectRepository(OrderDetail) private orderDetailRepository: Repository<OrderDetail>){}
-    async createOrderDetail(products: Dish[], price: number) {
+    async createOrderDetail(products: Dish[], price: number): Promise<OrderDetail> {
         const createdOrderDetail : OrderDetail = this.orderDetailRepository.create({price, products})
         return this.orderDetailRepository.save(createdOrderDetail)
+    }
+    async deleteOrderDetail(orderDetailToRemove: OrderDetail): Promise<OrderDetail> {
+        return this.orderDetailRepository.remove(orderDetailToRemove)
     }
 }
