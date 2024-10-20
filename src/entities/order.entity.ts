@@ -4,7 +4,6 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
 import { OrderDetail } from './orderDetail.entity';
 import { Restaurant_Table } from './tables.entity';
 import { orderStatus } from 'src/enums/orderStatus.enum';
@@ -12,7 +11,7 @@ import { orderStatus } from 'src/enums/orderStatus.enum';
 @Entity()
 export class Order {
   @PrimaryGeneratedColumn('uuid')
-  id: string = uuidv4();
+  id: string;
 
   @Column('date')
   date: Date;

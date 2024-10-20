@@ -6,7 +6,7 @@
 // @Entity("review")
 // export class Review {
 //     @PrimaryGeneratedColumn()
-//     id: string = uuidv4();
+//     id: string;
 
 //     @Column({ default: 0 })
 //     rating: number;

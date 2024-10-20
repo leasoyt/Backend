@@ -1,70 +1,59 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateDishDto } from 'src/dtos/dish/create-dish.dto';
-import { UpdateDish } from 'src/dtos/dish/update-dish.dto';
+import { UpdateDishDto } from 'src/dtos/dish/update-dish.dto';
 import { DishRepository } from './dish.repository';
 import { Dish } from 'src/entities/dish.entity';
+import { DishDeletionMessage, DishDeletionResultDto } from 'src/dtos/dish/delete-dish-result.dto';
+import { MenuService } from '../menu/menu.service';
 
 @Injectable()
 export class DishService {
-  constructor(
-    private readonly dishRepository: DishRepository,
-   
-  ) {}
-  async getDishByName(name: string): Promise<Dish | null> {
-    try {
-      const foundDish: Dish | null =
-        await this.dishRepository.getDishByName(name);
-      return foundDish;
-    } catch (error) {
-      throw new BadRequestException(
-        `Error al buscar el platillo ${error.message}`,
-      );
+  constructor(private readonly dishRepository: DishRepository, private readonly menuService: MenuService) { }
+
+  async getDishById(id: string): Promise<Dish> {
+    const found_dish: Dish | undefined = await this.dishRepository.getDishById(id);
+
+    if (found_dish === undefined) {
+      throw new NotFoundException(`Failed to find Dish with id: ${id}`);
     }
-  }
-  async getDishById(id: string): Promise<Dish | null> {
-    try {
-      const foundDish: Dish | null = await this.dishRepository.getDishById(id);
-      return foundDish;
-    } catch (error) {
-      throw new BadRequestException(
-        `Error al buscar el platillo ${error.message}`,
-      );
-    }
+
+    return found_dish;
   }
 
-  createDish(dishToCreate: CreateDishDto,menuId:string) {
-    return this.dishRepository.createDish(dishToCreate,menuId);
+  async createDish(dishToCreate: CreateDishDto): Promise<Dish> {
+    const menu = await this.menuService.getMenu(dishToCreate.menu)
+
+    try {
+      const newDish: Dish = await this.dishRepository.createDish(dishToCreate, menu);
+      return newDish;
+      
+    } catch (err) {
+      throw new BadRequestException({message: "Failed to create a new dish, something went wrong", error: err});
+    }
+
   }
 
-  async updateDish(id: string, modified_dish: UpdateDish): Promise<Dish> {
-    const existingDish: null | Dish = await this.getDishById(id);
-    if (!existingDish)
-      throw new BadRequestException(
-        'El plato que se desea actualizar no existe',
-      );
+  async updateDish(id: string, modified_dish: UpdateDishDto): Promise<Dish> {
+    const existingDish: Dish = await this.getDishById(id);
+
     try {
-      const updatedDish: Dish = await this.dishRepository.updateDish(
-        existingDish,
-        modified_dish,
-      );
+      const updatedDish: Dish = await this.dishRepository.updateDish(existingDish, modified_dish,);
       return updatedDish;
-    } catch (error) {
-      throw new BadRequestException(
-        `Error al actualizar el platillo ${error.message}`,
-      );
+
+    } catch (err) {
+      throw new BadRequestException(`Error al actualizar el platillo ${err.message}`,);
     }
   }
-  async deleteDish(id: string) {
-    const existingDish: null | Dish = await this.getDishById(id);
-    if (!existingDish)
-      throw new BadRequestException('El plato que se desea eliminar no existe');
+
+  async deleteDish(id: string): Promise<DishDeletionResultDto> {
+    const existing_dish: Dish = await this.getDishById(id);
+
     try {
-      const deletedDish = await this.dishRepository.deleteDish(existingDish);
-      return deletedDish;
-    } catch (error) {
-      throw new BadRequestException(
-        `Error al eliminar el platillo ${error.message}`,
-      );
+      await this.dishRepository.deleteDish(existing_dish);
+      return { message: DishDeletionMessage.SUCCESSFUL };
+
+    } catch (err) {
+      throw new InternalServerErrorException({ message: DishDeletionMessage.FAILED, error: err });
     }
   }
 }

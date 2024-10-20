@@ -12,7 +12,7 @@ export class RegisterRestaurantDto {
 
     @IsOptional()
     @IsString()
-    @Length(10, 500)
+    @Length(0, 500)
     description?: string;
 
     @IsOptional()

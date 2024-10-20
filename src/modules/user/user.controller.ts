@@ -11,7 +11,6 @@ export class UserController {
 
     constructor(private readonly userService: UserService) { }
 
-
     @Get(":id")
     @ApiOperation({ summary: "obtiene un usuario por su id" })
     async getUser(@Param("id", ParseUUIDPipe) id: string): Promise<SanitizedUserDto> {

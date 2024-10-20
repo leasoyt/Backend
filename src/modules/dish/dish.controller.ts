@@ -1,30 +1,44 @@
-import {  Body, Controller, Delete, Param, ParseUUIDPipe, Post, Put } from "@nestjs/common";
-
-import { ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put } from "@nestjs/common";
+import { ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { DishService } from "./dish.service";
 import { CreateDishDto } from "src/dtos/dish/create-dish.dto";
-import { UpdateDish } from "src/dtos/dish/update-dish.dto";
+import { UpdateDishDto } from "src/dtos/dish/update-dish.dto";
+import { DishDeletionResultDto } from "src/dtos/dish/delete-dish-result.dto";
+import { Dish } from "src/entities/dish.entity";
 
 @ApiTags("Dishes")
-
 @Controller('dish')
 export class DishController {
     constructor(private readonly dishService: DishService) { }
 
-   
-    @Post('/:menuId')
-    async createDish(@Body() dishToCreate: CreateDishDto,@Param('menuId', ParseUUIDPipe) menuId:string ) {
-        return await this.dishService.createDish(dishToCreate,menuId)
+    @Get(":id")
+    async getDishById(@Param("id", ParseUUIDPipe) id: string): Promise<Dish> {
+        return await this.dishService.getDishById(id);
+    }
 
+    @Post()
+    @ApiOperation({summary: "crear platillos nuevos", description: "Se necesita la uuid del menu del restaurante"})
+    @ApiBody({
+        schema: {
+            example: {
+                name: "banana split",
+                price: 200.40,
+                description: "descripcion aqui",
+                menu: "aaeea451-cdd4-462e-b8b7-11254929ad54"
+            }
+        }
+    })
+    async createDish(@Body() dishToCreate: CreateDishDto): Promise<Dish> {
+        return await this.dishService.createDish(dishToCreate)
     }
 
     @Put(":id")
-    async updateDish(@Param("id", ParseUUIDPipe) id: string, @Body() dishToModify: UpdateDish): Promise<any> {
+    async updateDish(@Param("id", ParseUUIDPipe) id: string, @Body() dishToModify: UpdateDishDto): Promise<any> {
         return await this.dishService.updateDish(id, dishToModify);
     }
 
     @Delete(":id")
-    async deleteUser(@Param("id", ParseUUIDPipe) id: string): Promise<any> {
+    async deleteDish(@Param("id", ParseUUIDPipe) id: string): Promise<DishDeletionResultDto> {
         return await this.dishService.deleteDish(id);
     }
 }

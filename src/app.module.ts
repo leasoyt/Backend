@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DishModule } from './modules/dish/dish.module';
-import typeOrmConfig from './config/database.config';
 import { UsersModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import TypeOrmConfig from './config/database.config';
+import { MenuModule } from './modules/menu/menu.module';
 
 @Module({
   imports: [
@@ -21,6 +21,7 @@ import TypeOrmConfig from './config/database.config';
     UsersModule,
     AuthModule,
     DishModule,
+    MenuModule,
   ],
   controllers: [],
   providers: [],

@@ -1,43 +1,22 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateMenuDto } from 'src/dtos/menu/create-menu.dto';
 import { Menu } from 'src/entities/menu.entity';
 import { Restaurant } from 'src/entities/restaurant.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class MenuRepository {
+
+  constructor(@InjectRepository(Menu) private menuRepository: Repository<Menu>) { }
+
+  async createMenu(restaurant: Restaurant): Promise<Menu> {
+    const newMenu: Menu = this.menuRepository.create({ restaurant: restaurant });
+    return await this.menuRepository.save(newMenu);
+  }
+
+  async getMenu(id: string): Promise<Menu | undefined> {
+    const found_menu: Menu | null = await this.menuRepository.findOne({ where: { id: id } });
+    return found_menu === null ? undefined : found_menu;
+  }
   
-  constructor(
-    @InjectRepository(Menu)
-    private menuRepository: Repository<Menu>,  @InjectRepository(Restaurant)
-    private readonly restaurantRepository: Repository<Restaurant>
-  ) {}
-
-  async createMenu(menu:CreateMenuDto,restaurantId:string){
-    const restaurant = await this.restaurantRepository.findOne({ where: { id: restaurantId } });
-    if (!restaurant) {
-      throw new HttpException('Restaurante no encontrado', HttpStatus.NOT_FOUND);
-    }
-
-    const newMenu = await this.menuRepository.save({...menu,restaurant:restaurant});
-
-    return newMenu;
-
-
-  }
-
-
-  getMenu(restaurantId: string) {
-   
-}
-
-
-  async updateMenu(){
-
-  }
-
-  async addDish(){
-
-  }
 }

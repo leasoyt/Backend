@@ -1,26 +1,18 @@
-import {
-  Column,
-  Entity,
-  OneToMany,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
+import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Restaurant } from './restaurant.entity';
 import { Dish } from './dish.entity';
 
 @Entity()
 export class Menu {
   @PrimaryGeneratedColumn('uuid')
-  id: string = uuidv4();
+  id: string;
 
-  @Column()
+  @Column({ default: "menu" })
   name: string;
 
-  @OneToOne(() => Restaurant, (restaurant) => restaurant.menu)
+  @OneToOne(() => Restaurant, (restaurant) => restaurant.menu, { nullable: false })
   restaurant: Restaurant;
 
-  // Relación con los platos
-  @OneToMany(() => Dish, (dish) => dish.menu, { cascade: true })
+  @OneToMany(() => Dish, (dish) => dish.menu, { cascade: true, onDelete: "CASCADE" })
   dishes: Dish[];
 }
