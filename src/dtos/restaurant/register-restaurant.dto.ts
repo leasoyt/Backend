@@ -1,15 +1,22 @@
 import { IsNotEmpty, IsOptional, IsString, IsUrl, Length } from "class-validator"
 
-export class RegisterEstablishmentDto {
+export class RegisterRestaurantDto {
     @IsNotEmpty()
     @IsString()
     @Length(3, 80)
-    name: string
+    name: string;
+
     @IsNotEmpty()
+    @Length(5, 30)
+    address: string;
+
+    @IsOptional()
     @IsString()
     @Length(10, 500)
-    description: string
+    description?: string;
+
     @IsOptional()
     @IsUrl()
-    establishment_img?: string
+    imgUrl?: string;
+
 }

@@ -3,17 +3,21 @@ import { IsDateString, IsInt, IsNotEmpty, IsOptional, IsUUID } from "class-valid
 export class CreateReservationDto {
     @IsNotEmpty()
     @IsUUID()
-    usuario: string
+    usuario: string;
+
     @IsNotEmpty()
     @IsUUID()
-    establecimiento: string
+    establecimiento: string;
+
     @IsNotEmpty()
     @IsDateString()
-    date: string
+    date: string;
+
     @IsUUID()
     @IsOptional()
-    table?: string
+    table?: string;
+
     @IsInt()
     @IsOptional()
-    seats?: number
+    seats?: number;
 }

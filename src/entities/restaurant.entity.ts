@@ -1,12 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToMany,
-  ManyToOne,
-  OneToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, OneToOne, JoinColumn, } from 'typeorm';
 import { User } from './user.entity';
 import { Restaurant_Table } from './tables.entity';
 import { Menu } from './menu.entity';
@@ -49,4 +41,8 @@ export class Restaurant {
     cascade: true,
   })
   schedules: RestaurantSchedule[];
+
+  // @ManyToMany(() => Review, (review) => review.restaurant, { nullable: true })
+  // reviews: Review[];
+
 }

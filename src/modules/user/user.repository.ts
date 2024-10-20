@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { isEmpty } from "class-validator";
 import { RegisterDto } from "src/dtos/auth/register.dto";
-import { UpdateUserDto } from "src/dtos/user/updateUser.dto";
+import { UpdateUserDto } from "src/dtos/user/update-user.dto";
 import { User } from "src/entities/user.entity";
 import { Repository } from "typeorm";
 
