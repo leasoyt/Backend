@@ -7,6 +7,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { OrderDetail } from './orderDetail.entity';
 import { Restaurant_Table } from './tables.entity';
+import { orderStatus } from 'src/enums/orderStatus.enum';
 
 @Entity()
 export class Order {
@@ -15,6 +16,13 @@ export class Order {
 
   @Column('date')
   date: Date;
+
+  @Column({
+    type: 'enum',
+    enum: orderStatus,
+    default: orderStatus.PROCESSING,
+  })
+  status: orderStatus;
 
   @OneToOne(() => Restaurant_Table, (table) => table.order, { nullable: true }) // Puede ser nullable si no siempre hay una mesa
   table: Restaurant_Table;
