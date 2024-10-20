@@ -2,7 +2,7 @@ import { ArrayMinSize, IsArray, IsNotEmpty, IsUUID, ValidateNested } from "class
 import { OrderedDishesDto } from "./ordered_dishes.dto"
 import { Type } from "class-transformer"
 
-export class CreateOrderRDto {
+export class CreateOrderDto {
     @IsNotEmpty()
     @IsUUID()
     table: string
