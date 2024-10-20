@@ -1,15 +1,14 @@
-import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from './user.entity';
 import { Restaurant_Table } from './tables.entity';
 import { ReservationStatus } from 'src/enums/reservationStatus.enum';
-import { v4 as uuidv4 } from 'uuid';
 
 @Entity({
   name: 'reservations',
 })
 export class Reservation {
-  @PrimaryColumn()
-  id: string = uuidv4();
+  @PrimaryGeneratedColumn()
+  id: string;
 
   @Column('date')
   date: Date;
@@ -29,11 +28,4 @@ export class Reservation {
     nullable: false,
   })
   table: Restaurant_Table;
-
-  @BeforeInsert()
-  generateUuid() {
-    if (!this.id) {
-      this.id = uuidv4();
-    }
-  }
 }

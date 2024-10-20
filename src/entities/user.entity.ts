@@ -1,14 +1,13 @@
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
 import { Restaurant } from './restaurant.entity';
 import { Reservation } from './reservation.entity';
 import { UserRole } from 'src/enums/roles.enum';
-import { Review } from './review.entity';
+// import { Review } from './review.entity';
 
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: string = uuidv4();
+  id: string;
 
   @Column({ length: 50, nullable: false })
   name: string;

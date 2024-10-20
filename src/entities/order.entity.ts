@@ -4,14 +4,13 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
 import { OrderDetail } from './orderDetail.entity';
 import { Restaurant_Table } from './tables.entity';
 
 @Entity()
 export class Order {
   @PrimaryGeneratedColumn('uuid')
-  id: string = uuidv4();
+  id: string;
 
   @Column('date')
   date: Date;

@@ -9,13 +9,12 @@ import {
 import { Restaurant } from './restaurant.entity';
 import { Reservation } from './reservation.entity';
 import { TableStatus } from 'src/enums/tableStatus.enum';
-import { v4 as uuidv4 } from 'uuid';
 import { Order } from './order.entity';
 
 @Entity({ name: 'restaurant_tables' })
 export class Restaurant_Table {
   @PrimaryGeneratedColumn('uuid')
-  id: string = uuidv4();
+  id: string;
 
   @Column()
   number: number; // Número o identificación de la mesa

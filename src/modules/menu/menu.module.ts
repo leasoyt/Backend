@@ -4,11 +4,12 @@ import { Menu } from 'src/entities/menu.entity';
 import { MenuController } from './menu.controller';
 import { MenuService } from './menu.service';
 import { MenuRepository } from './menu.repository';
-import { Restaurant } from 'src/entities/restaurant.entity';
+import { RestaurantModule } from '../restaurant/restaurant.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Menu,Restaurant])],
+  imports: [RestaurantModule, TypeOrmModule.forFeature([Menu])],
   controllers: [MenuController],
   providers: [MenuService, MenuRepository],
+  exports: [MenuService]
 })
-export class AuthModule { }
+export class MenuModule { }

@@ -1,21 +1,20 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, JoinTable } from 'typeorm';
 import { Menu } from './menu.entity';
-import { v4 as uuidv4 } from 'uuid';
 import { OrderDetail } from './orderDetail.entity';
 
 @Entity()
 export class Dish {
   @PrimaryGeneratedColumn('uuid')
-  id: string = uuidv4();
+  id: string;
 
-  @Column({unique:true})
+  @Column({ nullable: false })
   name: string;
 
   @Column()
   description: string;
 
-  @Column({default:true})
-  stock:boolean
+  @Column({ default: true })
+  stock: boolean
 
   @Column('decimal', { precision: 10, scale: 2 })
   price: number;

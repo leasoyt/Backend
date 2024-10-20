@@ -2,13 +2,12 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, OneToOne,
 import { User } from './user.entity';
 import { Restaurant_Table } from './tables.entity';
 import { Menu } from './menu.entity';
-import { v4 as uuidv4 } from 'uuid';
 import { RestaurantSchedule } from './restaurantSchedule.entity';
 
 @Entity()
 export class Restaurant {
   @PrimaryGeneratedColumn('uuid')
-  id: string = uuidv4();
+  id: string;
 
   @Column()
   name: string;

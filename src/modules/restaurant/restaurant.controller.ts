@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put, Query } from "@nestjs/common";
-import { ApiOperation } from "@nestjs/swagger";
+import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { RegisterRestaurantDto } from "src/dtos/restaurant/register-restaurant.dto";
-import { Restaurant } from "src/entities/restaurant.entity";
 
+@ApiTags("restaurant")
 @Controller("restaurant")
 export class RestaurantController {
 
