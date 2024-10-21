@@ -14,8 +14,8 @@ export class OrderService {
         const foundedTable: null | Restaurant_Table = await this.tableRepository.getTableById(orderToCreate.table);
         if (!foundedTable) throw new BadRequestException('La mesa a la que desea agregar esta orden no existe')
         try {
-            const newOrderDetail: OrderDetail = await this.orderDetailService.createOrderDetail(orderToCreate.ordered_dishes);
-            const newOrder: Order = await this.orderRepository.createOrder(orderToCreate, foundedTable, newOrderDetail);
+            // const newOrderDetail: OrderDetail = await this.orderDetailService.createOrderDetail(orderToCreate.ordered_dishes);
+            // const newOrder: Order = await this.orderRepository.createOrder(orderToCreate, foundedTable, newOrderDetail);
             
 
 

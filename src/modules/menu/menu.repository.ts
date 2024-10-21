@@ -14,9 +14,9 @@ export class MenuRepository {
     return await this.menuRepository.save(newMenu);
   }
 
-  async getMenu(id: string): Promise<Menu | undefined> {
-    const found_menu: Menu | null = await this.menuRepository.findOne({ where: { id: id } });
+  async getMenu(restaurantInstance: Restaurant): Promise<Menu | undefined> {
+    const found_menu: Menu | null = await this.menuRepository.findOne({ where: { restaurant: restaurantInstance } });
     return found_menu === null ? undefined : found_menu;
   }
-  
+
 }

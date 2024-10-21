@@ -14,11 +14,15 @@ export class MenuService {
       return this.menuRepository.createMenu(found_restaurant);
    }
 
+   /**
+    * @param id id de restaurante, no de menu.
+    */
    async getMenu(id: string): Promise<Menu> {
-      const menu: Menu | undefined = await this.menuRepository.getMenu(id);
+      const restaurant: Restaurant = await this.restaurantService.getRestaurantById(id);
+      const menu: Menu | undefined = await this.menuRepository.getMenu(restaurant);
 
       if(menu === undefined) {
-         throw new NotFoundException(`Failed to find menu with the provided id: ${id}`);
+         throw new NotFoundException(`Failed to find menu with the provided restaurant id: ${id}`);
       }
       return menu;
    }

@@ -33,10 +33,9 @@ export class Restaurant_Table {
   restaurant: Restaurant;
 
   // Relación con las reservas asociadas a esta mesa
-  @OneToMany(() => Reservation, (reservation) => reservation.table)
+  @OneToMany(() => Reservation, (reservation) => reservation.table, {nullable: true})
   reservations: Reservation[];
 
-
-  @OneToOne(() => Order, (order) => order.table)
+  @OneToOne(() => Order, (order) => order.table, {nullable: true})
   order: Order;
 }
