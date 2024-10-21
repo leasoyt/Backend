@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { Restaurant_Table } from "src/entities/tables.entity";
 import { RestaurantService } from "../restaurant/restaurant.service";
 import { TableRepository } from "./table.repository";
@@ -6,35 +6,48 @@ import { Restaurant } from "src/entities/restaurant.entity";
 
 @Injectable()
 export class TableService {
-    getTableById(table: string): Restaurant_Table | PromiseLike<Restaurant_Table> {
-        throw new Error("Method not implemented.");
+
+    constructor(private readonly tableRepository: TableRepository, private readonly restaurantService: RestaurantService) { }
+
+    async getTableById(id: string): Promise<Restaurant_Table> {
+        const found_table: undefined | Restaurant_Table = await this.tableRepository.getTable(id);
+        if (found_table === undefined) {
+            throw new NotFoundException(`Can't find table with id: ${id}`);
+        }
+
+        return found_table;
     }
 
-    constructor(private readonly tableRepository: TableRepository, private readonly restaurantService: RestaurantService) {}
+    async getRestaurantTables(restaurantId: string): Promise<Restaurant_Table[]> {
+        const restaurant: Restaurant = await this.restaurantService.getRestaurantById(restaurantId);
+        const found_tables: undefined | Restaurant_Table[] = await this.tableRepository.getTablesByRestaurant(restaurant);
 
-    // async getTable(id: string, restaurant: Restaurant): Promise<Restaurant_Table> {
-    //     const found_table: undefined | Restaurant_Table = await this.tableRepository.getTable(id, restaurant);
-    //     if(found_table === undefined) {
-    //         throw new NotFoundException(`Can't find table with id: ${id}, from the establishment: ${restaurant.id}`);
-    //     }
+        if (found_tables === undefined) {
+            throw new NotFoundException("No tables found from this establishment");
+        }
 
-    //     return found_table;
-    // }
+        return found_tables;
+    }
 
-    // async getRestaurantTables(id: string): Promise<Restaurant_Table[]> {
+    async addTable(restaurantId: string, tableNumber: number): Promise<Restaurant_Table[]> {
+        const restaurant: Restaurant = await this.restaurantService.getRestaurantById(restaurantId);
+        const created_table: Restaurant_Table | undefined = await this.tableRepository.addTable(restaurant, tableNumber);
 
-    // }
+        if(created_table === undefined) {
+            throw new InternalServerErrorException("Failed to add a new table, something went wrong");
+        }
 
-    // async addTable(restaurantId: string, tableNumber: number): Promise<Restaurant_Table[]> {
-    //     const restaurant: Restaurant = await this.restaurantService.getRestaurantById(restaurantId);
-    //     await this.tableRepository.addTable(restaurant, tableNumber);
-    // }
+        return await this.getRestaurantTables(restaurantId);
+    }
 
-    // async deleteTable(tableId: string, restaurantId: string): Promise<Restaurant_Table[]> {
-    //     const restaurant: Restaurant = await this.restaurantService.getRestaurantById(restaurantId);
+    async deleteTable(restaurantId: string, tableId: string): Promise<Restaurant_Table[]> {
+        const table: Restaurant_Table = await this.getTableById(tableId);
+        const deletion_result: Restaurant_Table | undefined = await this.tableRepository.deleteTable(table);
 
-    //     const table: Restaurant_Table = await this.getTable(tableId, restaurant);
+        if (deletion_result === undefined) {
+            throw new InternalServerErrorException("Something went wrong trying to delete table");
+        }
 
-    //     const deletion_result: Restaurant_Table = await this.tableRepository.deleteTable(tableId, restaurant);
-    // }
+        return await this.getRestaurantTables(restaurantId);
+    }
 }
