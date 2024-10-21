@@ -20,49 +20,25 @@ export class DishRepository {
     return foundDish === null ? undefined : foundDish;
   }
 
-  async createDish(dishToCreate: CreateDishDto, categoryId: string) {
-    const menu_category = await this.menuCategoryRepository.findOne({
-      where: { id: categoryId },
-      relations: ['dishes'],
+  async createDish(dishToCreate: CreateDishDto, category: Menu_Category) {
+
+    const dish = this.dishRepository.create({
+      ...dishToCreate,
+      category,
     });
-    if (!menu_category) {
-      throw new NotFoundException('Menú no encontrado');
-    }
 
-    const existingDish = await this.dishRepository.findOne({
-      where: {
-        name: dishToCreate.name,
-      },
-    });
-    if (existingDish) {
-      throw new HttpException(
-        'Nombre de platillo repetido',
-        HttpStatus.CONFLICT,
-      );
-    }
-
-    const newDish = this.dishRepository.create(dishToCreate);
-
-    newDish.category = menu_category;
-
-    const savedDish = await this.dishRepository.save(newDish);
-
-    menu_category.dishes.push(savedDish);
-    await this.menuCategoryRepository.save(menu_category);
-
-    return savedDish;
+    return await this.dishRepository.save(dish);
   }
 
-  async updateDish(
-    existingDish: Dish,
-    dish_to_modify: UpdateDishDto,
-  ): Promise<Dish> {
-    const dishToUpdate: Dish = this.dishRepository.merge(
-      existingDish,
-      dish_to_modify,
-    );
-    return this.dishRepository.save(dishToUpdate);
-  }
+  async updateDish(existingDish:Dish,modified_dish:UpdateDishDto
+  )
+  {
+    Object.assign(existingDish, modified_dish); 
+    return await this.dishRepository.save(existingDish);
+    
+    }
+
+  
 
   async deleteDish(dishToRemove: Dish): Promise<Dish> {
     return await this.dishRepository.remove(dishToRemove);

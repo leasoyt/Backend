@@ -13,9 +13,9 @@ export class MenuService {
   ) {}
 
   async createMenu(menu:CreateMenuDto): Promise<Menu> {
-    const found_restaurant: Restaurant =
+       const restaurant: Restaurant =
       await this.restaurantService.getRestaurantById(menu.restaurantId);
-    return this.menuRepository.createMenu(menu,found_restaurant);
+    return this.menuRepository.createMenu(menu,restaurant);
   }
 
   async getMenuWithDishes(restaurantId: string): Promise<Menu> {
