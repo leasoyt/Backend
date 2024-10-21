@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Param, ParseUUIDPipe, Post, Put } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Param, ParseUUIDPipe, Post, Put, UseGuards } from "@nestjs/common";
 import { ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
 import { SanitizedUserDto } from "src/dtos/user/sanitized-user.dto";
@@ -7,6 +7,7 @@ import { LoginDto } from "src/dtos/auth/login.dto";
 import { LoginResponseDto } from "src/dtos/auth/login-response.dto";
 import { UpdatePasswordDto } from "src/dtos/user/update-password.dto";
 import { isNotEmptyObject } from "class-validator";
+import { AuthGuard } from "src/guards/auth.guard";
 
 @ApiTags("Authentication")
 @Controller("auth")
@@ -44,7 +45,8 @@ export class AuthController {
         return await this.authService.userLogin(userCredentials);
     }
 
-    @Put("updatePassword:id")
+    @Put("updatePassword/:id")
+    @UseGuards(AuthGuard)
     @ApiBody({
         schema: {
             example: {

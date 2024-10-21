@@ -13,7 +13,8 @@ import { JwtService } from "@nestjs/jwt";
 @Injectable()
 export class AuthService {
 
-    constructor(private readonly userService: UserService,private readonly jwtService:JwtService) { }
+    constructor(private readonly userService: UserService, private readonly jwtService: JwtService) { 
+
 
     async userRegistration(userObject: RegisterDto): Promise<SanitizedUserDto> {
         const { email, password, confirmPassword, ...rest_user } = userObject;
@@ -57,20 +58,16 @@ export class AuthService {
 
             const is_valid_password = await bcrypt.compare(password, user.password);
 
-           
-
-
             if (is_valid_password) {
+                const token = this.jwtService.sign({
+                    id: user.id,
+                    email: user.email,
+                    role: user.role,
+                });
 
-
-const payload={
-    sub:user.id,
-    email:user.email,
-    roles:user.role
-}
                 return {
                     message: "Logged in successfully",
-                    token: await this.jwtService.signAsync(payload),
+                    token,
                     user: {
                         name: user.name,
                         email: user.email,
