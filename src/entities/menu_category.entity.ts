@@ -1,13 +1,11 @@
 import {  Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
 import { Menu } from './menu.entity';
 import { Dish } from './dish.entity';
-
 
 @Entity()
 export class Menu_Category {
   @PrimaryGeneratedColumn('uuid')
-  id: string = uuidv4();
+  id: string;
 
   @Column({length:20,nullable:false})
   name: string;
@@ -17,6 +15,5 @@ export class Menu_Category {
 
   @OneToMany(() => Dish, (dish) => dish.category, { cascade: true })
   dishes: Dish[];
-
   
 }

@@ -1,4 +1,4 @@
-import {  Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import {  Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from './user.entity';
 import { Restaurant_Table } from './tables.entity';
 import { ReservationStatus } from 'src/enums/reservationStatus.enum';
