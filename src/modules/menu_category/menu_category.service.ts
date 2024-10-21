@@ -31,4 +31,10 @@ export class MenuCategoryService {
 
     return await this.menu_category_reposiroty.getCategories(found_menu)
   }
+
+  async getCategorieById(id:string){
+    return this.menu_category_reposiroty.getCategorieById(id)
+  }
 }
+
+

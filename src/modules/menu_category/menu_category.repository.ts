@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateMenuCategoryDto } from 'src/dtos/menu/menu_category.dto';
 import { Menu } from 'src/entities/menu.entity';
@@ -30,7 +30,18 @@ export class Menu_Category_Repository {
   }
 
   async getCategories(found_menu: Menu):Promise<Menu_Category[]> {
-   return await this.menu_Category_Repository.find({where:{menu:found_menu},relations:['dishes']})
+   return await this.menu_Category_Repository.find({where:{menu:found_menu},relations:['dishes']})}
+
+   async getCategorieById(id:string){
+    const menu_categorie=await this.menu_Category_Repository.findOne({ where:{id},relations:{
+        dishes:true
+    }})
+
+    if (!menu_categorie)
+        throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
+
+    return menu_categorie;
+   }
 
   }
-}
+
