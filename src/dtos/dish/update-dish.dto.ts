@@ -1,3 +1,23 @@
-import { CreateDishDto } from "./create-dish.dto";
+import { IsOptional, IsString, IsBoolean, IsDecimal, IsUUID } from 'class-validator';
 
-export type UpdateDishDto = Partial<Omit<CreateDishDto, "menu_category">>
+export class UpdateDishDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  stock?: boolean;
+
+  @IsOptional()
+  @IsDecimal()
+  price?: number;
+
+  @IsOptional()
+  @IsUUID()
+  category?: string; 
+}

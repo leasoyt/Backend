@@ -16,11 +16,6 @@ import { CreateMenuCategoryDto } from 'src/dtos/menu/menu_category.dto';
 export class MenuCategoryController {
   constructor(private readonly menu_category_service: MenuCategoryService) {}
 
-  @Get(':id')
-  async getCategories(@Param('id', ParseUUIDPipe) id: string) {
-    return await this.menu_category_service.getCategories(id);
-  }
-
   @Post()
   createMenuCategory(
     @Body()
@@ -29,6 +24,16 @@ export class MenuCategoryController {
     return this.menu_category_service.createMenuCategory(menuCategory);
   }
 
+  @Get('/all/:id')
+  async getCategories(@Param('id', ParseUUIDPipe) id: string) {
+    return await this.menu_category_service.getCategories(id);
+  }
+
+  @Get(':id')
+  async getCategorieById(@Param('id', ParseUUIDPipe) id: string) {
+    return await this.menu_category_service.getCategorieById(id);
+  }
+  
   @Delete(':id')
   deleteMenuCategory(@Param('id', ParseUUIDPipe) id: string) {
     return this.menu_category_service.deleteMenuCategory(id);
