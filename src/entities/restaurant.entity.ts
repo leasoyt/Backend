@@ -21,7 +21,7 @@ export class Restaurant {
   @Column({ default: 'default-image-url.jpg' })
   imgUrl: string;
 
-  @OneToOne(() => Menu, (menu) => menu.restaurant, { cascade: true })
+  @OneToOne(() => Menu, (menu) => menu.restaurant, { cascade: true, nullable: true })
   @JoinColumn({ name: 'menu_id' })
   menu: Menu;
 
@@ -29,7 +29,7 @@ export class Restaurant {
   tables: Restaurant_Table[];
 
   // Asociación inversa para meseros
-  @OneToMany(() => User, (user) => user.waiterRestaurant)
+  @OneToMany(() => User, (user) => user.waiterRestaurant, { nullable: true })
   waiters: User[];
 
   // Asociación inversa para el gerente (solo un gerente por restaurante)

@@ -1,8 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateMenuDto } from 'src/dtos/menu/create-menu.dto';
 import { Menu } from 'src/entities/menu.entity';
-import { Menu_Category } from 'src/entities/menu_category.entity';
 import { Restaurant } from 'src/entities/restaurant.entity';
 import { Repository } from 'typeorm';
 
@@ -11,12 +9,11 @@ export class MenuRepository {
   constructor(
     @InjectRepository(Menu) private menuRepository: Repository<Menu>,
     @InjectRepository(Restaurant)
-    private  restaurantRepository: Repository<Restaurant>,
-  ) {}
+    private restaurantRepository: Repository<Restaurant>,
+  ) { }
 
-  async createMenu(menu:CreateMenuDto,restaurant:Restaurant): Promise<Menu> {
+  async createMenu(restaurant: Restaurant): Promise<Menu> {
     const newMenu = this.menuRepository.create({
-      name: menu.name,
       restaurant,  // Relacionamos el menú con el restaurante
       categories: [],  // Inicializamos la lista de categorías vacía
     });
@@ -52,7 +49,7 @@ export class MenuRepository {
   async getMenuById(id: string): Promise<Menu> {
     const menu = await this.menuRepository.findOne({
       where: { id },
-      relations: ['categories', 'restaurant'], 
+      relations: ['categories', 'restaurant'],
     });
     if (!menu) {
       throw new NotFoundException('menu no encontrado');

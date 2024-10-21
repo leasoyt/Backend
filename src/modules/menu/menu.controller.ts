@@ -14,11 +14,12 @@ export class MenuController {
     return await this.menuService.getMenuWithDishes(restaurantId);
   }
 
+  //EL MENU ES MEJOR COMO ENTIDAD INTERMEDIA o TABLA INTERMEDIA, SE CREARIA AUTOMATICAMENTE JUNTO CON EL RESTAURANTE
 
-  @Post()
-  async createMenu(@Body() menu:CreateMenuDto): Promise<Menu> {
-    return  this.menuService.createMenu(menu);
-  }
+  // @Post()
+  // async createMenu(@Body() menu:CreateMenuDto): Promise<Menu> {
+  //   return  this.menuService.createMenu(menu);
+  // }
   
   @Get(':id')
   getMenuById(@Param('id', ParseUUIDPipe) id: string){

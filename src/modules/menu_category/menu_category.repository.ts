@@ -7,19 +7,10 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class Menu_Category_Repository {
-  constructor(
-    @InjectRepository(Menu_Category)
-    private menu_Category_Repository: Repository<Menu_Category>,
-  ) {}
+  constructor(@InjectRepository(Menu_Category) private menu_Category_Repository: Repository<Menu_Category>) { }
 
-  async createMenuCategory(
-    menu_category: CreateMenuCategoryDto,
-    menu: Menu,
-  ): Promise<Menu_Category> {
-    const newMenuCategory = this.menu_Category_Repository.create({
-      ...menu,
-      menu,
-    });
+  async createMenuCategory(menu_category: CreateMenuCategoryDto, menu: Menu,): Promise<Menu_Category> {
+    const newMenuCategory = this.menu_Category_Repository.create({ ...menu, menu, });
     return await this.menu_Category_Repository.save(newMenuCategory);
   }
 
@@ -29,19 +20,18 @@ export class Menu_Category_Repository {
     return await this.menu_Category_Repository.remove(menu);
   }
 
-  async getCategories(found_menu: Menu):Promise<Menu_Category[]> {
-   return await this.menu_Category_Repository.find({where:{menu:found_menu},relations:['dishes']})}
-
-   async getCategorieById(id:string){
-    const menu_categorie=await this.menu_Category_Repository.findOne({ where:{id},relations:{
-        dishes:true
-    }})
-
-    if (!menu_categorie)
-        throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
-
-    return menu_categorie;
-   }
-
+  async getCategories(found_menu: Menu): Promise<Menu_Category[]> {
+    return await this.menu_Category_Repository.find({ where: { menu: found_menu }, relations: ['dishes'] })
   }
+
+  async getCategorieById(id: string) {
+    const menu_category = await this.menu_Category_Repository.findOne({ where: { id }, relations: { dishes: true } });
+
+    if (!menu_category)
+      throw new HttpException('Category Not found', HttpStatus.NOT_FOUND);
+
+    return menu_category;
+  }
+
+}
 

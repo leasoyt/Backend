@@ -21,7 +21,7 @@ import { MenuCategoryService } from '../menu_category/menu_category.service';
 
 @Injectable()
 export class DishService {
-  constructor(private readonly dishRepository: DishRepository,private menu_category_service:MenuCategoryService) { }
+  constructor(private readonly dishRepository: DishRepository, private menu_category_service: MenuCategoryService) { }
 
 
   async getDishById(id: string): Promise<Dish> {
@@ -35,29 +35,29 @@ export class DishService {
     return found_dish;
   }
 
-   async createDish(dishToCreate: CreateDishDto){
-    const found_category: Menu_Category =
-      await this.menu_category_service.getCategorieById(dishToCreate.category);
-      const dishExists = found_category.dishes.some((dish: Dish) => dish.name === dishToCreate.name);
-      if(dishExists){
-        throw new HttpException('ya hay un plato con ese nombre',HttpStatus.CONFLICT)
-      }
-    return this.dishRepository.createDish(dishToCreate,found_category);
+  async createDish(dishToCreate: CreateDishDto): Promise<Dish> {
+    const found_category: Menu_Category = await this.menu_category_service.getCategorieById(dishToCreate.category);
+    const dishExists = found_category.dishes.some((dish: Dish) => dish.name === dishToCreate.name);
 
+    if (dishExists) {
+      throw new HttpException('ya hay un plato con ese nombre', HttpStatus.CONFLICT)
+    }
+
+    return this.dishRepository.createDish(dishToCreate, found_category);
   }
-    
 
-  async updateDish(id: string, modified_dish: UpdateDishDto){
+
+  async updateDish(id: string, modified_dish: UpdateDishDto) {
     const existingDish: Dish = await this.getDishById(id);
 
-  if (modified_dish.category) {
-    const found_category: Menu_Category = await this.menu_category_service.getCategorieById(modified_dish.category);
-    if (!found_category) {
-      throw new NotFoundException(`Category with ID ${modified_dish.category} not found`);
+    if (modified_dish.category) {
+      const found_category: Menu_Category = await this.menu_category_service.getCategorieById(modified_dish.category);
+      if (!found_category) {
+        throw new NotFoundException(`Category with ID ${modified_dish.category} not found`);
+      }
     }
-  }
 
-  return this.dishRepository.updateDish(existingDish,modified_dish)
+    return this.dishRepository.updateDish(existingDish, modified_dish)
   }
 
   async deleteDish(id: string): Promise<DishDeletionResultDto> {
@@ -71,7 +71,8 @@ export class DishService {
         message: DishDeletionMessage.FAILED,
         error: err,
       });
-     } }
+    }
+  }
 
   async getDishesByIds(dishes: OrderedDishesDto[]): Promise<Dish[]> {
     const dishesId: string[] = dishes.map((dish) => dish.id);

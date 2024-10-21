@@ -7,11 +7,19 @@ import { UpdateUserDto } from "src/dtos/user/update-user.dto";
 import { SanitizedUserDto } from "src/dtos/user/sanitized-user.dto";
 import { RegisterDto } from "src/dtos/auth/register.dto";
 import * as bcrypt from "bcrypt";
+import { UserRole } from "src/enums/roles.enum";
 
 @Injectable()
 export class UserService {
 
     constructor(private readonly userRepository: UserRepository) { }
+
+    async rankUpTo(id: string, role: UserRole): Promise<User> {
+        const found_user: User = await this.getRawUserById(id);
+        const ranked_up: User = await this.userRepository.rankUpTo(found_user, role);
+
+        return ranked_up;
+    }
 
     async updateUser(id: string, modified_user: UpdateUserDto): Promise<SanitizedUserDto> {
         const found_user: User | undefined = await this.userRepository.getUserById(id);
