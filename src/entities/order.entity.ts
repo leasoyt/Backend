@@ -26,6 +26,6 @@ export class Order {
   @OneToOne(() => Restaurant_Table, (table) => table.order, { nullable: true }) // Puede ser nullable si no siempre hay una mesa
   table: Restaurant_Table;
 
-  @OneToOne(() => OrderDetail, (orderDetail) => orderDetail.order)
+  @OneToOne(() => OrderDetail, (orderDetail) => orderDetail.order, { cascade: ['remove'] })
   orderDetail: OrderDetail;
 }

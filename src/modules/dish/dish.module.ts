@@ -13,6 +13,6 @@ import { MenuModule } from '../menu/menu.module';
   // imports: [TypeOrmModule.forFeature([Dish, Menu])],
   // providers:Stashed changes [DishService, DishRepository],
   // controllers: [DishController],
-  // exports: [DishService]
+  exports: [DishService]
 })
 export class DishModule {}

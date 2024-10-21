@@ -26,17 +26,6 @@ export class Dish {
   menu: Menu;
 
   @ManyToMany(() => OrderDetail, (orderDetail) => orderDetail.products)
-  @JoinTable({
-    name: 'dish_order_detail',
-    joinColumn: {
-      name: 'dish_id',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'order_detail_id',
-      referencedColumnName: 'id',
-    },
-  })
   orderDetails: OrderDetail[];
 }
 
