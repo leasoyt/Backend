@@ -4,6 +4,7 @@ import { Restaurant } from "src/entities/restaurant.entity";
 
 @Injectable()
 export class RestaurantService {
+
     constructor(private readonly restaurantRepository: RestaurantRepository){}
 
     async getRestaurantById(id: string): Promise<Restaurant> {
@@ -15,5 +16,5 @@ export class RestaurantService {
 
         return found_restaurant;
     }
-
+    
 }

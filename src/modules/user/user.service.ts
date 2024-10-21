@@ -64,14 +64,19 @@ export class UserService {
     }
 
     async getUserById(id: string): Promise<SanitizedUserDto> {
+        
+        const { password, isAdmin, ...filtered_user } = await this.getRawUserById(id);
+
+        return filtered_user;
+    }
+
+    async getRawUserById(id: string): Promise<User> {
         const user: User | undefined = await this.userRepository.getUserById(id);
 
         if (isEmpty(user)) {
             throw new NotFoundException(`User not found with the provided id: ${id}`);
         }
-        const { password, isAdmin, ...filtered_user } = user;
-
-        return filtered_user;
+        return user;
     }
 
     async getUserByMail(mail: string): Promise<User | undefined> {

@@ -4,7 +4,7 @@ import { MenuService } from './menu.service';
 import { Menu } from 'src/entities/menu.entity';
 import { CreateMenuDto } from 'src/dtos/menu/create-menu.dto';
 
-@ApiTags('Restaurant Menus')
+@ApiTags('Menu')
 @Controller('menu')
 export class MenuController {
   constructor(private readonly menuService: MenuService) { }
@@ -24,7 +24,6 @@ export class MenuController {
   getMenuById(@Param('id', ParseUUIDPipe) id: string){
     return this.menuService.getMenuById(id)
   }
-
 
   @Delete(':id')
   deleteMenu(@Param('id',ParseUUIDPipe) id:string){

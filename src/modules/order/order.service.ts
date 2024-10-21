@@ -1,18 +1,18 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { OrderRepository } from "./order.repository";
 import { CreateOrderDto } from "src/dtos/order/create-order.dto";
-import { TableRepository } from "./PruebaTable.repository";
 import { Restaurant_Table } from "src/entities/tables.entity";
 import { Order } from "src/entities/order.entity";
 import { OrderDetailService } from "./order_detail/orderDetail.service";
 import { OrderDetail } from "src/entities/orderDetail.entity";
 import { UpdateOrderDto } from "src/dtos/order/update-order.dto";
+import { TableService } from "../table/table.service";
 
 @Injectable()
 export class OrderService {
-    constructor(private readonly orderRepository: OrderRepository, private readonly tableRepository: TableRepository, private readonly orderDetailService: OrderDetailService){}
+    constructor(private readonly orderRepository: OrderRepository, private readonly tableService: TableService, private readonly orderDetailService: OrderDetailService){}
     async createOrder(orderToCreate: CreateOrderDto): Promise<Order> {
-        const foundedTable: null | Restaurant_Table = await this.tableRepository.getTableById(orderToCreate.table);
+        const foundedTable: null | Restaurant_Table = await this.tableService.getTableById(orderToCreate.table);
         if (!foundedTable) throw new BadRequestException('La mesa a la que desea agregar esta orden no existe')
         try {
             const newOrderDetail: OrderDetail = await this.orderDetailService.createOrderDetail(orderToCreate.ordered_dishes);
