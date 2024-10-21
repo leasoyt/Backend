@@ -13,7 +13,8 @@ import { JwtService } from "@nestjs/jwt";
 @Injectable()
 export class AuthService {
 
-    constructor(private readonly userService: UserService, private readonly jwtService: JwtService) { }
+    constructor(private readonly userService: UserService, private readonly jwtService: JwtService) { 
+
 
     async userRegistration(userObject: RegisterDto): Promise<SanitizedUserDto> {
         const { email, password, confirmPassword, ...rest_user } = userObject;
