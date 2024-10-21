@@ -6,33 +6,28 @@ import { Menu } from 'src/entities/menu.entity';
 
 @Injectable()
 export class MenuCategoryService {
-  constructor(
-    private readonly menu_category_reposiroty: Menu_Category_Repository,
-    private readonly menuService: MenuService,
-  ) {}
+  constructor(private readonly menu_category_reposiroty: Menu_Category_Repository, private readonly menuService: MenuService,) { }
 
   async createMenuCategory(menuCategory: CreateMenuCategoryDto) {
-    const found_menu:Menu=await this.menuService.getMenuById(menuCategory.menuId)
-    return this.menu_category_reposiroty.createMenuCategory(menuCategory,found_menu)
+    const found_menu: Menu = await this.menuService.getMenuById(menuCategory.menuId)
+    return this.menu_category_reposiroty.createMenuCategory(menuCategory, found_menu)
   }
 
-
-   deleteMenuCategory(id:string){
+  deleteMenuCategory(id: string) {
     return this.menu_category_reposiroty.delteMenuCategory(id)
   }
 
-
-  async getCategories(id:string){
-    const found_menu:Menu=await this.menuService.getMenuById(id)
+  async getCategories(id: string) {
+    const found_menu: Menu = await this.menuService.getMenuById(id)
 
     if (!found_menu.categories || found_menu.categories.length === 0) {
-        throw new NotFoundException(`No categories found for menu with ID ${id}`);
-      }
+      throw new NotFoundException(`No categories found for menu with ID ${id}`);
+    }
 
     return await this.menu_category_reposiroty.getCategories(found_menu)
   }
 
-  async getCategorieById(id:string){
+  async getCategorieById(id: string) {
     return this.menu_category_reposiroty.getCategorieById(id)
   }
 }

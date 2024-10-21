@@ -15,7 +15,5 @@ export class Menu {
 
   @OneToMany(() => Menu_Category, (cat) => cat.menu,{ nullable: true, cascade: true })
   categories: Menu_Category[]
-
-
   
 }

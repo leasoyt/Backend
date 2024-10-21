@@ -9,15 +9,12 @@ import { UpdateOrderDto } from "src/dtos/order/update-order.dto";
 export class OrderController {
     constructor(private readonly orderService: OrderService) {}
 
-    // @Get(":id")
-    // async getUser(@Param("id", ParseUUIDPipe) id: string): Promise<any> {
-    //     return await this.userService.getUserById(id);
-    // }
     @Post()
     @ApiOperation({ summary: "Crea una nueva orden, se necesitan registros de \"Table\" y \"Dish\" guardados previamente" })
     async createOrder(@Body() orderToCreate: CreateOrderDto) {
         return await this.orderService.createOrder(orderToCreate)
     }
+
     @Put(":id")
     @ApiOperation({ summary: "Devuelve una orden en específico, si es que existe, utilizando su id" })
     async updateOrder(@Param("id", ParseUUIDPipe) id: string, @Body() OrderToModify: UpdateOrderDto) {

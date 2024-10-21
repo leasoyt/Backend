@@ -28,8 +28,8 @@ export class DishController {
             }
         }
     })
-    async createDish(@Body() dishToCreate: CreateDishDto) {
-        return await this.dishService.createDish(dishToCreate)
+    async createDish(@Body() dishToCreate: CreateDishDto): Promise<Dish> {
+        return await this.dishService.createDish(dishToCreate);
     }
 
     @Put(":id")

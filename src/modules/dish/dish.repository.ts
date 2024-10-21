@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateDishDto } from 'src/dtos/dish/create-dish.dto';
 import { UpdateDishDto } from 'src/dtos/dish/update-dish.dto';
@@ -8,12 +8,7 @@ import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class DishRepository {
-  constructor(
-    @InjectRepository(Dish) private dishRepository: Repository<Dish>,
-    @InjectRepository(Menu_Category)
-    private readonly menuCategoryRepository: Repository<Menu_Category>,
-
-  ) {}
+  constructor(@InjectRepository(Dish) private dishRepository: Repository<Dish>, @InjectRepository(Menu_Category) private readonly menuCategoryRepository: Repository<Menu_Category>) { }
 
   async getDishById(id: string): Promise<undefined | Dish> {
     const foundDish: null | Dish = await this.dishRepository.findOneBy({ id });
@@ -30,20 +25,14 @@ export class DishRepository {
     return await this.dishRepository.save(dish);
   }
 
-  async updateDish(existingDish:Dish,modified_dish:UpdateDishDto
-  )
-  {
-    Object.assign(existingDish, modified_dish); 
+  async updateDish(existingDish: Dish, modified_dish: UpdateDishDto  ) {
+    Object.assign(existingDish, modified_dish);
     return await this.dishRepository.save(existingDish);
-    
-    }
-
-  
+  }
 
   async deleteDish(dishToRemove: Dish): Promise<Dish> {
     return await this.dishRepository.remove(dishToRemove);
   }
-
 
   async getDishesByIds(ids: string[]): Promise<Dish[]> {
     const foundedDishes: Dish[] = await this.dishRepository.findBy({

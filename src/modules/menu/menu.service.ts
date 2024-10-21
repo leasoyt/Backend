@@ -1,21 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { MenuRepository } from './menu.repository';
 import { RestaurantService } from '../restaurant/restaurant.service';
 import { Restaurant } from 'src/entities/restaurant.entity';
 import { Menu } from 'src/entities/menu.entity';
-import { CreateMenuDto } from 'src/dtos/menu/create-menu.dto';
 
 @Injectable()
 export class MenuService {
-  constructor(
-    private readonly menuRepository: MenuRepository,
-    private readonly restaurantService: RestaurantService,
-  ) {}
+  constructor(private readonly menuRepository: MenuRepository, @Inject(forwardRef(() => RestaurantService)) private restaurantService: RestaurantService) { }
 
-  async createMenu(menu:CreateMenuDto): Promise<Menu> {
-       const restaurant: Restaurant =
-      await this.restaurantService.getRestaurantById(menu.restaurantId);
-    return this.menuRepository.createMenu(menu,restaurant);
+  async createMenu(restaurantId: string): Promise<Menu> {
+    const restaurant: Restaurant = await this.restaurantService.getRestaurantById(restaurantId);
+    return this.menuRepository.createMenu(restaurant);
   }
 
   async getMenuWithDishes(restaurantId: string): Promise<Menu> {

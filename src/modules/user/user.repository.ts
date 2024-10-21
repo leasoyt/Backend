@@ -4,6 +4,7 @@ import { isEmpty } from "class-validator";
 import { RegisterDto } from "src/dtos/auth/register.dto";
 import { UpdateUserDto } from "src/dtos/user/update-user.dto";
 import { User } from "src/entities/user.entity";
+import { UserRole } from "src/enums/roles.enum";
 import { Repository } from "typeorm";
 
 @Injectable()
@@ -30,7 +31,7 @@ export class UserRepository {
     async createUser(userObject: Omit<RegisterDto, "confirmPassword">): Promise<User> {
         const { name, email, profile_image, country, password } = userObject;
 
-        const created_user: User = this.userRepository.create({name, email, profile_image, country, password});
+        const created_user: User = this.userRepository.create({ name, email, profile_image, country, password });
         return await this.userRepository.save(created_user);
     }
 
@@ -44,5 +45,16 @@ export class UserRepository {
 
         return deletion_result;
     }
+
+    async rankUpTo(userInstance: User, role: UserRole): Promise<User> {
+        userInstance.role = role;
+        try {
+            await this.userRepository.save(userInstance);
+            return await this.getUserById(userInstance.id);
+        } catch (err) {
+            throw new InternalServerErrorException({message: "Failed to upgrade user role", error: err});
+        }
+    }
+
 
 }
