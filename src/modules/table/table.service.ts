@@ -6,12 +6,11 @@ import { Restaurant } from "src/entities/restaurant.entity";
 
 @Injectable()
 export class TableService {
-    getTableById(table: string): Restaurant_Table | PromiseLike<Restaurant_Table> {
-        throw new Error("Method not implemented.");
-    }
-
     constructor(private readonly tableRepository: TableRepository, private readonly restaurantService: RestaurantService) {}
-
+    async getTableById(id: string): Promise<null | Restaurant_Table> {
+        const foundedTable: null | Restaurant_Table = await this.tableRepository.findOneBy(id)
+        return foundedTable;
+    }
     // async getTable(id: string, restaurant: Restaurant): Promise<Restaurant_Table> {
     //     const found_table: undefined | Restaurant_Table = await this.tableRepository.getTable(id, restaurant);
     //     if(found_table === undefined) {
