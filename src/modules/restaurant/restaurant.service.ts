@@ -9,28 +9,31 @@ import { User } from "src/entities/user.entity";
 
 @Injectable()
 export class RestaurantService {
-
+    
     constructor(private readonly restaurantRepository: RestaurantRepository, private readonly userService: UserService, @Inject(forwardRef(() => MenuService)) private menuService: MenuService) { }
-
+    
     async getRestaurantById(id: string): Promise<Restaurant> {
         const found_restaurant: Restaurant | undefined = await this.restaurantRepository.getRestaurantById(id);
 
         if (found_restaurant === undefined) {
             throw new NotFoundException(`Failed to find restaurant with id: ${id}`);
         }
-
+        
         return found_restaurant;
     }
-
+    
     async createRestaurant(restaurantObject: RegisterRestaurantDto): Promise<Restaurant> {
         const future_manager: User = await this.userService.rankUpTo(restaurantObject.future_manager, UserRole.MANAGER);
         const created_restaurant: Restaurant | undefined = await this.restaurantRepository.createRestaurant(future_manager, restaurantObject);
         await this.menuService.createMenu(created_restaurant.id);
         return await this.getRestaurantById(created_restaurant.id);
     }
-
+    
     async updateRestaurant(): Promise<any> {
         return null;
     }
-
+    
+    async getRestaurantsQuery(page:number,limit:number,rating?:number,search?:string) {
+        return this.restaurantRepository.getRestaurantsQuery(page,limit,rating,search)
+    }
 }

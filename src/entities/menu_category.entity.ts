@@ -5,7 +5,7 @@ import { Dish } from './dish.entity';
 @Entity()
 export class Menu_Category {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id: string 
 
   @Column({length:20,nullable:false})
   name: string;
