@@ -17,18 +17,18 @@ export class DishController {
     }
 
     @Post()
-    @ApiOperation({summary: "crear platillos nuevos", description: "Se necesita la uuid del menu del restaurante"})
+    @ApiOperation({summary: "crear platillos nuevos", description: "Se necesita la uuid de la categoria"})
     @ApiBody({
         schema: {
             example: {
                 name: "banana split",
                 price: 200.40,
                 description: "descripcion aqui",
-                menu: "aaeea451-cdd4-462e-b8b7-11254929ad54"
+                category: "aaeea451-cdd4-462e-b8b7-11254929ad54"
             }
         }
     })
-    async createDish(@Body() dishToCreate: CreateDishDto): Promise<Dish> {
+    async createDish(@Body() dishToCreate: CreateDishDto) {
         return await this.dishService.createDish(dishToCreate)
     }
 

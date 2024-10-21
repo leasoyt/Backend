@@ -1,30 +1,34 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { MenuRepository } from "./menu.repository";
-import { RestaurantService } from "../restaurant/restaurant.service";
-import { Restaurant } from "src/entities/restaurant.entity";
-import { Menu } from "src/entities/menu.entity";
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { MenuRepository } from './menu.repository';
+import { RestaurantService } from '../restaurant/restaurant.service';
+import { Restaurant } from 'src/entities/restaurant.entity';
+import { Menu } from 'src/entities/menu.entity';
+import { CreateMenuDto } from 'src/dtos/menu/create-menu.dto';
 
 @Injectable()
 export class MenuService {
+  constructor(
+    private readonly menuRepository: MenuRepository,
+    private readonly restaurantService: RestaurantService,
+  ) {}
 
-   constructor(private readonly menuRepository: MenuRepository, private readonly restaurantService: RestaurantService) { }
+  async createMenu(menu:CreateMenuDto): Promise<Menu> {
+       const restaurant: Restaurant =
+      await this.restaurantService.getRestaurantById(menu.restaurantId);
+    return this.menuRepository.createMenu(menu,restaurant);
+  }
 
-   async createMenu(restaurantId: string): Promise<Menu> {
-      const found_restaurant: Restaurant = await this.restaurantService.getRestaurantById(restaurantId);
-      return this.menuRepository.createMenu(found_restaurant);
-   }
+  async getMenuWithDishes(restaurantId: string): Promise<Menu> {
+    const found_restaurant: Restaurant =
+      await this.restaurantService.getRestaurantById(restaurantId);
+    return this.menuRepository.getMenuWithDishes(found_restaurant);
+  }
 
-   /**
-    * @param id id de restaurante, no de menu.
-    */
-   async getMenu(id: string): Promise<Menu> {
-      const restaurant: Restaurant = await this.restaurantService.getRestaurantById(id);
-      const menu: Menu | undefined = await this.menuRepository.getMenu(restaurant);
+  deleteMenu(id: string) {
+    return this.menuRepository.deleteMenu(id);
+  }
 
-      if(menu === undefined) {
-         throw new NotFoundException(`Failed to find menu with the provided restaurant id: ${id}`);
-      }
-      return menu;
-   }
-
+  getMenuById(id: string) {
+    return this.menuRepository.getMenuById(id);
+  }
 }
