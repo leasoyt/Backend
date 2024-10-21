@@ -4,7 +4,6 @@ import {
     OneToOne,
     PrimaryGeneratedColumn,
   } from 'typeorm';
-  import { v4 as uuidv4 } from 'uuid';
 import { OrderDetail } from './orderDetail.entity';
 import { Restaurant_Table } from './tables.entity';
 import { orderStatus } from 'src/enums/orderStatus.enum';

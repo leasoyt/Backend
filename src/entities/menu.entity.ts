@@ -13,8 +13,6 @@ export class Menu {
   @OneToOne(() => Restaurant, (restaurant) => restaurant.menu, { nullable: false })
   restaurant: Restaurant;
 
- 
-
   @OneToMany(() => Menu_Category, (cat) => cat.menu,{ nullable: true, cascade: true })
   categories: Menu_Category[]
 
