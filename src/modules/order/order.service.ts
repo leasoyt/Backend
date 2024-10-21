@@ -42,7 +42,7 @@ export class OrderService {
     }
     async deleteOrder(id: string): Promise<Order> {
         const existingOrder: null | Order = await this.getOrderById(id)
-        if (!existingOrder) throw new BadRequestException('El plato que se desea eliminar no existe')
+        if (!existingOrder) throw new BadRequestException('La order que se desea eliminar no existe')
         try {
             const deletedOrder = await this.orderRepository.deleteOrder(existingOrder);
             return deletedOrder

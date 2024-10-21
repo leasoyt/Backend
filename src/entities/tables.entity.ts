@@ -5,6 +5,7 @@ import {
   ManyToOne,
   OneToMany,
   OneToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Restaurant } from './restaurant.entity';
 import { Reservation } from './reservation.entity';
@@ -37,6 +38,7 @@ export class Restaurant_Table {
   reservations: Reservation[];
 
 
-  @OneToOne(() => Order, (order) => order.table)
+  @OneToOne(() => Order, (order) => order.table, {nullable: true, onDelete: 'SET NULL'})
+  @JoinColumn({name: 'order_id'})
   order: Order;
 }

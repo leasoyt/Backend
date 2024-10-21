@@ -13,7 +13,9 @@ export class OrderDetailService {
             const dishesEntities: Dish[] = await this.dishService.getDishesByIds(dishes);
             const price: number = dishes.reduce((acumulador, dishPedido) => {
                 const dishEntity = dishesEntities.find(dishEntity => dishEntity.id === dishPedido.id);
-                acumulador + (dishEntity.price * dishPedido.quantity);
+                console.log(dishEntity.price)
+                console.log(dishPedido.quantity)
+                acumulador =+ (dishEntity.price * dishPedido.quantity);
                 return acumulador;
             }, 0);
             
@@ -27,6 +29,7 @@ export class OrderDetailService {
     }
     async updateOrderDetail(currentOrderDetail: OrderDetail, dishes: OrderedDishesDto[]){
         try {
+            console.log(currentOrderDetail)
             const newOrderDetail: OrderDetail = await this.createOrderDetail(dishes);
             await this.orderDetailRepository.deleteOrderDetail(currentOrderDetail);
             return newOrderDetail;    

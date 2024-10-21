@@ -74,7 +74,8 @@ export class DishService {
       (dish) =>
         !foundedDishes.map((foundedDish) => foundedDish.id).includes(dish),
     );
-    if (notFoundedDishes)
+
+    if (notFoundedDishes.length)
       throw new BadRequestException(
         `No se pudieron encontrar los siguientes platillos: ${notFoundedDishes}`,
       );

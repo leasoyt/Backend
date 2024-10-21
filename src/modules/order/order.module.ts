@@ -9,9 +9,11 @@ import { TableRepository } from "./PruebaTable.repository";
 import { DishModule } from "../dish/dish.module";
 import { OrderDetailService } from "./order_detail/orderDetail.service";
 import { OrderDetailRepository } from "./order_detail/orderDetail.repository";
+import { OrderDetail } from "src/entities/orderDetail.entity";
+
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Order, Restaurant_Table]), DishModule],
+    imports: [TypeOrmModule.forFeature([Order, Restaurant_Table, OrderDetail]), DishModule],
     providers: [OrderService, OrderRepository, TableRepository, OrderDetailService, OrderDetailRepository],
     controllers: [OrderController]
 })

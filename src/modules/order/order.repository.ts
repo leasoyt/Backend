@@ -16,7 +16,7 @@ export class OrderRepository{
         return this.orderRepository.save(createdOrder)
     }
     async getOrderById(id: string): Promise<Order | null>{
-        const foundedOrder: null | Order = await this.orderRepository.findOneBy({id})
+        const foundedOrder: null | Order = await this.orderRepository.findOne({where: {id}, relations: {orderDetail: true}})
         return foundedOrder;
     }
     async updateOrder(existingOrder: Order, orderTomodify: UpdateOrderDto): Promise<Order> {

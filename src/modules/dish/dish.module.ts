@@ -8,8 +8,10 @@ import { Menu_Category } from "src/entities/menu_category.entity";
 import { MenuCategoryModule } from "../menu_category/menu_category.module";
 
 @Module({
+  // imports: [MenuModule, TypeOrmModule.forFeature([Dish])],
     imports: [ MenuCategoryModule,TypeOrmModule.forFeature([Dish,Menu_Category])],
     providers: [DishService,DishRepository],
-    controllers: [DishController]
+    controllers: [DishController],
+    exports: [DishService]
 })
 export class DishModule {}
