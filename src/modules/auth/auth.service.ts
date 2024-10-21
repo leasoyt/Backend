@@ -8,11 +8,12 @@ import { LoginDto } from "src/dtos/auth/login.dto";
 import { LoginResponseDto } from "src/dtos/auth/login-response.dto";
 import { UpdatePasswordDto } from "src/dtos/user/update-password.dto";
 import * as bcrypt from "bcrypt";
+import { JwtService } from "@nestjs/jwt";
 
 @Injectable()
 export class AuthService {
 
-    constructor(private readonly userService: UserService) { }
+    constructor(private readonly userService: UserService,private readonly jwtService:JwtService) { }
 
     async userRegistration(userObject: RegisterDto): Promise<SanitizedUserDto> {
         const { email, password, confirmPassword, ...rest_user } = userObject;
@@ -56,10 +57,20 @@ export class AuthService {
 
             const is_valid_password = await bcrypt.compare(password, user.password);
 
+           
+
+
             if (is_valid_password) {
+
+
+const payload={
+    sub:user.id,
+    email:user.email,
+    roles:user.role
+}
                 return {
                     message: "Logged in successfully",
-                    token: "no-token-yet",
+                    token: await this.jwtService.signAsync(payload),
                     user: {
                         name: user.name,
                         email: user.email,
