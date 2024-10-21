@@ -9,9 +9,9 @@ import { Repository } from "typeorm";
 export class ReservationRepository {
     constructor(@InjectRepository(Reservation) private reservationRepository: Repository<Reservation>) { }
 
-    async createReservation(): Promise<Reservation> {
-        const 
-    }
+    // async createReservation(): Promise<Reservation> {
+    //     const 
+    // }
 
     async getUserReservations(userInstance: User): Promise<Reservation[]> {
         const reservations: Reservation[] = await this.reservationRepository.find({ where: { user: userInstance } });

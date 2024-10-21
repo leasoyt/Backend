@@ -23,20 +23,11 @@ export class MenuController {
   @Get(':id')
   getMenuById(@Param('id', ParseUUIDPipe) id: string){
     return this.menuService.getMenuById(id)
-  @ApiOperation({summary: "para conseguir un menu", description: "se necesita el id del restaurante"})
-  async getMenu(@Param('id', ParseUUIDPipe) restaurantId: string): Promise<Menu> {
-    return await this.menuService.getMenu(restaurantId);
   }
-
 
   @Delete(':id')
   deleteMenu(@Param('id',ParseUUIDPipe) id:string){
     return this.menuService.deleteMenu(id)
-  
-  @Post('create/:id')
-  @ApiOperation({summary: "crear un nuevo menu", description: "solo necesita la uuid del restaurante"})
-  async createMenu(@Param('id', ParseUUIDPipe) restaurantId: string): Promise<Menu> {
-    return await this.menuService.createMenu(restaurantId);
   }
 
 }

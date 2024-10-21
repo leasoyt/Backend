@@ -4,6 +4,7 @@ import { Restaurant_Table } from "src/entities/tables.entity";
 import { TableController } from "./table.controller";
 import { TableService } from "./table.service";
 import { TableRepository } from "./table.repository";
+import { RestaurantModule } from "../restaurant/restaurant.module";
 
 @Module({
     imports: [RestaurantModule, TypeOrmModule.forFeature([Restaurant_Table])],
@@ -11,4 +12,4 @@ import { TableRepository } from "./table.repository";
     providers: [TableService, TableRepository],
     exports: [TableService]
 })
-export class RestaurantModule { }
+export class TableModule { }

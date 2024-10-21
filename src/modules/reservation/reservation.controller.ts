@@ -9,20 +9,20 @@ import { CreateReservationDto } from "src/dtos/reservation/create-reservation.dt
 export class ReservationController {
     constructor(private readonly reservationService: ReservationService) { }
 
-    @Get("user/:id")
-    async getUserReservations(@Param("id", ParseUUIDPipe) id: string): Promise<Reservation[]> {
-        return await this.reservationService.getUserReservations(id);
-    }
+    // @Get("user/:id")
+    // async getUserReservations(@Param("id", ParseUUIDPipe) id: string): Promise<Reservation[]> {
+    //     return await this.reservationService.getUserReservations(id);
+    // }
 
-    @Get("table/:id")
-    async getTableReservations(@Param("id", ParseUUIDPipe) id: string): Promise<Reservation[]> {
-        return await this.reservationService.getTableReservations(id);
-    }
+    // @Get("table/:id")
+    // async getTableReservations(@Param("id", ParseUUIDPipe) id: string): Promise<Reservation[]> {
+    //     return await this.reservationService.getTableReservations(id);
+    // }
 
-    @Post()
-    async createReservation(@Body() reservationObject: CreateReservationDto): Promise<any> {
-        return await this.reservationService.createReservation(reservationObject);
-    }
+    // @Post()
+    // async createReservation(@Body() reservationObject: CreateReservationDto): Promise<any> {
+    //     return await this.reservationService.createReservation(reservationObject);
+    // }
 
     @Put("cancel/:id")
     async cancelReservation(@Param("id") id: string): Promise<any> {
