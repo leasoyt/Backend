@@ -10,8 +10,19 @@ import { MenuCategoryModule } from './modules/menu_category/menu_category.module
 import { Module } from '@nestjs/common';
 import { RestaurantModule } from './modules/restaurant/restaurant.module';
 
+import { JwtModule } from '@nestjs/jwt';
+
+
 @Module({
   imports: [
+   
+
+    JwtModule.register({
+      global: true,
+      signOptions: { expiresIn: '1h' },
+      secret: process.env.JWT_SECRET,
+    }),
+
     ConfigModule.forRoot({
       isGlobal: true,
       load: [TypeOrmConfig],
