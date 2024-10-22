@@ -3,7 +3,7 @@ import { ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { DishService } from "./dish.service";
 import { CreateDishDto } from "src/dtos/dish/create-dish.dto";
 import { UpdateDishDto } from "src/dtos/dish/update-dish.dto";
-import { DishDeletionResultDto } from "src/dtos/dish/delete-dish-result.dto";
+import { CustomResponseDto } from "src/dtos/custom-responses.dto";
 import { Dish } from "src/entities/dish.entity";
 
 @ApiTags("Dishes")
@@ -12,12 +12,13 @@ export class DishController {
     constructor(private readonly dishService: DishService) { }
 
     @Get(":id")
+    @ApiOperation({summary: "consigue toda la info de un platillo", description: "Se necesita la uuid del platillo"})
     async getDishById(@Param("id", ParseUUIDPipe) id: string): Promise<Dish> {
-        return await this.dishService.getDishById(id);
+        return await this.dishService.getDishErrorHandled(id);
     }
 
     @Post()
-    @ApiOperation({summary: "crear platillos nuevos", description: "Se necesita la uuid de la categoria"})
+    @ApiOperation({summary: "crear platillos nuevos", description: "Se necesita la uuid de la categoria y el objeto a crear"})
     @ApiBody({
         schema: {
             example: {
@@ -48,7 +49,7 @@ export class DishController {
     }
 
     @Delete(":id")
-    async deleteDish(@Param("id", ParseUUIDPipe) id: string): Promise<DishDeletionResultDto> {
+    async deleteDish(@Param("id", ParseUUIDPipe) id: string): Promise<CustomResponseDto> {
         return await this.dishService.deleteDish(id);
     }
 }

@@ -1,16 +1,16 @@
 import { PickType } from "@nestjs/swagger";
 import { RegisterDto } from "./register.dto";
-import { IsNotEmpty, IsString, Length, NotContains, ValidateNested } from "class-validator";
+import { IsNotEmpty, IsString, NotContains, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
+import { CustomMessagesEnum } from "../custom-responses.dto";
 
 /**
  * Dto: Respuesta de logueo exitoso
  */
 export class LoginResponseDto {
     @IsNotEmpty()
-    @Length(5, 100)
     @IsString()
-    message: string;
+    message: CustomMessagesEnum.LOGIN_SUCCESS | CustomMessagesEnum.LOGIN_FAIL;
 
     @IsNotEmpty()
     @IsString()
