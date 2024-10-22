@@ -11,6 +11,7 @@ import { Module } from '@nestjs/common';
 import { RestaurantModule } from './modules/restaurant/restaurant.module';
 
 import { JwtModule } from '@nestjs/jwt';
+import { PaymentsModule } from './modules/payments/payments.module';
 
 
 @Module({
@@ -39,6 +40,7 @@ import { JwtModule } from '@nestjs/jwt';
     OrderModule,
     MenuCategoryModule,
     RestaurantModule,
+    PaymentsModule,
   ],
   controllers: [],
   providers: [],
