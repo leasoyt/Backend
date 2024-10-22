@@ -6,11 +6,12 @@ import { Menu_Category } from 'src/entities/menu_category.entity';
 import { Menu } from 'src/entities/menu.entity';
 import { MenuModule } from '../menu/menu.module';
 import { Menu_Category_Repository } from './menu_category.repository';
+import { RestaurantModule } from '../restaurant/restaurant.module';
 
 @Module({
-  imports:[MenuModule,TypeOrmModule.forFeature([Menu_Category,Menu])],
+  imports: [MenuModule, RestaurantModule, TypeOrmModule.forFeature([Menu_Category, Menu])],
   controllers: [MenuCategoryController],
-  providers: [MenuCategoryService,Menu_Category_Repository],
-  exports:[MenuCategoryService]
+  providers: [MenuCategoryService, Menu_Category_Repository],
+  exports: [MenuCategoryService]
 })
-export class MenuCategoryModule {}
+export class MenuCategoryModule { }

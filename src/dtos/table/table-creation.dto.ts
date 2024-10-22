@@ -1,13 +1,18 @@
-import { IsInt, IsNotEmpty, IsUUID, Max, Min } from "class-validator";
+import { IsUUID, IsNotEmpty, IsEnum, IsNumber, Min, Max } from 'class-validator';
+import { TableStatus } from 'src/enums/tableStatus.enum';
 
 export class TableCreationDto {
-    @IsInt()
-    @Min(0)
-    @Max(1000)
-    @IsNotEmpty()
-    table_number: number;
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  @IsNotEmpty()
+  table_number: number;  // Número de la mesa, obligatorio y numérico
 
-    @IsUUID()
-    @IsNotEmpty()
-    restaurant_id: string;
+  @IsEnum(TableStatus)
+  @IsNotEmpty()
+  status: TableStatus;  // Estado de la mesa, obligatorio
+
+  @IsUUID()
+  @IsNotEmpty()
+  restaurant_id: string;  // ID del restaurante al que pertenece la mesa, obligatorio
 }

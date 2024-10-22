@@ -1,23 +1,4 @@
-import { IsOptional, IsString, IsBoolean, IsDecimal, IsUUID } from 'class-validator';
+import { PartialType } from '@nestjs/swagger';
+import { CreateDishDto } from './create-dish.dto';
 
-export class UpdateDishDto {
-  @IsOptional()
-  @IsString()
-  name?: string;
-
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  stock?: boolean;
-
-  @IsOptional()
-  @IsDecimal()
-  price?: number;
-
-  @IsOptional()
-  @IsUUID()
-  category?: string; 
-}
+export class UpdateDishDto extends PartialType(CreateDishDto) {}

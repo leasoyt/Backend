@@ -7,6 +7,7 @@ import { User } from "src/entities/user.entity";
 import { arrayNotEmpty } from "class-validator";
 import { Restaurant_Table } from "src/entities/tables.entity";
 import { TableService } from "../table/table.service";
+import { CustomMessagesEnum } from "src/dtos/custom-responses.dto";
 
 @Injectable()
 export class ReservationService {
@@ -17,13 +18,18 @@ export class ReservationService {
     }
 
     async getUserReservations(id: string): Promise<Reservation[]> {
-        const user: User = await this.userService.getRawUserById(id);
-        const reservations: Reservation[] = await this.reservationRepository.getUserReservations(user);
+        try {
+            const user: User = await this.userService.getRawUserById(id);
+            const reservations: Reservation[] = await this.reservationRepository.getUserReservations(user);
+    
+            if(arrayNotEmpty(reservations) || reservations === undefined) {
+                throw {error: "No reservations found from this user"};
+            }
 
-        if(arrayNotEmpty(reservations) || reservations === undefined) {
-            throw new NotFoundException("No reservations found for this user");
+            return reservations;
+        } catch (err) {
+            throw new NotFoundException({message: CustomMessagesEnum.RESOURCE_NOT_FOUND, error: err.error | err});
         }
-        return reservations;
     }
 
     async getTableReservations(id: string): Promise<Reservation[]> {

@@ -1,6 +1,5 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateMenuCategoryDto } from 'src/dtos/menu/menu_category.dto';
 import { Menu } from 'src/entities/menu.entity';
 import { Menu_Category } from 'src/entities/menu_category.entity';
 import { Repository } from 'typeorm';
@@ -9,28 +8,24 @@ import { Repository } from 'typeorm';
 export class Menu_Category_Repository {
   constructor(@InjectRepository(Menu_Category) private menu_Category_Repository: Repository<Menu_Category>) { }
 
-  async createMenuCategory(menu_category: CreateMenuCategoryDto, menu: Menu,): Promise<Menu_Category> {
-    const newMenuCategory = this.menu_Category_Repository.create({ ...menu, menu, });
+  async createMenuCategory(menu_category_name: string, menuInstance: Menu,): Promise<Menu_Category> {
+    const newMenuCategory = this.menu_Category_Repository.create({ name: menu_category_name, menu: menuInstance });
     return await this.menu_Category_Repository.save(newMenuCategory);
   }
 
-  async delteMenuCategory(id: string) {
-    const menu = await this.menu_Category_Repository.findOneBy({ id });
-    if (!menu) throw new NotFoundException('categoria no encontrada');
-    return await this.menu_Category_Repository.remove(menu);
+  async deleteMenuCategory(menu_categoryInstance: Menu_Category): Promise<Menu_Category | undefined> {
+    const menu_category: Menu_Category | null = await this.menu_Category_Repository.remove(menu_categoryInstance);
+    return menu_category === null? undefined : menu_category;
   }
 
-  async getCategories(found_menu: Menu): Promise<Menu_Category[]> {
-    return await this.menu_Category_Repository.find({ where: { menu: found_menu }, relations: ['dishes'] })
-  }
+  // async getCategories(found_menu: Menu): Promise<Menu_Category[]> {
+  //   return await this.menu_Category_Repository.find({ where: { menu: found_menu }, relations: ['dishes'] })
+  // }
 
-  async getCategorieById(id: string) {
-    const menu_category = await this.menu_Category_Repository.findOne({ where: { id }, relations: { dishes: true } });
+  async getCategoryAndDishes(id: string): Promise<Menu_Category | undefined> {
+    const menu_category: Menu_Category | null = await this.menu_Category_Repository.findOne({ where: { id }, relations: { dishes: true } });
 
-    if (!menu_category)
-      throw new HttpException('Category Not found', HttpStatus.NOT_FOUND);
-
-    return menu_category;
+    return menu_category === null? undefined : menu_category;
   }
 
 }
