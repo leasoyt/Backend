@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { MenuRepository } from './menu.repository';
 import { RestaurantService } from '../restaurant/restaurant.service';
 import { Restaurant } from 'src/entities/restaurant.entity';
@@ -13,17 +13,24 @@ export class MenuService {
     return this.menuRepository.createMenu(restaurant);
   }
 
+  async getMenuCategories(): Promise<Menu> {
+    return new Menu();
+  }
+
   async getMenuWithDishes(restaurantId: string): Promise<Menu> {
     const found_restaurant: Restaurant =
       await this.restaurantService.getRestaurantById(restaurantId);
     return this.menuRepository.getMenuWithDishes(found_restaurant);
   }
 
-  deleteMenu(id: string) {
-    return this.menuRepository.deleteMenu(id);
-  }
+  async getMenuByRestaurantId(id: string) {
+    const restaurant: Restaurant = await this.restaurantService.getRestaurantById(id);
+    const menu: Menu | undefined = await this.menuRepository.getMenuByRestaurant(restaurant);
 
-  getMenuById(id: string) {
-    return this.menuRepository.getMenuById(id);
+    if(menu === undefined) {
+      throw new NotFoundException("Can't find menu for this establishment");
+    }
+
+    return menu;
   }
 }

@@ -28,12 +28,22 @@ export class DishController {
             }
         }
     })
-    async createDish(@Body() dishToCreate: CreateDishDto): Promise<Dish> {
+    async createDish(@Body() dishToCreate: CreateDishDto): Promise<Omit<Dish, "category">> {
         return await this.dishService.createDish(dishToCreate);
     }
 
     @Put(":id")
-    async updateDish(@Param("id", ParseUUIDPipe) id: string, @Body() dishToModify: UpdateDishDto): Promise<any> {
+    @ApiOperation({summary: "actualizar informacion de platillos", description: "Se necesita la uuid del plato"})
+    @ApiBody({
+        schema: {
+            example: {
+                name: "Macarrones con queso",
+                price: 550.90,
+                description: "otra descripcion aqui",
+            }
+        }
+    })
+    async updateDish(@Param("id", ParseUUIDPipe) id: string, @Body() dishToModify: UpdateDishDto): Promise<Dish> {
         return await this.dishService.updateDish(id, dishToModify);
     }
 

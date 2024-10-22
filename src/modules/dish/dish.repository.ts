@@ -15,17 +15,13 @@ export class DishRepository {
     return foundDish === null ? undefined : foundDish;
   }
 
-  async createDish(dishToCreate: CreateDishDto, category: Menu_Category) {
-
-    const dish = this.dishRepository.create({
-      ...dishToCreate,
-      category,
-    });
+  async createDish(dishToCreate: CreateDishDto, category: Menu_Category): Promise<Dish> {
+    const dish = this.dishRepository.create({ ...dishToCreate, category, });
 
     return await this.dishRepository.save(dish);
   }
 
-  async updateDish(existingDish: Dish, modified_dish: UpdateDishDto  ) {
+  async updateDish(existingDish: Dish, modified_dish: UpdateDishDto) {
     Object.assign(existingDish, modified_dish);
     return await this.dishRepository.save(existingDish);
   }
@@ -34,10 +30,8 @@ export class DishRepository {
     return await this.dishRepository.remove(dishToRemove);
   }
 
-  async getDishesByIds(ids: string[]): Promise<Dish[]> {
-    const foundedDishes: Dish[] = await this.dishRepository.findBy({
-      id: In(ids),
-    });
+  async getManyDishesById(ids: string[]): Promise<Dish[]> {
+    const foundedDishes: Dish[] = await this.dishRepository.findBy({ id: In(ids) });
     return foundedDishes;
   }
 }
