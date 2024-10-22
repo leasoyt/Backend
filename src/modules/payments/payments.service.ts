@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { MercadoPagoConfig, PreApproval } from 'mercadopago';
+import { AnyError } from 'typeorm';
 
 @Injectable()
 export class PaymentsService {
@@ -23,6 +24,7 @@ export class PaymentsService {
       },
       payer_email: 'test_user_992596436@testuser.com',
       back_url: 'https://www.your-app.com/confirmation', // Redirect URL after payment
+      notification_url: 'https://9c30-200-92-174-158.ngrok-free.app/payments/webhook'
     };
     try {
       const response = await preapproval.create({ body });
@@ -35,6 +37,12 @@ export class PaymentsService {
     }
   }
 
+  receiverWebhook(query: any, body: any, cabecera: any) {
+    if(!cabecera.tracestate) return
+    // console.log(query)
+    // console.log(body)
+    console.log(cabecera)
+  }
   // findAll() {
   //   return `This action returns all payments`;
   // }

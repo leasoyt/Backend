@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Headers } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 
 @Controller('payments')
@@ -10,6 +10,11 @@ export class PaymentsController {
     return this.paymentsService.create(createPaymentDto);
   }
 
+  @Post('webhook')
+  receiverWebhook(@Query() query: any, @Body() body: any, @Headers() cabecera: any){
+    const respuesta = this.paymentsService.receiverWebhook(query, body, cabecera);
+    return;
+  }
   // @Get()
   // findAll() {
   //   return this.paymentsService.findAll();
