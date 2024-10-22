@@ -18,7 +18,7 @@ export class Restaurant_Table {
   id: string;
 
   @Column()
-  number: number; // Número o identificación de la mesa
+  number: number; 
 
   @Column({
     type: 'enum',

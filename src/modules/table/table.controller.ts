@@ -10,6 +10,14 @@ import { TableDeletionDto } from "src/dtos/table/table-deletion.dto";
 export class TableController {
     constructor(private readonly tableService: TableService) { }
 
+@Get("getOneById/:id")
+@ApiOperation({ summary: "Conseguir una mesa por id", description: "id de la mesa" })
+async getTableById(@Param("id", ParseUUIDPipe) id: string):Promise<Restaurant_Table>{
+return await this.tableService.getTableById(id)
+}
+
+
+
     @Get(":id")
     @ApiOperation({ summary: "Conseguir una lista de las mesas", description: "Uuid del negocio" })
     async getTables(@Param("id", ParseUUIDPipe) id: string): Promise<Restaurant_Table[]> {
