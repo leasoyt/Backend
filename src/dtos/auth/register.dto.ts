@@ -18,11 +18,12 @@ export class RegisterDto {
     
     @IsNotEmpty()
     @IsString()
+    @Length(8, 80)
     @Matches(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,15}$/,
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]/,
         {
             message:
-                'Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character (!@#$%^&*), and be between 8 and 15 characters long.',
+                'Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character (!@#$%^&*), and be more than 8 characters.',
         },
     )
     password: string;
