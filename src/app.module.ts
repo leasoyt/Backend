@@ -10,6 +10,7 @@ import { MenuCategoryModule } from './modules/menu_category/menu_category.module
 import { Module } from '@nestjs/common';
 import { RestaurantModule } from './modules/restaurant/restaurant.module';
 import { JwtModule } from '@nestjs/jwt';
+import { PaymentsModule } from './modules/payments/payments.module';
 import { UploadModule } from './uploads/upload.module';
 
 @Module({
@@ -37,6 +38,7 @@ import { UploadModule } from './uploads/upload.module';
     OrderModule,
     MenuCategoryModule,
     RestaurantModule,
+    PaymentsModule,
     UploadModule,
   ],
   controllers: [],
