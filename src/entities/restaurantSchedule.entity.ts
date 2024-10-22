@@ -7,6 +7,9 @@ export class RestaurantSchedule {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ default: true })
+  isOpen: boolean;
+
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.schedules, { nullable: false })
   restaurant: Restaurant;
 
@@ -16,9 +19,9 @@ export class RestaurantSchedule {
   })
   dayOfWeek: DayOfWeek; // Enum para los días de la semana
 
-  @Column('time')
-  openingTime: string; // Hora de apertura
+  @Column('time', { nullable: true })
+  openingTime: string | null // Hora de apertura
 
-  @Column('time')
-  closingTime: string; // Hora de cierre
+  @Column('time', { nullable: true })
+  closingTime: string | null// Hora de cierre
 }
