@@ -10,6 +10,7 @@ import { MenuCategoryModule } from './modules/menu_category/menu_category.module
 import { Module } from '@nestjs/common';
 import { RestaurantModule } from './modules/restaurant/restaurant.module';
 import { JwtModule } from '@nestjs/jwt';
+import { UploadModule } from './uploads/upload.module';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { JwtModule } from '@nestjs/jwt';
       isGlobal: true,
       load: [TypeOrmConfig],
     }),
-    
+
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) =>
@@ -36,6 +37,7 @@ import { JwtModule } from '@nestjs/jwt';
     OrderModule,
     MenuCategoryModule,
     RestaurantModule,
+    UploadModule,
   ],
   controllers: [],
   providers: [],
