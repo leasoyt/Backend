@@ -7,7 +7,8 @@ export class CreateOrderDto {
     @IsNotEmpty()
     @IsUUID()
     @ApiProperty({description: 'Id de una \"Table\" registrada en la base de datos', example: '15052f70-2c24-4516-be44-673ec4876788', required: true})
-    table: string
+    table: string;
+    
     @IsArray()
     @ArrayMinSize(1, { message: 'La orden debe tener al menos un platillo' })
     @ValidateNested({ each: true, message: ' Cada platillo en la orden debe ser un UUID válido' })
