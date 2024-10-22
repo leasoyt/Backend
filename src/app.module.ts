@@ -9,15 +9,12 @@ import { OrderModule } from './modules/order/order.module';
 import { MenuCategoryModule } from './modules/menu_category/menu_category.module';
 import { Module } from '@nestjs/common';
 import { RestaurantModule } from './modules/restaurant/restaurant.module';
-
 import { JwtModule } from '@nestjs/jwt';
 import { PaymentsModule } from './modules/payments/payments.module';
-
+import { UploadModule } from './uploads/upload.module';
 
 @Module({
   imports: [
-   
-
     JwtModule.register({
       global: true,
       signOptions: { expiresIn: '1h' },
@@ -28,6 +25,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
       isGlobal: true,
       load: [TypeOrmConfig],
     }),
+
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) =>
@@ -41,6 +39,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
     MenuCategoryModule,
     RestaurantModule,
     PaymentsModule,
+    UploadModule,
   ],
   controllers: [],
   providers: [],

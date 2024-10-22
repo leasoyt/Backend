@@ -7,17 +7,13 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class MenuRepository {
   constructor(
-    @InjectRepository(Menu) private menuRepository: Repository<Menu>,
-    @InjectRepository(Restaurant)
-    private restaurantRepository: Repository<Restaurant>,
-  ) { }
+    @InjectRepository(Menu) private menuRepository: Repository<Menu>) { }
 
   async createMenu(restaurant: Restaurant): Promise<Menu> {
     const newMenu = this.menuRepository.create({
-      restaurant,  // Relacionamos el menú con el restaurante
-      categories: [],  // Inicializamos la lista de categorías vacía
+      restaurant,  
+      categories: [],  
     });
-
 
     await this.menuRepository.save(newMenu);
     return newMenu;
@@ -38,22 +34,20 @@ export class MenuRepository {
     return menu;
   }
 
-  async deleteMenu(id: string) {
-    const menu = await this.menuRepository.findOneBy({ id });
-    if (!menu) {
-      throw new NotFoundException('menu no encontrado');
-    }
-    return await this.menuRepository.delete(id);
-  }
+  // async deleteMenu(id: string) {
+  //   const menu = await this.menuRepository.findOneBy({ id });
+  //   if (!menu) {
+  //     throw new NotFoundException('menu no encontrado');
+  //   }
+  //   return await this.menuRepository.delete(id);
+  // }
 
-  async getMenuById(id: string): Promise<Menu> {
+  async getMenuByRestaurant(restaurantInstance: Restaurant): Promise<Menu | undefined> {
     const menu = await this.menuRepository.findOne({
-      where: { id },
+      where: { restaurant: restaurantInstance },
       relations: ['categories', 'restaurant'],
     });
-    if (!menu) {
-      throw new NotFoundException('menu no encontrado');
-    }
-    return menu;
+
+    return menu === null ? undefined : menu;
   }
 }

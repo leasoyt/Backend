@@ -10,7 +10,7 @@ export class OrderDetailService {
     constructor(private readonly dishService: DishService, private readonly orderDetailRepository: OrderDetailRepository){}
     async createOrderDetail(dishes: OrderedDishesDto[]): Promise<OrderDetail> {
         try {
-            const dishesEntities: Dish[] = await this.dishService.getDishesByIds(dishes);
+            const dishesEntities: Dish[] = await this.dishService.getManyDishesById(dishes);
             const price: number = dishes.reduce((acumulador, dishPedido) => {
                 const dishEntity = dishesEntities.find(dishEntity => dishEntity.id === dishPedido.id);
                 console.log(dishEntity.price)

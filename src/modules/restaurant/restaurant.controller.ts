@@ -6,6 +6,7 @@ import { Restaurant } from "src/entities/restaurant.entity";
 import { Roles } from "src/decorators/roles.decorator";
 import { UserRole } from "src/enums/roles.enum";
 import { RolesGuard } from "src/guards/roles.guard";
+import { AuthGuard } from "src/guards/auth.guard";
 
 @ApiTags("Restaurant")
 @Controller("restaurant")
@@ -20,7 +21,7 @@ export class RestaurantController {
 
     @Post("create")
     @Roles(UserRole.CONSUMER)
-    @UseGuards(RolesGuard)
+    @UseGuards(RolesGuard,AuthGuard)
     @ApiBody({
         schema: {
             example: {
@@ -48,13 +49,14 @@ export class RestaurantController {
     @Get(':id')
     @ApiOperation({summary:"obtiene los detalles de un restaurante,con su id recibido por parametro"})
     async getRestaurantByid(@Param(":id",ParseUUIDPipe) id: string){
+        return this.restaurantService.getRestaurantById(id)
     }
 
 
     @Delete(':id')
     @Roles(UserRole.MANAGER)
     @UseGuards(RolesGuard)
-    deleteRestaurant(@Param(":id",ParseUUIDPipe) id: string){
-        
+    deleteRestaurant(@Param(":id",ParseUUIDPipe) id: string): Promise<void> {
+        return this.restaurantService.deleteRestaurant(id)
     }
 }

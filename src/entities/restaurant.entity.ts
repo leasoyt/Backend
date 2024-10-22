@@ -25,7 +25,9 @@ export class Restaurant {
   @JoinColumn({ name: 'menu_id' })
   menu: Menu;
 
-  @OneToMany(() => Restaurant_Table, (table) => table.restaurant)
+  @OneToMany(() => Restaurant_Table, (table) => table.restaurant, {
+    cascade: true,
+  })
   tables: Restaurant_Table[];
 
   // Asociación inversa para meseros
