@@ -8,6 +8,7 @@ import { SanitizedUserDto } from "src/dtos/user/sanitized-user.dto";
 import { RegisterDto } from "src/dtos/auth/register.dto";
 import * as bcrypt from "bcrypt";
 import { UserRole } from "src/enums/roles.enum";
+import { CustomMessagesEnum } from "src/dtos/custom-responses.dto";
 
 @Injectable()
 export class UserService {
@@ -15,17 +16,20 @@ export class UserService {
     constructor(private readonly userRepository: UserRepository) { }
 
     async rankUpTo(id: string, role: UserRole): Promise<User> {
-        const found_user: User = await this.getRawUserById(id);
-        const ranked_up: User = await this.userRepository.rankUpTo(found_user, role);
-
-        return ranked_up;
+        try {
+            const found_user: User = await this.getRawUserById(id);
+            const ranked_up: User = await this.userRepository.rankUpTo(found_user, role);
+            return ranked_up;
+        } catch (err) {
+            throw new BadRequestException({ message: CustomMessagesEnum.RANKING_UP_FAIL, error: err.error });
+        }
     }
 
     async updateUser(id: string, modified_user: UpdateUserDto): Promise<SanitizedUserDto> {
         const found_user: User | undefined = await this.userRepository.getUserById(id);
 
         if (isEmpty(found_user)) {
-            throw new NotFoundException("Failed to update, user not found");
+            throw new NotFoundException({ message: CustomMessagesEnum.UPDATE_USER_FAILED, error: "user not found" });
         }
 
         try {
@@ -34,29 +38,30 @@ export class UserService {
 
             return filtered_user;
         } catch (err) {
-            throw new BadRequestException({ message: "Something went wrong trying to update user", error: err });
+            throw new BadRequestException({ message: CustomMessagesEnum.UPDATE_USER_FAILED, error: err });
         }
 
     }
 
-    async updatePassword(id: string, oldPassword, newPassword): Promise<SanitizedUserDto> {
-        const user = await this.userRepository.getUserById(id);
+    async updatePassword(id: string, oldPassword: string, newPassword: string): Promise<SanitizedUserDto> {
 
-        const is_valid_password = await bcrypt.compare(oldPassword, user.password);
-
-        if (is_valid_password) {
-        
-            const hashed_password = await bcrypt.hash(newPassword, 10);
-
-            try {
+        try {
+            const user = await this.getRawUserById(id);
+            const is_valid_password = await bcrypt.compare(oldPassword, user.password);
+            
+            if(is_valid_password){
+                const hashed_password = await bcrypt.hash(newPassword, 10);
                 const updated_user: SanitizedUserDto = await this.updateUser(id, { password: hashed_password });
                 return updated_user;
-            } catch (err) {
-                throw new BadRequestException({ message: "Something went wrong trying to change password", error: err });
+
             }
+
+            throw { error: "Old password is incorrect" };
+
+        } catch (err) {
+            throw new BadRequestException({ message: CustomMessagesEnum.UPDATE_PASSWORD_FAIL, error: err.error });
         }
-        
-        throw new BadRequestException("Old password is incorrect!");
+
 
     }
 
@@ -67,22 +72,26 @@ export class UserService {
 
             return filtered;
         } catch (err) {
-            throw new BadRequestException({ message: "Failed to register a new user", error: err })
+            throw new BadRequestException({ message: CustomMessagesEnum.REGISTRATION_FAIL, error: err })
         }
     }
 
     async getUserById(id: string): Promise<SanitizedUserDto> {
-        
-        const { password, isAdmin, ...filtered_user } = await this.getRawUserById(id);
 
-        return filtered_user;
+        try {
+            const { password, isAdmin, ...filtered_user } = await this.getRawUserById(id);
+
+            return filtered_user;
+        } catch (err) {
+            throw new NotFoundException({message: CustomMessagesEnum.RESOURCE_NOT_FOUND, error: err.error });
+        }
     }
 
     async getRawUserById(id: string): Promise<User> {
         const user: User | undefined = await this.userRepository.getUserById(id);
 
         if (isEmpty(user)) {
-            throw new NotFoundException(`User not found with the provided id: ${id}`);
+            throw { error: "User not found with the provided id" };
         }
         return user;
     }
@@ -98,10 +107,6 @@ export class UserService {
 
     async deleteUser(id: string): Promise<SanitizedUserDto> {
         const to_delete: User | undefined = await this.userRepository.getUserById(id);
-
-        if (isEmpty(to_delete)) {
-            throw new NotFoundException(`Failed to delete, user not found: ${id}`);
-        }
         return await this.userRepository.deleteUser(to_delete);
     }
 

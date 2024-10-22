@@ -1,5 +1,5 @@
 import { BadRequestException, Body, Controller, Param, ParseUUIDPipe, Post, Put, UseGuards } from "@nestjs/common";
-import { ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
 import { SanitizedUserDto } from "src/dtos/user/sanitized-user.dto";
 import { RegisterDto } from "../../dtos/auth/register.dto";
@@ -8,6 +8,7 @@ import { LoginResponseDto } from "src/dtos/auth/login-response.dto";
 import { UpdatePasswordDto } from "src/dtos/user/update-password.dto";
 import { isNotEmptyObject } from "class-validator";
 import { AuthGuard } from "src/guards/auth.guard";
+import { CustomMessagesEnum, CustomResponseDto } from "src/dtos/custom-responses.dto";
 
 @ApiTags("Authentication")
 @Controller("auth")
@@ -27,6 +28,7 @@ export class AuthController {
             }
         }
     })
+    @ApiOperation({ summary: "registro de usuario" })
     async userRegistration(@Body() userObject: RegisterDto): Promise<SanitizedUserDto> {
         const created_user = await this.authService.userRegistration(userObject);
         return created_user;
@@ -41,12 +43,12 @@ export class AuthController {
             }
         }
     })
+    @ApiOperation({ summary: "Login de usuario" })
     async userLogin(@Body() userCredentials: LoginDto): Promise<LoginResponseDto> {
         return await this.authService.userLogin(userCredentials);
     }
 
     @Put("updatePassword/:id")
-    @UseGuards(AuthGuard)
     @ApiBody({
         schema: {
             example: {
@@ -56,13 +58,18 @@ export class AuthController {
             }
         }
     })
-    @ApiOperation({summary: "actualiza la contraseña"})
-    async updatePassword(@Param("id", ParseUUIDPipe) id: string, @Body() passwordModification: UpdatePasswordDto): Promise<SanitizedUserDto> {
-        if(!isNotEmptyObject(passwordModification)) {
+    @UseGuards(AuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: "actualiza la contraseña", description: "uuid de usuario y body de cambio de contraseña" })
+    async updatePassword(@Param("id", ParseUUIDPipe) id: string, @Body() passwordModification: UpdatePasswordDto): Promise<CustomResponseDto> {
+
+        if (!isNotEmptyObject(passwordModification)) {
             throw new BadRequestException("body values are empty");
         }
 
-        return await this.authService.updateAndHashPassword(id, passwordModification);
+        await this.authService.updateAndHashPassword(id, passwordModification);
+
+        return { message: CustomMessagesEnum.UPDATE_PASSWORD_SUCCESS }
     }
 
 }
