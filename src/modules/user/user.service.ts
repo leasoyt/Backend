@@ -12,8 +12,15 @@ import { CustomMessagesEnum } from "src/dtos/custom-responses.dto";
 
 @Injectable()
 export class UserService {
-
+    
     constructor(private readonly userRepository: UserRepository) { }
+
+
+
+async getProfile(id:string){
+return await this.userRepository.getProfile(id)
+}
+
 
     async rankUpTo(id: string, role: UserRole): Promise<User> {
         try {
@@ -24,10 +31,14 @@ export class UserService {
             throw new BadRequestException({ message: CustomMessagesEnum.RANKING_UP_FAIL, error: err.error });
         }
     }
-
+  
+    getUsers(page: number, limit: number) {
+       return this.userRepository.getUsers(page,limit)
+    }
+    
     async updateUser(id: string, modified_user: UpdateUserDto): Promise<SanitizedUserDto> {
         const found_user: User | undefined = await this.userRepository.getUserById(id);
-
+        
         if (isEmpty(found_user)) {
             throw new NotFoundException({ message: CustomMessagesEnum.UPDATE_USER_FAILED, error: "user not found" });
         }

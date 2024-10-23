@@ -20,7 +20,7 @@ export class RestaurantController {
     }
 
     @Post("create")
-    @Roles(UserRole.CONSUMER)
+    @Roles(UserRole.MANAGER)
     @UseGuards(RolesGuard,AuthGuard)
     @ApiBody({
         schema: {
@@ -39,7 +39,7 @@ export class RestaurantController {
 
     @Put("update")
     @Roles(UserRole.MANAGER)
-    @UseGuards(RolesGuard)
+    @UseGuards(RolesGuard,AuthGuard)
     @ApiOperation({ summary: "actualiza un restaurante, con id de restaurante y objeto de modificacion" })
     async updateRestaurant(@Param(":id",ParseUUIDPipe) id: string, @Body() restaurantObject: RegisterRestaurantDto): Promise<any> {
         return null;
@@ -55,7 +55,7 @@ export class RestaurantController {
 
     @Delete(':id')
     @Roles(UserRole.MANAGER)
-    @UseGuards(RolesGuard)
+    @UseGuards(RolesGuard,AuthGuard)
     deleteRestaurant(@Param(":id",ParseUUIDPipe) id: string): Promise<void> {
         return this.restaurantService.deleteRestaurant(id)
     }
