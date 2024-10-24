@@ -56,9 +56,9 @@ export class UserController {
 //   console.log(req)
 //   }
 
-  @ApiBearerAuth()
+  // @ApiBearerAuth()
   @Get(':id')
-  @UseGuards(AdminGuard)
+  // @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'obtiene un usuario por su id' })
   async getUser(
     @Param('id', ParseUUIDPipe) id: string,
