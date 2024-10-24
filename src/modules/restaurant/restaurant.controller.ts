@@ -46,7 +46,7 @@ export class RestaurantController {
 
 
     @Post("create")
-    @Roles(UserRole.MANAGER)
+    @Roles(UserRole.CONSUMER)
     @UseGuards(RolesGuard,AuthGuard)
     @ApiBody({
         schema: {
