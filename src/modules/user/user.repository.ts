@@ -14,9 +14,8 @@ export class UserRepository {
   ) {}
 
 
-async getProfile(id): Promise<Omit<User,'isAdmin'| 'role'>>{
-const user=await this.userRepository.findOneBy({id})
-const {role, isAdmin,...userData}=user
+async getProfile(user:User): Promise<Omit<User,'isAdmin'| 'role'| 'id'| 'password'>>{
+const {role, isAdmin,id,password,...userData}=user
 return userData
 }
 
