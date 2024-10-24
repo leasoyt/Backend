@@ -44,6 +44,7 @@ export class RestaurantController {
     );
   }
 
+<<<<<<< HEAD
   @Roles(UserRole.CONSUMER)
   @UseGuards(AuthGuard)
   @Post('create')
@@ -85,6 +86,33 @@ export class RestaurantController {
   ): Promise<any> {
     return null;
   }
+=======
+    @Post("create")
+    @Roles(UserRole.MANAGER)
+    @UseGuards(RolesGuard,AuthGuard)
+    @ApiBody({
+        schema: {
+            example: {
+                name: "name here",
+                address: "123 Street boulevard",
+                description: "descriptive description of my establishment",
+                future_manager: "uuid..."
+            }
+        }
+    })
+    @ApiOperation({ summary: "registra un nuevo restaurante, con id de usuario y objeto a crear" })
+    async createRestaurant(@Param(":id",ParseUUIDPipe) id: string, @Body() restaurantObject: RegisterRestaurantDto): Promise<Restaurant> {
+        return await this.restaurantService.createRestaurant(restaurantObject);
+    }
+
+    @Put("update")
+    @Roles(UserRole.MANAGER)
+    @UseGuards(RolesGuard,AuthGuard)
+    @ApiOperation({ summary: "actualiza un restaurante, con id de restaurante y objeto de modificacion" })
+    async updateRestaurant(@Param(":id",ParseUUIDPipe) id: string, @Body() restaurantObject: RegisterRestaurantDto): Promise<any> {
+        return null;
+    }
+>>>>>>> 6ce08d0336b8ab1c81bddfc8f1d8ccec2757b3e2
 
   @Get(':id')
   @ApiOperation({
@@ -95,6 +123,7 @@ export class RestaurantController {
     return this.restaurantService.getRestaurantById(id);
   }
 
+<<<<<<< HEAD
   @Delete(':id')
   @Roles(UserRole.MANAGER)
   @UseGuards(RolesGuard)
@@ -102,3 +131,19 @@ export class RestaurantController {
     return this.restaurantService.deleteRestaurant(id);
   }
 }
+=======
+    @Get(':id')
+    @ApiOperation({summary:"obtiene los detalles de un restaurante,con su id recibido por parametro"})
+    async getRestaurantByid(@Param(":id",ParseUUIDPipe) id: string){
+        return this.restaurantService.getRestaurantById(id)
+    }
+
+
+    @Delete(':id')
+    @Roles(UserRole.MANAGER)
+    @UseGuards(RolesGuard,AuthGuard)
+    deleteRestaurant(@Param(":id",ParseUUIDPipe) id: string): Promise<void> {
+        return this.restaurantService.deleteRestaurant(id)
+    }
+}
+>>>>>>> 6ce08d0336b8ab1c81bddfc8f1d8ccec2757b3e2
