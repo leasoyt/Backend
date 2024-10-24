@@ -8,7 +8,8 @@ import { SanitizedUserDto } from "src/dtos/user/sanitized-user.dto";
 import { RegisterDto } from "src/dtos/auth/register.dto";
 import * as bcrypt from "bcrypt";
 import { UserRole } from "src/enums/roles.enum";
-import { CustomMessagesEnum } from "src/dtos/custom-responses.dto";
+import { HttpMessagesEnum } from "src/dtos/custom-responses.dto";
+import { HandleError } from "src/decorators/generic-error.decorator";
 
 @Injectable()
 export class UserService {
@@ -21,7 +22,7 @@ export class UserService {
             const ranked_up: User = await this.userRepository.rankUpTo(found_user, role);
             return ranked_up;
         } catch (err) {
-            throw new BadRequestException({ message: CustomMessagesEnum.RANKING_UP_FAIL, error: err.error });
+            throw new BadRequestException({ message: HttpMessagesEnum.RANKING_UP_FAIL, error: err?.error || err });
         }
     }
 
@@ -29,7 +30,7 @@ export class UserService {
         const found_user: User | undefined = await this.userRepository.getUserById(id);
 
         if (isEmpty(found_user)) {
-            throw new NotFoundException({ message: CustomMessagesEnum.UPDATE_USER_FAILED, error: "user not found" });
+            throw new NotFoundException({ message: HttpMessagesEnum.USER_UPDATE_FAILED, error: "user not found" });
         }
 
         try {
@@ -38,7 +39,7 @@ export class UserService {
 
             return filtered_user;
         } catch (err) {
-            throw new BadRequestException({ message: CustomMessagesEnum.UPDATE_USER_FAILED, error: err });
+            throw new BadRequestException({ message: HttpMessagesEnum.USER_UPDATE_FAILED, error: err?.error || err });
         }
 
     }
@@ -48,8 +49,8 @@ export class UserService {
         try {
             const user = await this.getRawUserById(id);
             const is_valid_password = await bcrypt.compare(oldPassword, user.password);
-            
-            if(is_valid_password){
+
+            if (is_valid_password) {
                 const hashed_password = await bcrypt.hash(newPassword, 10);
                 const updated_user: SanitizedUserDto = await this.updateUser(id, { password: hashed_password });
                 return updated_user;
@@ -59,32 +60,24 @@ export class UserService {
             throw { error: "Old password is incorrect" };
 
         } catch (err) {
-            throw new BadRequestException({ message: CustomMessagesEnum.UPDATE_PASSWORD_FAIL, error: err.error });
+            throw new BadRequestException({ message: HttpMessagesEnum.PASSWORD_UPDATE_FAILED, error: err?.error || err });
         }
-
 
     }
 
+    @HandleError(HttpMessagesEnum.REGISTRATION_FAIL, BadRequestException)
     async createUser(userObject: Omit<RegisterDto, "confirmPassword">): Promise<SanitizedUserDto> {
-        try {
-            const created_user: User = await this.userRepository.createUser(userObject);
-            const { password, isAdmin, ...filtered } = created_user;
+        const created_user: User = await this.userRepository.createUser(userObject);
+        const { password, isAdmin, ...filtered } = created_user;
 
-            return filtered;
-        } catch (err) {
-            throw new BadRequestException({ message: CustomMessagesEnum.REGISTRATION_FAIL, error: err })
-        }
+        return filtered;
+        // throw new BadRequestException({ message: CustomMessagesEnum.REGISTRATION_FAIL, error: err?.error || err })
     }
 
+    @HandleError(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
     async getUserById(id: string): Promise<SanitizedUserDto> {
-
-        try {
-            const { password, isAdmin, ...filtered_user } = await this.getRawUserById(id);
-
-            return filtered_user;
-        } catch (err) {
-            throw new NotFoundException({message: CustomMessagesEnum.RESOURCE_NOT_FOUND, error: err.error });
-        }
+        const { password, isAdmin, ...filtered_user } = await this.getRawUserById(id);
+        return filtered_user;
     }
 
     async getRawUserById(id: string): Promise<User> {

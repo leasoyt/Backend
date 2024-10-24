@@ -9,7 +9,7 @@ import { LoginResponseDto } from "src/dtos/auth/login-response.dto";
 import { UpdatePasswordDto } from "src/dtos/user/update-password.dto";
 import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt";
-import { CustomMessagesEnum } from "src/dtos/custom-responses.dto";
+import { HttpMessagesEnum } from "src/dtos/custom-responses.dto";
 
 @Injectable()
 export class AuthService {
@@ -20,18 +20,18 @@ export class AuthService {
         const { email, password, confirmPassword, ...rest_user } = userObject;
 
         if (password !== confirmPassword) {
-            throw new BadRequestException({ message: CustomMessagesEnum.REGISTRATION_FAIL, error: "Passwords don't match!" });
+            throw new BadRequestException({ message: HttpMessagesEnum.REGISTRATION_FAIL, error: "Passwords don't match!" });
         }
 
         const is_existent: User | undefined = await this.userService.getUserByMail(email);
         if (isNotEmpty(is_existent)) {
-            throw new BadRequestException({ message: CustomMessagesEnum.REGISTRATION_FAIL, error: "Email already on use!" });
+            throw new BadRequestException({ message: HttpMessagesEnum.REGISTRATION_FAIL, error: "Email already on use!" });
         }
 
         const hashed_password = await bcrypt.hash(password, 10);
 
         if (!hashed_password) {
-            throw new InternalServerErrorException({ message: CustomMessagesEnum.REGISTRATION_FAIL, error: "Failed to hash password" })
+            throw new InternalServerErrorException({ message: HttpMessagesEnum.REGISTRATION_FAIL, error: "Failed to hash password" })
         }
 
         const user: SanitizedUserDto = await this.userService.createUser({ ...rest_user, email, password: hashed_password });
@@ -43,7 +43,7 @@ export class AuthService {
         const { password, confirmPassword, old_password } = passwordModification;
 
         if (password !== confirmPassword) {
-            throw new BadRequestException({ message: CustomMessagesEnum.UPDATE_PASSWORD_FAIL, error: "Passwords Don't match!" });
+            throw new BadRequestException({ message: HttpMessagesEnum.PASSWORD_UPDATE_FAILED, error: "Passwords Don't match!" });
         }
 
         return await this.userService.updatePassword(id, old_password, password);
@@ -66,7 +66,7 @@ export class AuthService {
                 });
 
                 return {
-                    message: CustomMessagesEnum.LOGIN_SUCCESS,
+                    message: HttpMessagesEnum.LOGIN_SUCCESS,
                     token,
                     user: {
                         name: user.name,
@@ -77,7 +77,7 @@ export class AuthService {
                 }
             }
         }
-        throw new BadRequestException({ message: CustomMessagesEnum.LOGIN_FAIL, error: "Invalid credentials!" });
+        throw new BadRequestException({ message: HttpMessagesEnum.LOGIN_FAIL, error: "Invalid credentials!" });
     }
 
 }

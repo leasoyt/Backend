@@ -10,16 +10,14 @@ import { TableDeletionDto } from "src/dtos/table/table-deletion.dto";
 export class TableController {
     constructor(private readonly tableService: TableService) { }
 
-@Get("getOneById/:id")
-@ApiOperation({ summary: "Conseguir una mesa por id", description: "id de la mesa" })
-async getTableById(@Param("id", ParseUUIDPipe) id: string):Promise<Restaurant_Table>{
-return await this.tableService.getTableById(id)
-}
+    @Get("single/:id")
+    @ApiOperation({ summary: "Conseguir una mesa por id", description: "Uuid de la mesa" })
+    async getTableById(@Param("id", ParseUUIDPipe) id: string): Promise<Restaurant_Table> {
+        return await this.tableService.getTableById(id)
+    }
 
-
-
-    @Get(":id")
-    @ApiOperation({ summary: "Conseguir una lista de las mesas", description: "Uuid del negocio" })
+    @Get("many/:id")
+    @ApiOperation({ summary: "Conseguir una lista de las mesas", description: "Uuid del restaurante" })
     async getTables(@Param("id", ParseUUIDPipe) id: string): Promise<Restaurant_Table[]> {
         return await this.tableService.getRestaurantTables(id);
     }
@@ -28,26 +26,26 @@ return await this.tableService.getTableById(id)
     @ApiBody({
         schema: {
             example: {
-                restaurant_id: "uuid...", 
+                restaurant_id: "uuid...",
                 table_number: 10
             }
         }
     })
-    @ApiOperation({ summary: "Añadir una nueva mesa al restaurante", description: "Uuid del negocio y numero de la mesa 0 - 1000" })
+    @ApiOperation({ summary: "Añadir una nueva mesa al restaurante", description: "Uuid del restaurante y numero de la mesa 0 - 1000" })
     async addTable(@Body() tableOjbect: TableCreationDto): Promise<Restaurant_Table[]> {
         return await this.tableService.addTable(tableOjbect.restaurant_id, tableOjbect.table_number);
     }
 
     @Delete("remove")
     @ApiBody({
-            schema: {
-                example: {
-                    restaurant_id: "uuid...", 
-                    table_id: "uuid..."
-                }
+        schema: {
+            example: {
+                restaurant_id: "uuid...",
+                table_id: "uuid..."
             }
-        })
-    @ApiOperation({ summary: "Eliminar una mesa del restaurante", description: "Uuid del negocio y uuid de la mesa" })
+        }
+    })
+    @ApiOperation({ summary: "Eliminar una mesa del restaurante", description: "Uuid del restaurante y la mesa, para mas seguridad" })
     async deleteTable(@Body() tableObject: TableDeletionDto): Promise<Restaurant_Table[]> {
         return await this.tableService.deleteTable(tableObject.restaurant_id, tableObject.table_id);
     }

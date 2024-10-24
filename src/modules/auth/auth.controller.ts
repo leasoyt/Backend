@@ -8,7 +8,7 @@ import { LoginResponseDto } from "src/dtos/auth/login-response.dto";
 import { UpdatePasswordDto } from "src/dtos/user/update-password.dto";
 import { isNotEmptyObject } from "class-validator";
 import { AuthGuard } from "src/guards/auth.guard";
-import { CustomMessagesEnum, CustomResponseDto } from "src/dtos/custom-responses.dto";
+import { HttpMessagesEnum, HttpResponseDto } from "src/dtos/custom-responses.dto";
 
 @ApiTags("Authentication")
 @Controller("auth")
@@ -61,7 +61,7 @@ export class AuthController {
     @UseGuards(AuthGuard)
     @ApiBearerAuth()
     @ApiOperation({ summary: "actualiza la contraseña", description: "uuid de usuario y body de cambio de contraseña" })
-    async updatePassword(@Param("id", ParseUUIDPipe) id: string, @Body() passwordModification: UpdatePasswordDto): Promise<CustomResponseDto> {
+    async updatePassword(@Param("id", ParseUUIDPipe) id: string, @Body() passwordModification: UpdatePasswordDto): Promise<HttpResponseDto> {
 
         if (!isNotEmptyObject(passwordModification)) {
             throw new BadRequestException("body values are empty");
@@ -69,7 +69,7 @@ export class AuthController {
 
         await this.authService.updateAndHashPassword(id, passwordModification);
 
-        return { message: CustomMessagesEnum.UPDATE_PASSWORD_SUCCESS }
+        return { message: HttpMessagesEnum.PASSWORD_UPDATE_SUCCESS }
     }
 
 }

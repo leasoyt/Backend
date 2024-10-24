@@ -19,9 +19,7 @@ export class UserRepository {
 
     async updateUser(actual_user: User, modified_user: UpdateUserDto): Promise<User> {
         this.userRepository.merge(actual_user, modified_user);
-        await this.userRepository.save(actual_user);
-
-        return actual_user;
+        return await this.userRepository.save(actual_user);
     }
 
     async getUserByMail(email: string): Promise<User> {
@@ -52,7 +50,7 @@ export class UserRepository {
             await this.userRepository.save(userInstance);
             return await this.getUserById(userInstance.id);
         } catch (err) {
-            throw new InternalServerErrorException({message: "Failed to upgrade user role", error: err});
+            throw new InternalServerErrorException({ message: "Failed to upgrade user role", error: err });
         }
     }
 

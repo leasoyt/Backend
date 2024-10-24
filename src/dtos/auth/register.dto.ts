@@ -1,6 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUrl, Length, Matches, Validate, ValidateNested } from "class-validator"
-import { RegisterRestaurantDto } from "../restaurant/register-restaurant.dto"
-import { Type } from "class-transformer"
+import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUrl, Length, Matches, Validate } from "class-validator"
 import { MatchPassword } from "src/validators/matchPassword.validator"
 
 /**
@@ -41,8 +39,8 @@ export class RegisterDto {
     @Length(3, 50)
     country?: string;
 
-    @IsOptional()
-    @ValidateNested()
-    @Type(() => RegisterRestaurantDto)
-    establishment?: RegisterRestaurantDto;
+    // @IsOptional()
+    // @ValidateNested()
+    // @Type(() => RegisterRestaurantDto)
+    // establishment?: RegisterRestaurantDto;
 }

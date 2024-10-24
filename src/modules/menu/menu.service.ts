@@ -3,34 +3,45 @@ import { MenuRepository } from './menu.repository';
 import { RestaurantService } from '../restaurant/restaurant.service';
 import { Restaurant } from 'src/entities/restaurant.entity';
 import { Menu } from 'src/entities/menu.entity';
+import { HandleError } from 'src/decorators/generic-error.decorator';
+import { HttpMessagesEnum } from 'src/dtos/custom-responses.dto';
 
 @Injectable()
 export class MenuService {
   constructor(private readonly menuRepository: MenuRepository, @Inject(forwardRef(() => RestaurantService)) private restaurantService: RestaurantService) { }
 
   async createMenu(restaurantId: string): Promise<Menu> {
+    try {
+      const restaurant: Restaurant = await this.restaurantService.getRestaurantById(restaurantId);
+
+      return this.menuRepository.createMenu(restaurant);
+    } catch (err) {
+      throw err?.error || { error: "Menu creation failed" };
+    }
+  }
+
+  @HandleError(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
+  async getMenuWithCategories(restaurantId: string): Promise<Menu> {
     const restaurant: Restaurant = await this.restaurantService.getRestaurantById(restaurantId);
-    return this.menuRepository.createMenu(restaurant);
+    const found_menu: Menu | undefined = await this.menuRepository.getMenuByRestaurant(restaurant, true);
+    
+    if (found_menu === undefined) {
+      throw {error: "Menu with categories can't be found"}
+    }
+
+    return found_menu;
   }
 
-  async getMenuCategories(): Promise<Menu> {
-    return new Menu();
-  }
-
-  async getMenuWithDishes(restaurantId: string): Promise<Menu> {
-    const found_restaurant: Restaurant =
-      await this.restaurantService.getRestaurantById(restaurantId);
-    return this.menuRepository.getMenuWithDishes(found_restaurant);
-  }
-
-  async getMenuByRestaurantId(id: string) {
+  @HandleError(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
+  async getMenuByRestaurantId(id: string): Promise<Menu> {
     const restaurant: Restaurant = await this.restaurantService.getRestaurantById(id);
-    const menu: Menu | undefined = await this.menuRepository.getMenuByRestaurant(restaurant);
+    const menu: Menu | undefined = await this.menuRepository.getMenuByRestaurant(restaurant, false);
 
-    if(menu === undefined) {
-      throw new NotFoundException("Can't find menu for this establishment");
+    if (menu === undefined) {
+      throw { error: "Menu not found" };
     }
 
     return menu;
   }
+
 }
