@@ -4,7 +4,7 @@ import { RegisterRestaurantDto } from 'src/dtos/restaurant/register-restaurant.d
 import { UpdateRestaurant } from 'src/dtos/restaurant/updateRestaurant.dto';
 import { Restaurant } from 'src/entities/restaurant.entity';
 import { User } from 'src/entities/user.entity';
-import { Like, Repository } from 'typeorm';
+import { Like, Repository, MoreThanOrEqual } from 'typeorm';
 
 @Injectable()
 export class RestaurantRepository {
@@ -36,22 +36,20 @@ export class RestaurantRepository {
     
     // Si se proporciona búsqueda, añadir filtros de búsqueda por nombre, dirección o descripción
     if (search) {
-      where.name = Like(`%${search}%`);
-      where.address = Like(`%${search}%`);
-      where.description = Like(`%${search}%`);
+      where.push(
+        { name: Like(`%${search}%`) },
+        { address: Like(`%${search}%`) },
+        { description: Like(`%${search}%`) },
+      );
     }
 
     // Si se proporciona rating, añadir filtro por calificación
     if (rating) {
-      where.rating = { $gte: rating }; // Esto asume que tienes un campo "rating" en la entidad
+      where.push({ rating: MoreThanOrEqual(rating) }); // Asegúrate de usar el operador correcto
     }
 
     const [restaurants, total] = await this.restaurantRepository.findAndCount({
-      where: [
-        { name: Like(`%${search}%`) },
-        { address: Like(`%${search}%`) },
-        { description: Like(`%${search}%`) },
-      ],
+      where,
       skip: (page - 1) * limit,
       take: limit,
       order: { name: 'ASC' },

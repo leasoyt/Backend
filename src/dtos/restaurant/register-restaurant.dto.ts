@@ -32,7 +32,7 @@ export class RegisterRestaurantDto {
   imgUrl?: string;
 
   @IsUUID()
-  @IsNotEmpty()
+  @IsOptional()
   future_manager: string;
 
   // Array de horarios del restaurante

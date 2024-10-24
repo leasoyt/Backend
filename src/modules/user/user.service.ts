@@ -8,13 +8,25 @@ import { SanitizedUserDto } from "src/dtos/user/sanitized-user.dto";
 import { RegisterDto } from "src/dtos/auth/register.dto";
 import * as bcrypt from "bcrypt";
 import { UserRole } from "src/enums/roles.enum";
-import { HttpMessagesEnum } from "src/dtos/custom-responses.dto";
-import { HandleError } from "src/decorators/generic-error.decorator";
+import { CustomMessagesEnum } from "src/dtos/custom-responses.dto";
+import { LoginDto } from "src/dtos/auth/login.dto";
+import { UserType } from "src/types/user.type";
 
 @Injectable()
 export class UserService {
-
+    
     constructor(private readonly userRepository: UserRepository) { }
+
+
+
+async getProfile(id:string){
+const user=await  this.userRepository.getUserById(id)
+if(!user){
+  throw new NotFoundException({ message: CustomMessagesEnum.UPDATE_USER_FAILED, error: "user not found" });
+}
+return this.userRepository.getProfile(user)
+}
+
 
     async rankUpTo(id: string, role: UserRole): Promise<User> {
         try {
@@ -25,10 +37,14 @@ export class UserService {
             throw new BadRequestException({ message: HttpMessagesEnum.RANKING_UP_FAIL, error: err?.error || err });
         }
     }
-
+  
+    getUsers(page: number, limit: number) {
+       return this.userRepository.getUsers(page,limit)
+    }
+    
     async updateUser(id: string, modified_user: UpdateUserDto): Promise<SanitizedUserDto> {
         const found_user: User | undefined = await this.userRepository.getUserById(id);
-
+        
         if (isEmpty(found_user)) {
             throw new NotFoundException({ message: HttpMessagesEnum.USER_UPDATE_FAILED, error: "user not found" });
         }

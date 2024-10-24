@@ -9,11 +9,13 @@ import { RolesGuard } from "src/guards/roles.guard";
 import { AuthGuard } from "src/guards/auth.guard";
 import { HttpResponseDto } from "src/dtos/custom-responses.dto";
 
-@ApiTags("Restaurant")
-@Controller("restaurant")
+@ApiTags('Restaurant')
+@Controller('restaurant')
 export class RestaurantController {
     constructor(private readonly restaurantService: RestaurantService) { }
 
+    @Get('query')
+    @ApiOperation({ summary: 'QueryParameter complejo para obtener una lista de restaurantes organizada' })
     @Get("query")
     @ApiOperation({ summary: "QueryParameter complejo para obtener una lista de restaurantes organizada" })
     async getRestaurantsQuery(@Query("page") page: number = 1, @Query("limit") limit: number = 10, @Query("rating") rating: number, @Query("search") search: string): Promise<any> {
@@ -41,7 +43,7 @@ export class RestaurantController {
 
     @Put("update")
     @Roles(UserRole.MANAGER)
-    @UseGuards(RolesGuard)
+    @UseGuards(RolesGuard, AuthGuard)
     @ApiBearerAuth()
     @ApiOperation({ summary: "Actualiza un restaurante", description: "Id de restaurante y objeto de modificacion" })
     async updateRestaurant(@Param(":id", ParseUUIDPipe) id: string, @Body() restaurantObject: RegisterRestaurantDto): Promise<any> {

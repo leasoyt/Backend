@@ -1,10 +1,14 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, ParseUUIDPipe, Post, } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MenuCategoryService } from './menu_category.service';
 import { CreateMenuCategoryDto } from 'src/dtos/menu/menu_category.dto';
 import { Menu_Category } from 'src/entities/menu_category.entity';
-import { HttpMessagesEnum, HttpResponseDto } from 'src/dtos/custom-responses.dto';
+import { Roles } from 'src/decorators/roles.decorator';
+import { UserRole } from 'src/enums/roles.enum';
+import { AuthGuard } from 'src/guards/auth.guard';
+import { RolesGuard } from 'src/guards/roles.guard';
 import { HandleError } from 'src/decorators/generic-error.decorator';
+import { HttpMessagesEnum, HttpResponseDto } from 'src/dtos/custom-responses.dto';
 
 @ApiTags('Menu Categories')
 @Controller('menu-category')
@@ -12,6 +16,8 @@ export class MenuCategoryController {
   constructor(private readonly menuCategoryService: MenuCategoryService) { }
 
   @Post()
+  @Roles(UserRole.MANAGER)
+  @UseGuards(AuthGuard,RolesGuard)
   @ApiOperation({ summary: "crear una nueva categoria", description: "se necesita el nombre de la categoria y el id del restaurante" })
   @ApiBody({
     schema: {
@@ -32,7 +38,9 @@ export class MenuCategoryController {
     return await this.menuCategoryService.getCategoryAndDishes(id);
   }
 
-  @Delete(':id')
+  @Delete(':id') 
+  @Roles(UserRole.MANAGER)
+  @UseGuards(AuthGuard,RolesGuard)
   @ApiOperation({ summary: "Eliminacion de una categoria del menu", description: "uuid de la categoria, !ADVERTENCIA: esto eliminaria a los platos que contiene" })
   async deleteMenuCategory(@Param('id', ParseUUIDPipe) id: string): Promise<HttpResponseDto> {
     return await this.menuCategoryService.deleteMenuCategory(id);

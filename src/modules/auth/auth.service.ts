@@ -14,70 +14,70 @@ import { HttpMessagesEnum } from "src/dtos/custom-responses.dto";
 @Injectable()
 export class AuthService {
 
-    constructor(private readonly userService: UserService, private readonly jwtService: JwtService) { }
+  constructor(private readonly userService: UserService, private readonly jwtService: JwtService) { }
 
-    async userRegistration(userObject: RegisterDto): Promise<SanitizedUserDto> {
-        const { email, password, confirmPassword, ...rest_user } = userObject;
 
-        if (password !== confirmPassword) {
-            throw new BadRequestException({ message: HttpMessagesEnum.REGISTRATION_FAIL, error: "Passwords don't match!" });
-        }
+  async userRegistration(userObject: RegisterDto): Promise<SanitizedUserDto> {
+    const { email, password, confirmPassword, ...rest_user } = userObject;
 
-        const is_existent: User | undefined = await this.userService.getUserByMail(email);
-        if (isNotEmpty(is_existent)) {
-            throw new BadRequestException({ message: HttpMessagesEnum.REGISTRATION_FAIL, error: "Email already on use!" });
-        }
-
-        const hashed_password = await bcrypt.hash(password, 10);
-
-        if (!hashed_password) {
-            throw new InternalServerErrorException({ message: HttpMessagesEnum.REGISTRATION_FAIL, error: "Failed to hash password" })
-        }
-
-        const user: SanitizedUserDto = await this.userService.createUser({ ...rest_user, email, password: hashed_password });
-        return user;
-
+    if (password !== confirmPassword) {
+      throw new BadRequestException({ message: HttpMessagesEnum.REGISTRATION_FAIL, error: "Passwords don't match!" });
     }
 
-    async updateAndHashPassword(id: string, passwordModification: UpdatePasswordDto): Promise<SanitizedUserDto> {
-        const { password, confirmPassword, old_password } = passwordModification;
-
-        if (password !== confirmPassword) {
-            throw new BadRequestException({ message: HttpMessagesEnum.PASSWORD_UPDATE_FAILED, error: "Passwords Don't match!" });
-        }
-
-        return await this.userService.updatePassword(id, old_password, password);
+    const is_existent: User | undefined = await this.userService.getUserByMail(email);
+    if (isNotEmpty(is_existent)) {
+      throw new BadRequestException({ message: HttpMessagesEnum.REGISTRATION_FAIL, error: "Email already on use!" });
     }
 
-    async userLogin(credentials: LoginDto): Promise<LoginResponseDto> {
-        const { email, password } = credentials;
+    const hashed_password = await bcrypt.hash(password, 10);
 
-        const user: User | undefined = await this.userService.getUserByMail(email);
-
-        if (isNotEmpty(user)) {
-
-            const is_valid_password = await bcrypt.compare(password, user.password);
-
-            if (is_valid_password) {
-                const token = this.jwtService.sign({
-                    id: user.id,
-                    email: user.email,
-                    role: user.role,
-                });
-
-                return {
-                    message: HttpMessagesEnum.LOGIN_SUCCESS,
-                    token,
-                    user: {
-                        name: user.name,
-                        email: user.email,
-                        country: user.country,
-                        profile_image: user.profile_image
-                    }
-                }
-            }
-        }
-        throw new BadRequestException({ message: HttpMessagesEnum.LOGIN_FAIL, error: "Invalid credentials!" });
+    if (!hashed_password) {
+      throw new InternalServerErrorException({ message: HttpMessagesEnum.REGISTRATION_FAIL, error: "Failed to hash password" })
     }
 
+    const user: SanitizedUserDto = await this.userService.createUser({ ...rest_user, email, password: hashed_password });
+    return user;
+  }
+
+
+  async updateAndHashPassword(id: string, passwordModification: UpdatePasswordDto): Promise<SanitizedUserDto> {
+    const { password, confirmPassword, old_password } = passwordModification;
+
+    if (password !== confirmPassword) {
+      throw new BadRequestException({ message: HttpMessagesEnum.PASSWORD_UPDATE_FAILED, error: "Passwords Don't match!" });
+    }
+
+    return await this.userService.updatePassword(id, old_password, password);
+  }
+  
+
+  async userLogin(credentials: LoginDto): Promise<LoginResponseDto> {
+    const { email, password } = credentials;
+
+    const user: User | undefined = await this.userService.getUserByMail(email);
+
+    if (isNotEmpty(user)) {
+      const is_valid_password = await bcrypt.compare(password, user.password);
+
+      if (is_valid_password) {
+        const token = this.jwtService.sign({
+          id: user.id,
+          email: user.email,
+          role: user.role,
+        });
+
+        return {
+          message: HttpMessagesEnum.LOGIN_SUCCESS,
+          token,
+          user: {
+            name: user.name,
+            email: user.email,
+            country: user.country,
+            profile_image: user.profile_image,
+          },
+        };
+      }
+    }
+    throw { error: 'Invalid credentials!' };
+  }
 }
