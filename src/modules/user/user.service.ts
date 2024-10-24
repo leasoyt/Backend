@@ -9,6 +9,8 @@ import { RegisterDto } from "src/dtos/auth/register.dto";
 import * as bcrypt from "bcrypt";
 import { UserRole } from "src/enums/roles.enum";
 import { CustomMessagesEnum } from "src/dtos/custom-responses.dto";
+import { LoginDto } from "src/dtos/auth/login.dto";
+import { UserType } from "src/types/user.type";
 
 @Injectable()
 export class UserService {
@@ -18,7 +20,11 @@ export class UserService {
 
 
 async getProfile(id:string){
-return await this.userRepository.getProfile(id)
+const user=await  this.userRepository.getUserById(id)
+if(!user){
+  throw new NotFoundException({ message: CustomMessagesEnum.UPDATE_USER_FAILED, error: "user not found" });
+}
+return this.userRepository.getProfile(user)
 }
 
 

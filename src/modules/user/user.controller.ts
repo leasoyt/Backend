@@ -43,18 +43,18 @@ export class UserController {
     return this.userService.getUsers(page, limit);
   }
 
-//   @ApiBearerAuth()
-//   @Get('profile/:id')
-//   @UseGuards(AuthGuard)
-//   @ApiOperation({
-//     summary: 'obtener el perfil del usuario autenticado',
-//     description: 'Obtiene los datos del usuario logueado',
-//   })
-//   async getProfile(
-//     @Req() req: Request,
-//   ) {
-//   console.log(req)
-//   }
+  @ApiBearerAuth()
+  @Get('profile')
+  @UseGuards(AuthGuard)
+  @ApiOperation({
+    summary: 'obtener el perfil del usuario autenticado',
+    description: 'Obtiene los datos del usuario logueado',
+  })
+  async getProfile(
+    @Req() req: Request,
+  ) {
+    return this.userService.getProfile(req.user.id)
+  }
 
   // @ApiBearerAuth()
   @Get(':id')
