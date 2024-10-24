@@ -14,10 +14,6 @@ export class RestaurantService {
     private readonly userService: UserService,
   ) {}
 
-
-
-
-
   async getRestaurantById(id: string): Promise<Restaurant> {
     const found_restaurant: Restaurant | undefined =
       await this.restaurantRepository.getRestaurantById(id);
@@ -29,11 +25,12 @@ export class RestaurantService {
     return found_restaurant;
   }
 
-  async deleteRestaurant(id: string):Promise<void> {
-    return this.restaurantRepository.deleteRestaurant(id)
+  async deleteRestaurant(id: string): Promise<void> {
+    return this.restaurantRepository.deleteRestaurant(id);
   }
 
   async createRestaurant(
+    userId: string,
     restaurantObject: RegisterRestaurantDto,
   ): Promise<Restaurant> {
     const future_manager: User = await this.userService.rankUpTo(
