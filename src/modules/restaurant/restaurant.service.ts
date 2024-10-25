@@ -55,7 +55,18 @@ export class RestaurantService {
     return this.restaurantRepository.updateRestaurant(found_restaurant, updateData);
   }
 
-  async getRestaurantsQuery(page: number, limit: number, rating?: number, search?: string) {
-    return this.restaurantRepository.getRestaurantsQuery(page, limit, rating, search);
+  @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, InternalServerErrorException)
+  async getRestaurantsQuery(page: number, limit: number, rating?: number, search?: string): Promise<any> {
+    if (rating < 0 || rating > 5) {
+      throw { error: "Rating must be between 0 - 5", exception: BadRequestException };
+    }
+
+    const found_restaurants = await this.restaurantRepository.getRestaurantsQuery(page, limit, rating, search);
+
+    if (found_restaurants.restaurants.length === 0) {
+      throw { error: "Limit out of restaurant bounds", exception: NotFoundException };
+    }
+
+    return found_restaurants;
   }
 }

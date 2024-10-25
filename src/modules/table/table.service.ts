@@ -12,8 +12,9 @@ export class TableService {
 
     constructor(private readonly tableRepository: TableRepository, private readonly restaurantService: RestaurantService) { }
 
-    async getTableById(id: string): Promise<Restaurant_Table> {
-        const found_table: undefined | Restaurant_Table = await this.tableRepository.getTable(id);
+    async getTableById(id: string, restaurantId?: string): Promise<Restaurant_Table> {
+        const found_restaurant: Restaurant | null = restaurantId ? await this.restaurantService.getRestaurantById(restaurantId) : null;
+        const found_table: undefined | Restaurant_Table = await this.tableRepository.getTable(id, found_restaurant);
 
         if (found_table === undefined) {
             throw { error: "Can't find table with provided id" };
@@ -47,7 +48,7 @@ export class TableService {
 
     @TryCatchWrapper(HttpMessagesEnum.TABLE_DELETION_FAIL, BadRequestException)
     async deleteTable(restaurantId: string, tableId: string): Promise<HttpResponseDto> {
-        const table: Restaurant_Table = await this.getTableById(tableId);
+        const table: Restaurant_Table = await this.getTableById(tableId, restaurantId);
         const deletion_result: Restaurant_Table | undefined = await this.tableRepository.deleteTable(table);
 
         if (deletion_result === undefined) {
