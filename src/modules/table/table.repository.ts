@@ -10,9 +10,9 @@ export class TableRepository {
 
     constructor(@InjectRepository(Restaurant_Table) private tableRepository: Repository<Restaurant_Table>) { }
 
-    async addTable(restaurantInstance: Restaurant, tableNumber: number): Promise<Restaurant_Table| undefined> {
-        const created_table: Restaurant_Table | null = this.tableRepository.create({number: tableNumber, restaurant: restaurantInstance});
-        if(!isNotEmpty(created_table)){
+    async addTable(restaurantInstance: Restaurant, tableNumber: number): Promise<Restaurant_Table | undefined> {
+        const created_table: Restaurant_Table | null = this.tableRepository.create({ number: tableNumber, restaurant: restaurantInstance });
+        if (!isNotEmpty(created_table)) {
             return undefined;
         }
         return await this.tableRepository.save(created_table);
@@ -28,8 +28,12 @@ export class TableRepository {
         return found_tables === null ? undefined : found_tables;
     }
 
-    async getTable(id: string): Promise<Restaurant_Table> {
-        const found_table: null | Restaurant_Table = await this.tableRepository.findOne({ where: { id: id } });
+    async getTable(id: string, restaurantInstance?: Restaurant | null): Promise<Restaurant_Table> {
+        const found_table: null | Restaurant_Table = restaurantInstance ?
+            await this.tableRepository.findOne({ where: { id: id, restaurant: restaurantInstance } })
+            :
+            await this.tableRepository.findOne({ where: { id: id } });
+
         return found_table === null ? undefined : found_table;
     }
 

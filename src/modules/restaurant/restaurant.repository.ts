@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { isNumber } from 'class-validator';
 import { RegisterRestaurantDto } from 'src/dtos/restaurant/register-restaurant.dto';
 import { UpdateRestaurant } from 'src/dtos/restaurant/updateRestaurant.dto';
 import { Restaurant } from 'src/entities/restaurant.entity';
 import { User } from 'src/entities/user.entity';
-import { Like, Repository, MoreThanOrEqual } from 'typeorm';
+import { Like, Repository, MoreThanOrEqual, Equal } from 'typeorm';
 
 @Injectable()
 export class RestaurantRepository {
@@ -35,20 +36,18 @@ export class RestaurantRepository {
   }
 
   async getRestaurantsQuery(page: number, limit: number, rating?: number, search?: string) {
-    const where: any = {};
+    const where = { rating: null, name: null, adress: null, description: null };
 
-    // Si se proporciona búsqueda, añadir filtros de búsqueda por nombre, dirección o descripción
     if (search) {
-      where.push(
-        { name: Like(`%${search}%`) },
-        { address: Like(`%${search}%`) },
-        { description: Like(`%${search}%`) },
-      );
+      console.log(search);
+      // where.push({ name: Like(`%${search}%`) }, { address: Like(`%${search}%`) }, { description: Like(`%${search}%`) },);
+      where.name = Like(`%${search}%`);
+      where.description = Like(`%${search}%`);
+      where.adress = Like(`%${search}%`);
     }
 
-    // Si se proporciona rating, añadir filtro por calificación
-    if (rating) {
-      where.push({ rating: MoreThanOrEqual(rating) }); // Asegúrate de usar el operador correcto
+    if (rating >= 0 || rating <= 5) {
+      where.rating = rating;
     }
 
     const [restaurants, total] = await this.restaurantRepository.findAndCount({
