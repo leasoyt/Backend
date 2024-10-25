@@ -12,6 +12,9 @@ import { RestaurantModule } from './modules/restaurant/restaurant.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { UploadModule } from './uploads/upload.module';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './guards/jwt.strategy';
+
 
 @Module({
   imports: [
@@ -31,6 +34,8 @@ import { UploadModule } from './uploads/upload.module';
       useFactory: (configService: ConfigService) =>
         configService.get('typeorm'),
     }),
+
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     UsersModule,
     AuthModule,
     DishModule,
@@ -42,6 +47,6 @@ import { UploadModule } from './uploads/upload.module';
     UploadModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [JwtStrategy],
 })
 export class AppModule {}

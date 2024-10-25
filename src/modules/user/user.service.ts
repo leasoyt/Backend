@@ -9,11 +9,16 @@ import { RegisterDto } from "src/dtos/auth/register.dto";
 import * as bcrypt from "bcrypt";
 import { UserRole } from "src/enums/roles.enum";
 import { CustomMessagesEnum } from "src/dtos/custom-responses.dto";
+import { HttpService } from "@nestjs/axios";
+import { firstValueFrom } from "rxjs";
+import { config as dotenvConfig } from 'dotenv';
+
+dotenvConfig({ path: './env' });
 
 @Injectable()
 export class UserService {
 
-    constructor(private readonly userRepository: UserRepository) { }
+    constructor(private readonly userRepository: UserRepository, private readonly httpService: HttpService) { }
 
     async rankUpTo(id: string, role: UserRole): Promise<User> {
         try {
@@ -110,4 +115,64 @@ export class UserService {
         return await this.userRepository.deleteUser(to_delete);
     }
 
+    // Para asignarle un Rol a un usuario de Auth0
+    async assignRoleUser(idUserAuth0: string, rol: UserRole) {
+        let roleId: string;
+        const managerRolId: string = 'rol_jpBPeHyzDQ1DUuhV';
+        const waiterRolId: string = 'rol_C5w7SEkBGdqxoQL8';
+        // if(rol === UserRole.MANAGER) {
+            roleId = 'rol_jpBPeHyzDQ1DUuhV';
+            // await this.deleteRolUser(idUserAuth0, consumerRolId);
+        // } else if (rol === UserRole.WAITER) {
+        //     roleId = 'rol_C5w7SEkBGdqxoQL8';
+        // }
+        const userId = 'auth0|6719d2b707c0856cec1febf0';
+        const accessToken = process.env.MGMT_API_ACCESS_TOKENAUTH0
+        const domain = 'https://dev-0p5tgtzfost47liw.us.auth0.com/'
+        const options = {
+            method: 'POST',
+            url: `${domain}api/v2/users/${userId}/roles`,
+            headers: {
+                'content-type': 'application/json',
+                authorization: `Bearer ${accessToken}`,
+                'cache-control': 'no-cache'
+            },
+            data: {roles: [roleId]}
+          };
+          try {
+            const response = await firstValueFrom(this.httpService.request(options));
+            console.log(response)
+            return response.data;
+          } catch (error) {
+            console.log('todo salió mal')
+            console.error(error);
+            throw new BadRequestException('Problema con el servidor de Auth0')
+          }
+    }
+
+    // Para quitar un Rol a un usuario de Auth0
+    async deleteRolUser(idUserAuth0: string, idAuth0Rol: string) {
+        const userId = 'auth0|6719d2b707c0856cec1febf0';
+        const accessToken = process.env.MGMT_API_ACCESS_TOKENAUTH0
+        const domain = 'https://dev-0p5tgtzfost47liw.us.auth0.com/'
+        const options = {
+            method: 'DELETE',
+            url: `${domain}api/v2/users/${userId}/roles`,
+            headers: {
+                'content-type': 'application/json',
+                authorization: `Bearer ${accessToken}`,
+                'cache-control': 'no-cache'
+            },
+            data: {roles: [idAuth0Rol]}
+          };
+          try {
+            const response = await firstValueFrom(this.httpService.request(options));
+            console.log(response)
+            return response.data;
+          } catch (error) {
+            console.log('todo salió mal')
+            console.error(error);
+            throw error; // Maneja el error según tus necesidades
+          }
+    }
 }

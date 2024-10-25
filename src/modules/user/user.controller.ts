@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, ParseUUIDPipe, Put } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put } from "@nestjs/common";
 import { UpdateUserDto } from "src/dtos/user/update-user.dto";
 import { UserService } from "./user.service";
 import { isNotEmpty, isNotEmptyObject } from "class-validator";
@@ -11,6 +11,13 @@ import { CustomMessagesEnum } from "src/dtos/custom-responses.dto";
 export class UserController {
 
     constructor(private readonly userService: UserService) { }
+
+    // Sólo para probar la asignación de roles de Auth0
+
+    // @Get('assignAuth0rol')
+    // async assignRoleUser(@Param("id") id: string, @Body() rol: any){
+    //     return await this.userService.assignRoleUser(id, rol)
+    // }
 
     @Get(":id")
     @ApiOperation({ summary: "obtiene un usuario por su id" })

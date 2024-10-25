@@ -1,19 +1,27 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, Request, UseGuards } from "@nestjs/common";
 import { ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { DishService } from "./dish.service";
 import { CreateDishDto } from "src/dtos/dish/create-dish.dto";
 import { UpdateDishDto } from "src/dtos/dish/update-dish.dto";
 import { CustomResponseDto } from "src/dtos/custom-responses.dto";
 import { Dish } from "src/entities/dish.entity";
+import { AuthGuard } from "@nestjs/passport";
+import { Roles } from "src/decorators/roles.decorator";
+import { UserRole } from 'src/enums/roles.enum';
+import { RolesAuth0Guard } from "src/guards/roles-auth0.guard";
 
 @ApiTags("Dishes")
 @Controller('dish')
 export class DishController {
     constructor(private readonly dishService: DishService) { }
 
-    @Get(":id")
+    // Protección para la autenticación y por roles de Auth0
+    // @UseGuards(AuthGuard('jwt'), RolesAuth0Guard)
     @ApiOperation({summary: "consigue toda la info de un platillo", description: "Se necesita la uuid del platillo"})
-    async getDishById(@Param("id", ParseUUIDPipe) id: string): Promise<Dish> {
+    @Roles(UserRole.MANAGER)
+    @Get(":id")
+    async getDishById(@Param("id", ParseUUIDPipe) id: string, @Request() req: any): Promise<Dish> {
+        console.log(req.user)
         return await this.dishService.getDishErrorHandled(id);
     }
 
