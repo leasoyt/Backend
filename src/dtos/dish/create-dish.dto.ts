@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUrl, IsUUID, Length } from "class-validator"
+import { IsDecimal, IsNotEmpty, IsOptional, IsString, IsUrl, IsUUID, Length } from "class-validator"
 
 export class CreateDishDto {
     @IsNotEmpty()
@@ -7,8 +7,8 @@ export class CreateDishDto {
     name: string;
 
     @IsNotEmpty()
-    @IsNumber() 
-    price: number;
+    @IsDecimal()
+    price: string;
 
     @IsOptional()
     @IsString()
@@ -17,7 +17,7 @@ export class CreateDishDto {
 
     @IsOptional()
     @IsUrl()
-    dish_image?: string;
+    imgUrl?: string;
 
     @IsNotEmpty()
     @IsUUID()

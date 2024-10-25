@@ -18,10 +18,6 @@ export class Menu_Category_Repository {
     return menu_category === null? undefined : menu_category;
   }
 
-  // async getCategories(found_menu: Menu): Promise<Menu_Category[]> {
-  //   return await this.menu_Category_Repository.find({ where: { menu: found_menu }, relations: ['dishes'] })
-  // }
-
   async getCategoryAndDishes(id: string): Promise<Menu_Category | undefined> {
     const menu_category: Menu_Category | null = await this.menu_Category_Repository.findOne({ where: { id }, relations: { dishes: true } });
 

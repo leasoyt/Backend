@@ -1,18 +1,20 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, UseGuards, } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MenuCategoryService } from './menu_category.service';
 import { CreateMenuCategoryDto } from 'src/dtos/menu/menu_category.dto';
 import { Menu_Category } from 'src/entities/menu_category.entity';
-import { MenuCategoryDeletionResult } from 'src/dtos/menu/delete-menu-category.dto';
 import { Roles } from 'src/decorators/roles.decorator';
 import { UserRole } from 'src/enums/roles.enum';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
+import { HandleError } from 'src/decorators/generic-error.decorator';
+import { HttpResponseDto } from 'src/dtos/http-response.dto';
+import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 
 @ApiTags('Menu Categories')
 @Controller('menu-category')
 export class MenuCategoryController {
-  constructor(private readonly menu_category_service: MenuCategoryService) { }
+  constructor(private readonly menuCategoryService: MenuCategoryService) { }
 
   @Post()
   @Roles(UserRole.MANAGER)
@@ -27,20 +29,21 @@ export class MenuCategoryController {
     }
   })
   async createMenuCategory(@Body() menuCategory: CreateMenuCategoryDto): Promise<Omit<Menu_Category, "menu">> {
-    return await this.menu_category_service.createMenuCategory(menuCategory);
+    return await this.menuCategoryService.createMenuCategory(menuCategory);
   }
 
   @Get(':id')
+  @HandleError(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
   @ApiOperation({ summary: "Consigue los platos de una categoria enlistados", description: "uuid de la categoria" })
   async getCategoryAndDishes(@Param('id', ParseUUIDPipe) id: string): Promise<Menu_Category> {
-    return await this.menu_category_service.getCategoryAndDishes(id);
+    return await this.menuCategoryService.getCategoryAndDishes(id);
   }
 
   @Delete(':id') 
   @Roles(UserRole.MANAGER)
   @UseGuards(AuthGuard,RolesGuard)
   @ApiOperation({ summary: "Eliminacion de una categoria del menu", description: "uuid de la categoria, !ADVERTENCIA: esto eliminaria a los platos que contiene" })
-  async deleteMenuCategory(@Param('id', ParseUUIDPipe) id: string): Promise<MenuCategoryDeletionResult> {
-    return await this.menu_category_service.deleteMenuCategory(id);
+  async deleteMenuCategory(@Param('id', ParseUUIDPipe) id: string): Promise<HttpResponseDto> {
+    return await this.menuCategoryService.deleteMenuCategory(id);
   }
 }

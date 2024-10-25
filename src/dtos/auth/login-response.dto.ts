@@ -2,7 +2,7 @@ import { PickType } from "@nestjs/swagger";
 import { RegisterDto } from "./register.dto";
 import { IsNotEmpty, IsString, NotContains, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
-import { CustomMessagesEnum } from "../custom-responses.dto";
+import { HttpMessagesEnum } from "../../enums/httpMessages.enum";
 
 /**
  * Dto: Respuesta de logueo exitoso
@@ -10,7 +10,7 @@ import { CustomMessagesEnum } from "../custom-responses.dto";
 export class LoginResponseDto {
     @IsNotEmpty()
     @IsString()
-    message: CustomMessagesEnum.LOGIN_SUCCESS | CustomMessagesEnum.LOGIN_FAIL;
+    message: HttpMessagesEnum.LOGIN_SUCCESS | HttpMessagesEnum.LOGIN_FAIL;
 
     @IsNotEmpty()
     @IsString()

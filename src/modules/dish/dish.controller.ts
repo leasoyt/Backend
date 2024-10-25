@@ -1,10 +1,12 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, NotFoundException, Param, ParseUUIDPipe, Post, Put, UseGuards } from "@nestjs/common";
 import { ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { DishService } from "./dish.service";
 import { CreateDishDto } from "src/dtos/dish/create-dish.dto";
 import { UpdateDishDto } from "src/dtos/dish/update-dish.dto";
-import { CustomResponseDto } from "src/dtos/custom-responses.dto";
+import { HttpResponseDto } from "src/dtos/http-response.dto";
+import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 import { Dish } from "src/entities/dish.entity";
+import { HandleError } from "src/decorators/generic-error.decorator";
 import { Roles } from "src/decorators/roles.decorator";
 import { UserRole } from "src/enums/roles.enum";
 import { AuthGuard } from "src/guards/auth.guard";
@@ -16,9 +18,10 @@ export class DishController {
     constructor(private readonly dishService: DishService) { }
 
     @Get(":id")
-    @ApiOperation({summary: "consigue toda la info de un platillo", description: "Se necesita la uuid del platillo"})
+    @HandleError(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
+    @ApiOperation({ summary: "consigue toda la info de un platillo", description: "Se necesita la uuid del platillo" })
     async getDishById(@Param("id", ParseUUIDPipe) id: string): Promise<Dish> {
-        return await this.dishService.getDishErrorHandled(id);
+        return await this.dishService.getDishById(id);
     }
 
     @Post()
@@ -29,7 +32,7 @@ export class DishController {
         schema: {
             example: {
                 name: "banana split",
-                price: 200.40,
+                price: "200.40",
                 description: "descripcion aqui",
                 category: "aaeea451-cdd4-462e-b8b7-11254929ad54"
             }
@@ -47,7 +50,7 @@ export class DishController {
         schema: {
             example: {
                 name: "Macarrones con queso",
-                price: 550.90,
+                price: "550.90",
                 description: "otra descripcion aqui",
             }
         }
@@ -59,7 +62,7 @@ export class DishController {
     @Delete(":id")
     @Roles(UserRole.MANAGER)
     @UseGuards(AuthGuard,RolesGuard)
-    async deleteDish(@Param("id", ParseUUIDPipe) id: string): Promise<CustomResponseDto> {
+    async deleteDish(@Param("id", ParseUUIDPipe) id: string): Promise<HttpResponseDto> {
         return await this.dishService.deleteDish(id);
     }
 }

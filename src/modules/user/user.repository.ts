@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isEmpty } from 'class-validator';
@@ -9,29 +10,13 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserRepository {
-  constructor(
-    @InjectRepository(User) private userRepository: Repository<User>,
-  ) {}
 
+  constructor(@InjectRepository(User) private userRepository: Repository<User>) { }
 
-async getProfile(user:User): Promise<Omit<User,'isAdmin'| 'role'| 'id'| 'password'>>{
-const {role, isAdmin,id,password,...userData}=user
-return userData
-}
+  async getUsers(page: number, limit: number): Promise<Omit<User, 'password'>[]> {
+    const [users, total] = await this.userRepository.findAndCount({ skip: (page - 1) * limit, take: limit });
 
-
-  async getUsers(
-    page: number,
-    limit: number,
-  ): Promise<Omit<User, 'password'>[]> {
-    const [users, total] = await this.userRepository.findAndCount({
-      skip: (page - 1) * limit,
-      take: limit,
-    });
-
-    return users.map(
-      ({ password, ...userWithoutPassword }) => userWithoutPassword,
-    );
+    return users.map(({ password, ...userWithoutPassword }) => userWithoutPassword);
   }
 
   async getUserById(id: string): Promise<User | undefined> {
@@ -41,10 +26,7 @@ return userData
     return found_user === null ? undefined : found_user;
   }
 
-  async updateUser(
-    actual_user: User,
-    modified_user: UpdateUserDto,
-  ): Promise<User> {
+  async updateUser(actual_user: User, modified_user: UpdateUserDto): Promise<User> {
     this.userRepository.merge(actual_user, modified_user);
     await this.userRepository.save(actual_user);
 
@@ -55,43 +37,24 @@ return userData
     return await this.userRepository.findOne({ where: { email: email } });
   }
 
-  async createUser(
-    userObject: Omit<RegisterDto, 'confirmPassword'>,
-  ): Promise<User> {
-    const { name, email, profile_image, country, password } = userObject;
-
-    const created_user: User = this.userRepository.create({
-      name,
-      email,
-      profile_image,
-      country,
-      password,
-    });
+  async createUser(userObject: Omit<RegisterDto, 'confirmPassword'>): Promise<User> {
+    const created_user: User = this.userRepository.create(userObject);
     return await this.userRepository.save(created_user);
   }
 
-  async deleteUser(to_delete: User): Promise<User> {
+  async deleteUser(to_delete: User): Promise<User | undefined> {
     const deletion_result: User = await this.userRepository.remove(to_delete);
 
     if (isEmpty(deletion_result)) {
-      throw new InternalServerErrorException(
-        `Something went wrong trying to delete user: ${to_delete.id}`,
-      );
+      return undefined;
     }
 
     return deletion_result;
   }
 
-  async rankUpTo(userInstance: User, role: UserRole): Promise<User> {
+  async rankUpTo(userInstance: User, role: UserRole): Promise<User | undefined> {
     userInstance.role = role;
-    try {
-      await this.userRepository.save(userInstance);
-      return await this.getUserById(userInstance.id);
-    } catch (err) {
-      throw new InternalServerErrorException({
-        message: 'Failed to upgrade user role',
-        error: err,
-      });
-    }
+    await this.userRepository.save(userInstance);
+    return await this.getUserById(userInstance.id);
   }
 }

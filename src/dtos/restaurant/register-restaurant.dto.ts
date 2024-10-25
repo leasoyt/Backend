@@ -40,8 +40,8 @@ export class RegisterRestaurantDto {
   @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => CreateRestaurantScheduleDto) // Indica que debe validar un array de DTOs de horario
-  schedules: CreateRestaurantScheduleDto[];
-
+  schedules?: CreateRestaurantScheduleDto[];
+  
   @ValidateNested({ each: true })
   @IsArray()
   @IsOptional()

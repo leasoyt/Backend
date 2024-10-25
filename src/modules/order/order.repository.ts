@@ -8,23 +8,28 @@ import { Restaurant_Table } from "src/entities/tables.entity";
 import { Repository } from "typeorm";
 
 @Injectable()
-export class OrderRepository{
-    
-    constructor(@InjectRepository(Order) private orderRepository: Repository<Order>){}
+export class OrderRepository {
+
+    constructor(@InjectRepository(Order) private orderRepository: Repository<Order>) { }
+
     async createOrder(orderToCreate: CreateOrderDto, table: Restaurant_Table, orderDetail: OrderDetail): Promise<Order> {
-        const createdOrder : Order = this.orderRepository.create({...orderToCreate, table, date: new Date, orderDetail}) 
+        const createdOrder: Order = this.orderRepository.create({ ...orderToCreate, table, date: new Date, orderDetail })
         return this.orderRepository.save(createdOrder)
     }
-    async getOrderById(id: string): Promise<Order | null>{
-        const foundedOrder: null | Order = await this.orderRepository.findOne({where: {id}, relations: {orderDetail: true}})
-        return foundedOrder;
+
+    async getOrderById(id: string): Promise<Order | undefined> {
+        const found_order: null | Order = await this.orderRepository.findOne({ where: { id }, relations: { orderDetail: true } })
+        return found_order === null ? undefined : found_order;
+
     }
+
     async updateOrder(existingOrder: Order, orderTomodify: UpdateOrderDto): Promise<Order> {
         const dishToUpdate: Order = this.orderRepository.merge(existingOrder, orderTomodify)
         return this.orderRepository.save(dishToUpdate)
     }
+
     async deleteOrder(existingOrder: Order): Promise<Order> {
         return this.orderRepository.remove(existingOrder)
     }
-    
+
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import Decimal from 'decimal.js';
 import { CreateDishDto } from 'src/dtos/dish/create-dish.dto';
-import { UpdateDishDto } from 'src/dtos/dish/update-dish.dto';
 import { Dish } from 'src/entities/dish.entity';
 import { Menu_Category } from 'src/entities/menu_category.entity';
 import { In, Repository } from 'typeorm';
@@ -15,14 +15,13 @@ export class DishRepository {
     return foundDish === null ? undefined : foundDish;
   }
 
-  async createDish(dishToCreate: CreateDishDto, category: Menu_Category): Promise<Dish> {
-    const dish = this.dishRepository.create({ ...dishToCreate, category, });
-
+  async createDish(dishToCreate: Omit<CreateDishDto, "price">, price: Decimal , category: Menu_Category): Promise<Dish> {
+    const dish = this.dishRepository.create({ ...dishToCreate, category, price: price });
     return await this.dishRepository.save(dish);
   }
 
-  async updateDish(existingDish: Dish, modified_dish: UpdateDishDto) {
-    Object.assign(existingDish, modified_dish);
+  async updateDish(existingDish: Dish, modifiedDish: Partial<Dish>): Promise<Dish> {
+    this.dishRepository.merge(existingDish, modifiedDish);
     return await this.dishRepository.save(existingDish);
   }
 
