@@ -1,5 +1,3 @@
-
-import { CustomMessagesEnum } from "src/dtos/custom-responses.dto";
 import { BadRequestException, Body, Controller, Delete, Get, Param, ParseUUIDPipe, Put, Query, UseGuards, } from '@nestjs/common';
 import { UpdateUserDto } from 'src/dtos/user/update-user.dto';
 import { UserService } from './user.service';
