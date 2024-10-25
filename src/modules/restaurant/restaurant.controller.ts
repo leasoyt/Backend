@@ -14,16 +14,8 @@ import { HttpResponseDto } from "src/dtos/http-response.dto";
 export class RestaurantController {
     constructor(private readonly restaurantService: RestaurantService) { }
 
-    @Get(':id')
-    @ApiOperation({ summary: "Obtiene los detalles de un restaurante", description: "Id recibido por parametro" })
-    async getRestaurantByid(@Param('id', ParseUUIDPipe) id: string): Promise<Restaurant> {
-        console.log(id);
-        return await this.restaurantService.getRestaurantById(id);
-    }
-    
     @Get('query')
     @ApiOperation({ summary: 'QueryParameter complejo para obtener una lista de restaurantes organizada' })
-    @Get("query")
     @ApiQuery({ name: "page", required: true, type: Number, example: 1 , description: "Numero de la pagina"})
     @ApiQuery({ name: "limit", required: true, type: Number, example: 10 , description: "Objetos por pagina"})
     @ApiQuery({ name: "rating", required: false, type: Number, example: 4 , description: "Rating de restaurantes"})
@@ -31,6 +23,13 @@ export class RestaurantController {
     @ApiOperation({ summary: "QueryParameter complejo para obtener una lista de restaurantes organizada" })
     async getRestaurantsQuery(@Query("page") page: number = 1, @Query("limit") limit: number = 10, @Query("rating") rating?: number, @Query("search") search?: string): Promise<any> {
         return await this.restaurantService.getRestaurantsQuery(page, limit, rating, search);
+    }
+    
+    @Get(':id')
+    @ApiOperation({ summary: "Obtiene los detalles de un restaurante", description: "Id recibido por parametro" })
+    async getRestaurantByid(@Param('id', ParseUUIDPipe) id: string): Promise<Restaurant> {
+        console.log(id);
+        return await this.restaurantService.getRestaurantById(id);
     }
 
     @Post("create")
