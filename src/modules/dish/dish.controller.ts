@@ -6,6 +6,8 @@ import { UpdateDishDto } from "src/dtos/dish/update-dish.dto";
 import { HttpResponseDto } from "src/dtos/http-response.dto";
 import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 import { Dish } from "src/entities/dish.entity";
+import { AuthGuard as Auth0Guard } from "@nestjs/passport";
+import { RolesAuth0Guard } from "src/guards/roles-auth0.guard"
 import { TryCatchWrapper } from "src/decorators/generic-error.decorator";
 import { Roles } from "src/decorators/roles.decorator";
 import { UserRole } from "src/enums/roles.enum";
@@ -17,11 +19,17 @@ import { RolesGuard } from "src/guards/roles.guard";
 export class DishController {
     constructor(private readonly dishService: DishService) { }
 
+
+    // Protección para la autenticación y por roles de Auth0
+    // @UseGuards(Auth0Guard('jwt'), RolesAuth0Guard)
+    @ApiOperation({summary: "consigue toda la info de un platillo", description: "Se necesita la uuid del platillo"})
+    @Roles(UserRole.MANAGER)
     @Get(":id")
     @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
     @ApiOperation({ summary: "consigue toda la info de un platillo", description: "Se necesita la uuid del platillo" })
     async getDishById(@Param("id", ParseUUIDPipe) id: string): Promise<Dish> {
         return await this.dishService.getDishById(id);
+
     }
 
     @Post()

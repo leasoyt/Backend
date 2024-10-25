@@ -1,3 +1,5 @@
+
+import { CustomMessagesEnum } from "src/dtos/custom-responses.dto";
 import { BadRequestException, Body, Controller, Delete, Get, Param, ParseUUIDPipe, Put, Query, UseGuards, } from '@nestjs/common';
 import { UpdateUserDto } from 'src/dtos/user/update-user.dto';
 import { UserService } from './user.service';
@@ -25,6 +27,13 @@ export class UserController {
   async getUsers(@Query('page') page: number = 1, @Query('limit') limit: number = 10): Promise<SanitizedUserDto[]> {
     return await this.userService.getUsers(page, limit);
   }
+
+    // Sólo para probar la asignación de roles de Auth0
+
+    // @Get('assignAuth0rol')
+    // async assignRoleUser(@Param("id") id: string, @Body() rol: any){
+    //     return await this.userService.assignRoleUser(id, rol)
+    // }
 
   @Get('profile')
   @ApiBearerAuth()
