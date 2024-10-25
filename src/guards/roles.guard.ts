@@ -3,7 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
 import { ROLES_KEY } from 'src/decorators/roles.decorator';
-import { HttpMessagesEnum } from 'src/dtos/custom-responses.dto';
+import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 import { UserRole } from 'src/enums/roles.enum';
 
 @Injectable()
@@ -26,7 +26,7 @@ export class RolesGuard implements CanActivate {
     const has_roles: boolean = requiredRoles.some((role) => user?.role?.includes(role));
 
     if (!has_roles) {
-      throw new ForbiddenException({ message: HttpMessagesEnum.UNAUTHORIZED, error: "You do not have the required role" });
+      throw new ForbiddenException({ message: HttpMessagesEnum.UNAUTHORIZED, error: "You don't have the required role" });
     }
 
     return true;

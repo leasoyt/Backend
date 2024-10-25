@@ -8,7 +8,8 @@ import { UserRole } from 'src/enums/roles.enum';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { HandleError } from 'src/decorators/generic-error.decorator';
-import { HttpMessagesEnum, HttpResponseDto } from 'src/dtos/custom-responses.dto';
+import { HttpResponseDto } from 'src/dtos/http-response.dto';
+import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 
 @ApiTags('Menu Categories')
 @Controller('menu-category')

@@ -7,7 +7,7 @@ import { Roles } from "src/decorators/roles.decorator";
 import { UserRole } from "src/enums/roles.enum";
 import { RolesGuard } from "src/guards/roles.guard";
 import { AuthGuard } from "src/guards/auth.guard";
-import { HttpResponseDto } from "src/dtos/custom-responses.dto";
+import { HttpResponseDto } from "src/dtos/http-response.dto";
 
 @ApiTags('Restaurant')
 @Controller('restaurant')

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isEmpty } from 'class-validator';
@@ -51,16 +52,9 @@ export class UserRepository {
     return deletion_result;
   }
 
-  async rankUpTo(userInstance: User, role: UserRole): Promise<User> {
+  async rankUpTo(userInstance: User, role: UserRole): Promise<User | undefined> {
     userInstance.role = role;
-    try {
-      await this.userRepository.save(userInstance);
-      return await this.getUserById(userInstance.id);
-    } catch (err) {
-      throw new InternalServerErrorException({
-        message: 'Failed to upgrade user role',
-        error: err,
-      });
-    }
+    await this.userRepository.save(userInstance);
+    return await this.getUserById(userInstance.id);
   }
 }

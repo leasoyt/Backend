@@ -7,7 +7,7 @@ import { User } from "src/entities/user.entity";
 import { arrayNotEmpty } from "class-validator";
 import { Restaurant_Table } from "src/entities/tables.entity";
 import { TableService } from "../table/table.service";
-import { HttpMessagesEnum } from "src/dtos/custom-responses.dto";
+import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 import { HandleError } from "src/decorators/generic-error.decorator";
 
 @Injectable()

@@ -2,7 +2,7 @@ import { PickType } from "@nestjs/swagger";
 import { RegisterDto } from "./register.dto";
 import { IsNotEmpty, IsString, NotContains, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
-import { HttpMessagesEnum } from "../custom-responses.dto";
+import { HttpMessagesEnum } from "../../enums/httpMessages.enum";
 
 /**
  * Dto: Respuesta de logueo exitoso

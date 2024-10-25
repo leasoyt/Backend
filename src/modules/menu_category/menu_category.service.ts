@@ -6,7 +6,8 @@ import { CreateMenuCategoryDto } from 'src/dtos/menu/menu_category.dto';
 import { Menu } from 'src/entities/menu.entity';
 import { RestaurantService } from '../restaurant/restaurant.service';
 import { Menu_Category } from 'src/entities/menu_category.entity';
-import { HttpMessagesEnum, HttpResponseDto } from 'src/dtos/custom-responses.dto';
+import { HttpResponseDto } from 'src/dtos/http-response.dto';
+import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 import { HandleError } from 'src/decorators/generic-error.decorator';
 
 @Injectable()

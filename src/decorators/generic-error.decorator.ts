@@ -1,5 +1,5 @@
 import { HttpException } from "@nestjs/common";
-import { HttpMessagesEnum } from "src/dtos/custom-responses.dto";
+import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 
 /**
  * @param message Mensaje customizado, ejemplo: `CustomMessagesEnum.LOGIN_FAIL`

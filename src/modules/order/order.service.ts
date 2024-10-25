@@ -8,7 +8,7 @@ import { OrderDetail } from "src/entities/orderDetail.entity";
 import { UpdateOrderDto } from "src/dtos/order/update-order.dto";
 import { TableService } from "../table/table.service";
 import { HandleError } from "src/decorators/generic-error.decorator";
-import { HttpMessagesEnum } from "src/dtos/custom-responses.dto";
+import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 
 @Injectable()
 export class OrderService {

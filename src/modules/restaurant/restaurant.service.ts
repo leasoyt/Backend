@@ -7,7 +7,8 @@ import { UserRole } from 'src/enums/roles.enum';
 import { User } from 'src/entities/user.entity';
 import { UpdateRestaurant } from 'src/dtos/restaurant/updateRestaurant.dto';
 import { MenuService } from '../menu/menu.service';
-import { HttpMessagesEnum, HttpResponseDto } from 'src/dtos/custom-responses.dto';
+import { HttpResponseDto } from 'src/dtos/http-response.dto';
+import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 import { HandleError } from 'src/decorators/generic-error.decorator';
 
 @Injectable()
@@ -26,19 +27,16 @@ export class RestaurantService {
     return found_restaurant;
   }
 
+  @HandleError(HttpMessagesEnum.RESTAURANT_DELETION_FAILED, InternalServerErrorException)
   async deleteRestaurant(id: string): Promise<HttpResponseDto> {
-    try {
-      const found_restaurant: Restaurant = await this.getRestaurantById(id);
-      const was_deleted: boolean = await this.restaurantRepository.deleteRestaurant(found_restaurant);
+    const found_restaurant: Restaurant = await this.getRestaurantById(id);
+    const was_deleted: boolean = await this.restaurantRepository.deleteRestaurant(found_restaurant);
 
-      if (!was_deleted) {
-        throw { error: "Something went wrong" };
-      }
-
-      return { message: HttpMessagesEnum.RESTAURANT_DELETION_SUCCESS };
-    } catch (err) {
-      throw new InternalServerErrorException({ message: HttpMessagesEnum.RESTAURANT_DELETION_FAILED, error: err?.error || err });
+    if (!was_deleted) {
+      throw { error: "Something went wrong" };
     }
+
+    return { message: HttpMessagesEnum.RESTAURANT_DELETION_SUCCESS };
   }
 
   async createRestaurant(restaurantObject: RegisterRestaurantDto,): Promise<Restaurant> {

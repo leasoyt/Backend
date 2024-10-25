@@ -8,7 +8,8 @@ import { LoginResponseDto } from "src/dtos/auth/login-response.dto";
 import { UpdatePasswordDto } from "src/dtos/user/update-password.dto";
 import { isNotEmptyObject } from "class-validator";
 import { AuthGuard } from "src/guards/auth.guard";
-import { HttpMessagesEnum, HttpResponseDto } from "src/dtos/custom-responses.dto";
+import { HttpResponseDto } from "src/dtos/http-response.dto";
+import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 
 @ApiTags('Authentication')
 @Controller('auth')

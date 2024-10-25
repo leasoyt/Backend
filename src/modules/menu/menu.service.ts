@@ -4,7 +4,7 @@ import { RestaurantService } from '../restaurant/restaurant.service';
 import { Restaurant } from 'src/entities/restaurant.entity';
 import { Menu } from 'src/entities/menu.entity';
 import { HandleError } from 'src/decorators/generic-error.decorator';
-import { HttpMessagesEnum } from 'src/dtos/custom-responses.dto';
+import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 
 @Injectable()
 export class MenuService {

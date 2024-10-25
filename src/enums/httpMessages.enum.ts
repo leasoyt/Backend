@@ -1,7 +1,3 @@
-export class HttpResponseDto {
-    message: HttpMessagesEnum;
-}
-
 export enum HttpMessagesEnum {
 
     LOGIN_FAIL = "Failed to login",
@@ -39,5 +35,4 @@ export enum HttpMessagesEnum {
     MENU_CREATION_FAILED = "Failed to create restaurant's menu",
 
     ORDER_CREATION_FAILED = "Failed to create e new order",
-
 }
