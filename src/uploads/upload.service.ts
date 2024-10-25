@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import cloudinary from '../config/cloudinary.config';
 
-console.log(process.env.CLOUDINARY_CLOUD_NAME);
-console.log(process.env.CLOUDINARY_API_KEY);
-console.log(process.env.CLOUDINARY_API_SECRET);
 @Injectable()
 export class UploadService {
   async uploadToCloudinary(file: Express.Multer.File): Promise<string> {

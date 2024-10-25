@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, OneToOne, JoinColumn, } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+  OneToOne,
+  JoinColumn,
+} from 'typeorm';
 import { User } from './user.entity';
 import { Restaurant_Table } from './tables.entity';
 import { Menu } from './menu.entity';
@@ -21,7 +29,13 @@ export class Restaurant {
   @Column({ default: 'default-image-url.jpg' })
   imgUrl: string;
 
-  @OneToOne(() => Menu, (menu) => menu.restaurant, { cascade: true, nullable: true })
+  @Column({ nullable: true })
+  rating: number;
+
+  @OneToOne(() => Menu, (menu) => menu.restaurant, {
+    cascade: true,
+    nullable: true,
+  })
   @JoinColumn({ name: 'menu_id' })
   menu: Menu;
 
@@ -45,5 +59,4 @@ export class Restaurant {
 
   // @ManyToMany(() => Review, (review) => review.restaurant, { nullable: true })
   // reviews: Review[];
-
 }

@@ -29,5 +29,4 @@ export class Reservation {
   })
   table: Restaurant_Table;
 
- 
 }

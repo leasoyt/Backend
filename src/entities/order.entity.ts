@@ -23,7 +23,7 @@ export class Order {
   })
   status: orderStatus;
 
-  @OneToOne(() => Restaurant_Table, (table) => table.order, { nullable: true }) // Puede ser nullable si no siempre hay una mesa
+  @OneToOne(() => Restaurant_Table, (table) => table.order, { nullable: true }) // NUNCA debe ser nullable, no es nuestro problema si no hay mesas
   table: Restaurant_Table;
 
   @OneToOne(() => OrderDetail, (orderDetail) => orderDetail.order, { cascade: ['remove'] })

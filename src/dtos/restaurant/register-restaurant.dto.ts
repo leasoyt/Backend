@@ -32,7 +32,7 @@ export class RegisterRestaurantDto {
   imgUrl?: string;
 
   @IsUUID()
-  @IsNotEmpty()
+  @IsOptional()
   future_manager: string;
 
   // Array de horarios del restaurante
@@ -40,8 +40,7 @@ export class RegisterRestaurantDto {
   @IsOptional()
   @ValidateNested({ each: true })
   @Type(() => CreateRestaurantScheduleDto) // Indica que debe validar un array de DTOs de horario
-  schedules: CreateRestaurantScheduleDto[];
-  
+  schedules?: CreateRestaurantScheduleDto[];
   
   @ValidateNested({ each: true })
   @IsArray()
