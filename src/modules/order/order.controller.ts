@@ -1,21 +1,25 @@
 import { Body, Controller, Delete, Param, ParseUUIDPipe, Post, Put, UseGuards } from "@nestjs/common";
-import { ApiBody, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { OrderService } from "./order.service";
 import { CreateOrderDto } from "src/dtos/order/create-order.dto";
-import { UpdateOrderDto } from "src/dtos/order/update-order.dto";
 import { Roles } from "src/decorators/roles.decorator";
 import { UserRole } from "src/enums/roles.enum";
 import { AuthGuard } from "src/guards/auth.guard";
 import { RolesGuard } from "src/guards/roles.guard";
+import { Order } from "src/entities/order.entity";
+import { HttpResponseDto } from "src/dtos/http-response.dto";
+import { OrderStatusDto } from "src/dtos/order/order-status.dto";
 
 @ApiTags('Order')
 @Controller('order')
 export class OrderController {
+
     constructor(private readonly orderService: OrderService) { }
 
     @Post()
-    @Roles(UserRole.CONSUMER, UserRole.MANAGER)
+    @Roles(UserRole.WAITER, UserRole.MANAGER)
     @UseGuards(AuthGuard, RolesGuard)
+    @ApiBearerAuth()
     @ApiBody({
         schema: {
             example: {
@@ -28,28 +32,55 @@ export class OrderController {
         }
     })
     @ApiOperation({ summary: "Crea una nueva orden ", description: "se necesitan registros de \"Table\" y \"Dish\" guardados previamente" })
-    async createOrder(@Body() orderToCreate: CreateOrderDto) {
+    async createOrder(@Body() orderToCreate: CreateOrderDto): Promise<Order> {
         return await this.orderService.createOrder(orderToCreate);
     }
 
-    @Put(':id')
-    @Roles(UserRole.CONSUMER, UserRole.MANAGER)
+    // @Put(':id')
+    // @Roles(UserRole.WAITER, UserRole.MANAGER)
+    // @UseGuards(AuthGuard, RolesGuard)
+    // @ApiBearerAuth()
+    // @ApiOperation({ summary: "Modifica una orden en especifico", description: "Id de orden y los datos que se desean cambiar" })
+    // @ApiParam({ name: 'id', type: String, description: 'ID de una orden' })
+    // async updateOrder(@Param('id', ParseUUIDPipe) id: string, @Body() OrderToModify: UpdateOrderDto): Promise<Order> {
+    //     return await this.orderService.updateOrder(id, OrderToModify);
+    // }
+
+    @Put("status/:id")
+    @Roles(UserRole.WAITER, UserRole.MANAGER)
     @UseGuards(AuthGuard, RolesGuard)
+    @ApiBearerAuth()
     @ApiOperation({
-        summary:
-            'Modifica una orden en especifico usando su id y los datos que se desean cambiar',
+        summary: "Actualiza el estado de la orden",
+        description: "Manejado solo por staff de restaurante, el status debe ser uno de los siguientes: " +
+            "processing | cancelled | completed | paid"
     })
-    @ApiParam({ name: 'id', type: String, description: 'ID de una orden' })
-    async updateOrder(@Param('id', ParseUUIDPipe) id: string, @Body() OrderToModify: UpdateOrderDto) {
-        return await this.orderService.updateOrder(id, OrderToModify);
+    @ApiParam({ name: "id", type: String, description: "ID de una orden" })
+    @ApiBody({ schema: { example: { status: 'completed' } } })
+    async updateStatus(@Param("id", ParseUUIDPipe) id: string, @Body() toUpdate: OrderStatusDto): Promise<Order> {
+        return await this.orderService.updateStatus(id, toUpdate);
+    }
+
+    @Put("addDish/:id")
+    @Roles(UserRole.WAITER, UserRole.MANAGER)
+    @UseGuards(AuthGuard, RolesGuard)
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: "Agrega un nuevo plato a una orden existente", description: "requiere el uuid de uno o mas platos?"
+    })
+    @ApiParam({ name: "id", type: String, description: "ID de una orden" })
+    @ApiBody({ schema: { example: { id: 'uuid...' } } })
+    async addDishToExisting(@Param("id", ParseUUIDPipe) id: string, @Body() toUpdate: Pick<CreateOrderDto, "ordered_dishes">): Promise<Order> {
+        return await this.orderService.addDishToExisting(id, toUpdate);
     }
 
     @Delete(':id')
-    @Roles(UserRole.MANAGER, UserRole.CONSUMER)
+    @Roles(UserRole.MANAGER)
     @UseGuards(AuthGuard, RolesGuard)
-    @ApiOperation({ summary: "Elimina el registro de una orden en especifico usando su id" })
+    @ApiBearerAuth()
+    @ApiOperation({ summary: "Elimina el registro de una orden", description: "Manejado solo por manager de restaurante" })
     @ApiParam({ name: 'id', type: String, description: 'ID de una orden' })
-    async deleteOrder(@Param('id', ParseUUIDPipe) id: string) {
+    async deleteOrder(@Param('id', ParseUUIDPipe) id: string): Promise<HttpResponseDto> {
         return await this.orderService.deleteOrder(id);
     }
 

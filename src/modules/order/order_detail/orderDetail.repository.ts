@@ -15,6 +15,11 @@ export class OrderDetailRepository{
         return this.orderDetailRepository.save(created_order_detail)
     }
 
+    async addDishToExistingDetail(): Promise<OrderDetail> {
+        // const actualized_order_detail: OrderDetail = this.orderDetailRepository.merge();
+        return new OrderDetail();
+    }
+
     async deleteOrderDetail(orderDetailToRemove: OrderDetail): Promise<OrderDetail> {
         return this.orderDetailRepository.remove(orderDetailToRemove)
     }

@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { RestaurantRepository } from './restaurant.repository';
 import { Restaurant } from 'src/entities/restaurant.entity';
 import { RegisterRestaurantDto } from 'src/dtos/restaurant/register-restaurant.dto';
@@ -9,25 +9,25 @@ import { UpdateRestaurant } from 'src/dtos/restaurant/updateRestaurant.dto';
 import { MenuService } from '../menu/menu.service';
 import { HttpResponseDto } from 'src/dtos/http-response.dto';
 import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
-import { HandleError } from 'src/decorators/generic-error.decorator';
+import { TryCatchWrapper } from 'src/decorators/generic-error.decorator';
 
 @Injectable()
 export class RestaurantService {
 
   constructor(private readonly restaurantRepository: RestaurantRepository, private readonly userService: UserService, @Inject(forwardRef(() => MenuService)) private readonly menuService: MenuService) { }
 
-  @HandleError(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
+  @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, BadRequestException)
   async getRestaurantById(id: string): Promise<Restaurant> {
     const found_restaurant: Restaurant | undefined = await this.restaurantRepository.getRestaurantById(id);
 
     if (found_restaurant === undefined) {
-      throw { error: "Restaurant not found" };
+      throw { error: "Restaurant not found", NotFoundException };
     }
 
     return found_restaurant;
   }
 
-  @HandleError(HttpMessagesEnum.RESTAURANT_DELETION_FAILED, InternalServerErrorException)
+  @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_DELETION_FAILED, InternalServerErrorException)
   async deleteRestaurant(id: string): Promise<HttpResponseDto> {
     const found_restaurant: Restaurant = await this.getRestaurantById(id);
     const was_deleted: boolean = await this.restaurantRepository.deleteRestaurant(found_restaurant);
@@ -39,17 +39,15 @@ export class RestaurantService {
     return { message: HttpMessagesEnum.RESTAURANT_DELETION_SUCCESS };
   }
 
-  async createRestaurant(restaurantObject: RegisterRestaurantDto,): Promise<Restaurant> {
-    try {
-      const future_manager: User = await this.userService.rankUpTo(restaurantObject.future_manager, UserRole.MANAGER);
-      const created_restaurant: Restaurant | undefined = await this.restaurantRepository.createRestaurant(future_manager, restaurantObject);
+  @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_CREATION_FAILED, InternalServerErrorException)
+  async createRestaurant(restaurantObject: RegisterRestaurantDto): Promise<Restaurant> {
 
-      await this.menuService.createMenu(created_restaurant.id);
+    const future_manager: User = await this.userService.rankUpTo(restaurantObject.future_manager, UserRole.MANAGER);
+    const created_restaurant: Restaurant | undefined = await this.restaurantRepository.createRestaurant(future_manager, restaurantObject);
 
-      return await this.getRestaurantById(created_restaurant.id);
-    } catch (err) {
-      throw new InternalServerErrorException({ message: HttpMessagesEnum.RESTAURANT_CREATION_FAILED, error: err?.error });
-    }
+    await this.menuService.createMenu(created_restaurant.id);
+
+    return await this.getRestaurantById(created_restaurant.id);
   }
 
   async updateRestaurant(id: string, updateData: UpdateRestaurant): Promise<Restaurant> {

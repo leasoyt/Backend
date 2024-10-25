@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { isEmpty } from "class-validator";
 import { User } from "src/entities/user.entity";
 import { UserRepository } from "./user.repository";
@@ -9,7 +9,7 @@ import { RegisterDto } from "src/dtos/auth/register.dto";
 import * as bcrypt from "bcrypt";
 import { UserRole } from "src/enums/roles.enum";
 import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
-import { HandleError } from "src/decorators/generic-error.decorator";
+import { TryCatchWrapper } from "src/decorators/generic-error.decorator";
 import { UserProfileDto } from "src/dtos/user/profile-user.dto";
 
 @Injectable()
@@ -17,7 +17,7 @@ export class UserService {
 
     constructor(private readonly userRepository: UserRepository) { }
 
-    @HandleError(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
+    @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
     async getProfile(userID: string): Promise<UserProfileDto> {
         const user: User = await this.getRawUserById(userID);
         const { id, role, ...rest } = user;
@@ -26,39 +26,35 @@ export class UserService {
     }
 
     async rankUpTo(id: string, role: UserRole): Promise<User> {
-        try {
-            const found_user: User = await this.getRawUserById(id);
-            const ranked_up: User | undefined = await this.userRepository.rankUpTo(found_user, role);
+        const found_user: User = await this.getRawUserById(id);
+        const ranked_up: User | undefined = await this.userRepository.rankUpTo(found_user, role);
 
-            if (ranked_up === undefined) {
-                throw { error: "Ranking up failed" };
-            }
-
-            return ranked_up;
-        } catch (err) {
-            throw { error: err?.error || "Something went wrong" };
+        if (ranked_up === undefined) {
+            throw { error: HttpMessagesEnum.RANKING_UP_FAIL };
         }
+
+        return ranked_up;
     }
 
-    @HandleError(HttpMessagesEnum.UNKNOWN_ERROR, InternalServerErrorException)
+    @TryCatchWrapper(HttpMessagesEnum.UNKNOWN_ERROR, InternalServerErrorException)
     async getUsers(page: number, limit: number): Promise<Omit<User, "password">[]> {
         return await this.userRepository.getUsers(page, limit);
-    }
+    }       //METER ERROR OUT OF BOUNDS AQUI
 
-    @HandleError(HttpMessagesEnum.USER_UPDATE_FAILED, BadRequestException)
+    @TryCatchWrapper(HttpMessagesEnum.USER_UPDATE_FAILED, BadRequestException)
     async updateUser(id: string, modified_user: UpdateUserDto): Promise<SanitizedUserDto> {
         const found_user: User | undefined = await this.userRepository.getUserById(id);
 
         if (isEmpty(found_user)) {
-            throw new NotFoundException({ message: HttpMessagesEnum.USER_UPDATE_FAILED, error: "user not found" });
+            throw { error: "user not found", exception: NotFoundException };
         }
 
         const updated_user: User = await this.userRepository.updateUser(found_user, modified_user);
         const { password, isAdmin, ...filtered_user } = updated_user;
 
         return filtered_user;
-
     }
+
 
     async updatePassword(id: string, oldPassword: string, newPassword: string): Promise<SanitizedUserDto> {
 
@@ -72,11 +68,9 @@ export class UserService {
 
         }
 
-        throw { error: "Old password is incorrect" };
-
+        throw { error: "Old password is incorrect", UnauthorizedException };
     }
 
-    @HandleError(HttpMessagesEnum.REGISTRATION_FAIL, BadRequestException)
     async createUser(userObject: Omit<RegisterDto, "confirmPassword">): Promise<SanitizedUserDto> {
         const created_user: User = await this.userRepository.createUser(userObject);
         const { password, isAdmin, ...filtered } = created_user;
@@ -84,7 +78,7 @@ export class UserService {
         return filtered;
     }
 
-    @HandleError(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
+    @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, BadRequestException)
     async getUserById(id: string): Promise<SanitizedUserDto> {
         const { password, isAdmin, ...filtered_user } = await this.getRawUserById(id);
         return filtered_user;
@@ -94,7 +88,7 @@ export class UserService {
         const user: User | undefined = await this.userRepository.getUserById(id);
 
         if (isEmpty(user)) {
-            throw { error: "User not found with the provided id" };
+            throw { error: "User not found with the provided id", exception: NotFoundException };
         }
         return user;
     }
@@ -103,7 +97,7 @@ export class UserService {
         const user: User | undefined = await this.userRepository.getUserByMail(mail);
 
         if (isEmpty(user)) {
-            throw { error: "User email not registered" };
+            throw { error: "User email not registered", exception: NotFoundException };
         }
         return user;
     }

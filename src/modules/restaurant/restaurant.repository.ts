@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RegisterRestaurantDto } from 'src/dtos/restaurant/register-restaurant.dto';
@@ -11,7 +12,7 @@ export class RestaurantRepository {
 
   constructor(@InjectRepository(Restaurant) private restaurantRepository: Repository<Restaurant>) { }
 
-  async updateRestaurant(restaurantInstance: Restaurant, updateData: UpdateRestaurant): Promise<Restaurant> {
+  async updateRestaurant(restaurantInstance: Restaurant, updateData: Omit<UpdateRestaurant, "tables">): Promise<Restaurant> {
     this.restaurantRepository.merge(restaurantInstance, updateData);
     return await this.restaurantRepository.save(restaurantInstance);
   }
@@ -22,7 +23,9 @@ export class RestaurantRepository {
   }
 
   async createRestaurant(future_manager: User, restaurantObject: RegisterRestaurantDto): Promise<Restaurant> {
-    const saved_restaurant: Restaurant = await this.restaurantRepository.save(this.restaurantRepository.create({ ...restaurantObject, manager: future_manager }));
+    const { tables, ...rest } = restaurantObject;
+
+    const saved_restaurant: Restaurant = await this.restaurantRepository.save(this.restaurantRepository.create({ ...rest, manager: future_manager }));
     return saved_restaurant;
   }
 
@@ -33,7 +36,7 @@ export class RestaurantRepository {
 
   async getRestaurantsQuery(page: number, limit: number, rating?: number, search?: string) {
     const where: any = {};
-    
+
     // Si se proporciona búsqueda, añadir filtros de búsqueda por nombre, dirección o descripción
     if (search) {
       where.push(
