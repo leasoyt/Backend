@@ -4,13 +4,13 @@ import { TableStatus } from 'src/enums/tableStatus.enum';
 export class TableCreationDto {
   @IsNumber()
   @Min(0)
-  @Max(100)
+  @Max(1000)
   @IsNotEmpty()
   table_number: number;  // Número de la mesa, obligatorio y numérico
 
-  @IsEnum(TableStatus)
-  @IsNotEmpty()
-  status: TableStatus;  // Estado de la mesa, obligatorio
+  // @IsEnum(TableStatus)
+  // @IsNotEmpty()
+  // status: TableStatus;  // Estado de la mesa, obligatorio
 
   @IsUUID()
   @IsNotEmpty()

@@ -11,7 +11,7 @@ export enum HttpMessagesEnum {
     USER_UPDATE_FAILED = "Failed to update user",
     USER_UPDATE_SUCCESS = "User updated successfully",
     RANKING_UP_FAIL = "Failed to rank up user",
-    RANKING_UP_SUCCESS = "User ranked up succesfully",
+    // RANKING_UP_SUCCESS = "User ranked up succesfully",
 
     DISH_CREATION_FAILED = "Failed to create a new dish",
     DISH_UPDATE_FAILED = "Failed to update dish",
@@ -35,4 +35,15 @@ export enum HttpMessagesEnum {
     MENU_CREATION_FAILED = "Failed to create restaurant's menu",
 
     ORDER_CREATION_FAILED = "Failed to create e new order",
+    ORDER_UPDATE_FAILED = "Failed to update order",
+    ORDER_DELETION_FAILED = "Failed to delete order",
+    ORDER_DELETION_SUCCESS = "Order deleted successfully",
+    ORDER_STATUS_CONFLICT = "That's the actual order's status",
+
+    RESERVATION_CREATION_FAIL = "Failed to create a new reservation",
+
+    TABLE_DELETION_SUCCESS = "Table deleted successfully",
+    TABLE_DELETION_FAIL = "Failed to delete table",
+    TABLE_CREATION_FAIL = "Failed to create a new table",
+
 }

@@ -49,8 +49,8 @@ export class UserController {
     return await this.userService.getUserById(id);
   }
 
-  @ApiBearerAuth()
   @Put(':id')
+  @ApiBearerAuth()
   @Roles(UserRole.MANAGER, UserRole.CONSUMER)
   @UseGuards(AuthGuard, RolesGuard)
   @ApiOperation({ summary: 'actualiza la informacion de un usuario, por id y body', description: 'uuid de user y objeto a actualizar' })
@@ -75,9 +75,7 @@ export class UserController {
   }
 
   @Delete(':id')
-  @ApiOperation({
-    summary: 'elimina un usuario por su id (posiblemente no se vaya a usar)',
-  })
+  @ApiOperation({    summary: 'elimina un usuario por su id (posiblemente no se vaya a usar)'  })
   async deleteUser(@Param('id', ParseUUIDPipe) id: string): Promise<any> {
     return 'mala idea ' + id;
     // return await this.userService.deleteUser(id);

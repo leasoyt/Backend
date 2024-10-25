@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, NotFoundException, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MenuCategoryService } from './menu_category.service';
 import { CreateMenuCategoryDto } from 'src/dtos/menu/menu_category.dto';
 import { Menu_Category } from 'src/entities/menu_category.entity';
@@ -7,7 +7,7 @@ import { Roles } from 'src/decorators/roles.decorator';
 import { UserRole } from 'src/enums/roles.enum';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
-import { HandleError } from 'src/decorators/generic-error.decorator';
+import { TryCatchWrapper } from 'src/decorators/generic-error.decorator';
 import { HttpResponseDto } from 'src/dtos/http-response.dto';
 import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 
@@ -17,6 +17,7 @@ export class MenuCategoryController {
   constructor(private readonly menuCategoryService: MenuCategoryService) { }
 
   @Post()
+  @ApiBearerAuth()
   @Roles(UserRole.MANAGER)
   @UseGuards(AuthGuard,RolesGuard)
   @ApiOperation({ summary: "crear una nueva categoria", description: "se necesita el nombre de la categoria y el id del restaurante" })
@@ -33,13 +34,14 @@ export class MenuCategoryController {
   }
 
   @Get(':id')
-  @HandleError(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
+  @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
   @ApiOperation({ summary: "Consigue los platos de una categoria enlistados", description: "uuid de la categoria" })
   async getCategoryAndDishes(@Param('id', ParseUUIDPipe) id: string): Promise<Menu_Category> {
     return await this.menuCategoryService.getCategoryAndDishes(id);
   }
 
   @Delete(':id') 
+  @ApiBearerAuth()
   @Roles(UserRole.MANAGER)
   @UseGuards(AuthGuard,RolesGuard)
   @ApiOperation({ summary: "Eliminacion de una categoria del menu", description: "uuid de la categoria, !ADVERTENCIA: esto eliminaria a los platos que contiene" })

@@ -3,7 +3,7 @@ import { MenuRepository } from './menu.repository';
 import { RestaurantService } from '../restaurant/restaurant.service';
 import { Restaurant } from 'src/entities/restaurant.entity';
 import { Menu } from 'src/entities/menu.entity';
-import { HandleError } from 'src/decorators/generic-error.decorator';
+import { TryCatchWrapper } from 'src/decorators/generic-error.decorator';
 import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 
 @Injectable()
@@ -20,7 +20,7 @@ export class MenuService {
     }
   }
 
-  @HandleError(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
+  @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
   async getMenuWithCategories(restaurantId: string): Promise<Menu> {
     const restaurant: Restaurant = await this.restaurantService.getRestaurantById(restaurantId);
     const found_menu: Menu | undefined = await this.menuRepository.getMenuByRestaurant(restaurant, true);
@@ -32,13 +32,12 @@ export class MenuService {
     return found_menu;
   }
 
-  @HandleError(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
   async getMenuByRestaurantId(id: string): Promise<Menu> {
     const restaurant: Restaurant = await this.restaurantService.getRestaurantById(id);
     const menu: Menu | undefined = await this.menuRepository.getMenuByRestaurant(restaurant, false);
 
     if (menu === undefined) {
-      throw { error: "Menu not found" };
+      throw { error: "Menu not found", exception: NotFoundException };
     }
 
     return menu;

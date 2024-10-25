@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException, } from '@nestjs/common';
 import { CreateDishDto } from 'src/dtos/dish/create-dish.dto';
 import { UpdateDishDto } from 'src/dtos/dish/update-dish.dto';
 import { DishRepository } from './dish.repository';
@@ -9,7 +9,7 @@ import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 import { OrderedDishesDto } from 'src/dtos/order/ordered_dishes.dto';
 import { Menu_Category } from 'src/entities/menu_category.entity';
 import { MenuCategoryService } from '../menu_category/menu_category.service';
-import { HandleError } from 'src/decorators/generic-error.decorator';
+import { TryCatchWrapper } from 'src/decorators/generic-error.decorator';
 import Decimal from 'decimal.js';
 
 @Injectable()
@@ -21,20 +21,20 @@ export class DishService {
     const found_dish: Dish | undefined = await this.dishRepository.getDishById(id);
 
     if (found_dish === undefined) {
-      throw { error: `Failed to find dish with the provided id` };
+      throw { error: `Failed to find dish with the provided id`, exception: NotFoundException };
     }
 
     return found_dish;
   }
 
-  @HandleError(HttpMessagesEnum.DISH_CREATION_FAILED, BadRequestException)
+  @TryCatchWrapper(HttpMessagesEnum.DISH_CREATION_FAILED, BadRequestException)
   async createDish(dishToCreate: CreateDishDto): Promise<Omit<Dish, "category">> {
 
     const found_category: Menu_Category = await this.menu_category_service.getCategoryAndDishes(dishToCreate.category);
     const existing_dish = found_category.dishes.some((dish: Dish) => dish.name === dishToCreate.name);
 
     if (existing_dish) {
-      throw { error: "there is already a dish with that name" };
+      throw { error: "There is already a dish with that name", exception: ConflictException };
     }
 
     const { price } = dishToCreate;
@@ -43,7 +43,7 @@ export class DishService {
     return no_relations_dish;
   }
 
-  @HandleError(HttpMessagesEnum.DISH_UPDATE_FAILED, BadRequestException)
+  @TryCatchWrapper(HttpMessagesEnum.DISH_UPDATE_FAILED, BadRequestException)
   async updateDish(id: string, modified_dish: UpdateDishDto): Promise<Dish> {
 
     const existingDish: Dish = await this.getDishById(id);
@@ -65,7 +65,7 @@ export class DishService {
 
   }
 
-  @HandleError(HttpMessagesEnum.DISH_DELETE_FAIL, InternalServerErrorException)
+  @TryCatchWrapper(HttpMessagesEnum.DISH_DELETE_FAIL, InternalServerErrorException)
   async deleteDish(id: string): Promise<HttpResponseDto> {
 
     const existing_dish: Dish = await this.getDishById(id);
@@ -82,7 +82,7 @@ export class DishService {
       !found_dishes.map((foundDishes) => foundDishes.id).includes(dish));
 
     if (notFoundedDishes.length > 0) {
-      throw { error: "One or more dishes can't be found" };
+      throw { error: "One or more dishes can't be found", exception: NotFoundException };
     }
 
     return found_dishes;
