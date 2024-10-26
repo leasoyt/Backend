@@ -10,6 +10,7 @@ import { MenuService } from '../menu/menu.service';
 import { HttpResponseDto } from 'src/dtos/http-response.dto';
 import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 import { TryCatchWrapper } from 'src/decorators/generic-error.decorator';
+import { RestaurantQueryManyDto } from 'src/dtos/restaurant/restaurant-query-many.dto';
 
 @Injectable()
 export class RestaurantService {
@@ -56,15 +57,15 @@ export class RestaurantService {
   }
 
   @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, InternalServerErrorException)
-  async getRestaurantsQuery(page: number, limit: number, rating?: number, search?: string): Promise<any> {
+  async getRestaurantsQuery(page: number, limit: number, rating?: number, search?: string): Promise<RestaurantQueryManyDto> {
     if (rating < 0 || rating > 5) {
       throw { error: "Rating must be between 0 - 5", exception: BadRequestException };
     }
 
-    const found_restaurants = await this.restaurantRepository.getRestaurantsQuery(page, limit, rating, search);
+    const found_restaurants: RestaurantQueryManyDto = await this.restaurantRepository.getRestaurantsQuery(page, limit, rating, search);
 
     if (found_restaurants.restaurants.length === 0) {
-      throw { error: "Limit out of restaurant bounds", exception: NotFoundException };
+      throw { error: "The restaurant list is empty", exception: BadRequestException };
     }
 
     return found_restaurants;

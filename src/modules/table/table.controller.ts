@@ -27,6 +27,7 @@ export class TableController {
 
   @Get('all/:id')
   @ApiBearerAuth()
+  @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
   @ApiOperation({ summary: 'Conseguir una lista de las mesas', description: 'Uuid del negocio' })
   async getTables(@Param('id', ParseUUIDPipe) id: string,): Promise<Restaurant_Table[]> {
     return await this.tableService.getRestaurantTables(id);

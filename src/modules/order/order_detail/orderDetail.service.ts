@@ -37,11 +37,11 @@ export class OrderDetailService {
     // }
 
     async addDishToExistingDetail(currentOrderDetail: OrderDetail, dishes: OrderedDishesDto[]): Promise<OrderDetail> {
+        return new OrderDetail();
 
         const found_dishes: Dish[] = await this.dishService.getManyDishesById(dishes);
         let price: Decimal = new Decimal(0);
         let actualized_dishes: Dish[];
-        return new OrderDetail();
         dishes.forEach((dish) => {
             const dish_instance: undefined | Dish = found_dishes.find(x => x.id === dish.id);
 

@@ -1,19 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { isNumber } from 'class-validator';
+import { isNotEmpty } from 'class-validator';
 import { RegisterRestaurantDto } from 'src/dtos/restaurant/register-restaurant.dto';
+import { RestaurantQueryManyDto } from 'src/dtos/restaurant/restaurant-query-many.dto';
 import { UpdateRestaurant } from 'src/dtos/restaurant/updateRestaurant.dto';
 import { Restaurant } from 'src/entities/restaurant.entity';
 import { User } from 'src/entities/user.entity';
-import { Like, Repository, MoreThanOrEqual, Equal } from 'typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class RestaurantRepository {
 
   constructor(@InjectRepository(Restaurant) private restaurantRepository: Repository<Restaurant>) { }
 
-  async updateRestaurant(restaurantInstance: Restaurant, updateData: Omit<UpdateRestaurant, "tables">): Promise<Restaurant> {
+  async updateRestaurant(restaurantInstance: Restaurant, updateData: UpdateRestaurant): Promise<Restaurant> {
     this.restaurantRepository.merge(restaurantInstance, updateData);
     return await this.restaurantRepository.save(restaurantInstance);
   }
@@ -35,28 +36,33 @@ export class RestaurantRepository {
     return removed instanceof Restaurant ? true : false;
   }
 
-  async getRestaurantsQuery(page: number, limit: number, rating?: number, search?: string) {
-    const where = { rating: null, name: null, adress: null, description: null };
+  async getRestaurantsQuery(page: number, limit: number, rating?: number, search?: string): Promise<RestaurantQueryManyDto> {
+    const queryBuilder = this.restaurantRepository.createQueryBuilder("restaurant");
 
-    if (search) {
-      console.log(search);
-      // where.push({ name: Like(`%${search}%`) }, { address: Like(`%${search}%`) }, { description: Like(`%${search}%`) },);
-      where.name = Like(`%${search}%`);
-      where.description = Like(`%${search}%`);
-      where.adress = Like(`%${search}%`);
+    const is_rating: boolean = (rating >= 0) || (rating <= 5);
+    const is_search: boolean = isNotEmpty(search);
+
+    const searchQuery =
+      `(restaurant.name ILIKE :search OR restaurant.description ILIKE :search OR restaurant.address ILIKE :search)`;
+    const ratingQuery = "restaurant.rating = :rating";
+    const no_rating_query = "restaurant.rating IS NOT NULL OR restaurant.rating IS NULL";
+
+    if (is_search && is_rating) {
+      queryBuilder.andWhere(searchQuery, { search: `%${search}%` }).andWhere(ratingQuery, { rating });
+    } else if (is_search) {
+      queryBuilder.where(searchQuery, { search }).andWhere(no_rating_query);
+    } else {
+      if (is_rating) {
+        queryBuilder.andWhere(ratingQuery, { rating });
+      } else {
+        queryBuilder.andWhere(no_rating_query);
+      }
     }
 
-    if (rating >= 0 || rating <= 5) {
-      where.rating = rating;
-    }
-
-    const [restaurants, total] = await this.restaurantRepository.findAndCount({
-      where,
-      skip: (page - 1) * limit,
-      take: limit,
-      order: { name: 'ASC' },
-    });
-
-    return { totalItems: total, page, limit, totalPages: Math.ceil(total / limit), restaurants };
+    const [restaurants, items] = await queryBuilder.skip((page - 1) * limit)
+      .take(limit)
+      .orderBy("restaurant.name", "ASC")
+      .getManyAndCount();
+    return { items: items, page: Number(page), limit: Number(limit), total_pages: Math.ceil(items / limit), restaurants };
   }
 }
