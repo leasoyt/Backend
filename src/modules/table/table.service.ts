@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Restaurant_Table } from "src/entities/tables.entity";
 import { RestaurantService } from "../restaurant/restaurant.service";
 import { TableRepository } from "./table.repository";
@@ -17,7 +17,7 @@ export class TableService {
         const found_table: undefined | Restaurant_Table = await this.tableRepository.getTable(id, found_restaurant);
 
         if (found_table === undefined) {
-            throw { error: "Can't find table with provided id" };
+            throw { error: "Can't find table with provided id", exception: NotFoundException };
         }
 
         return found_table;
@@ -28,7 +28,7 @@ export class TableService {
         const found_tables: undefined | Restaurant_Table[] = await this.tableRepository.getTablesByRestaurant(restaurant);
 
         if (found_tables === undefined) {
-            throw { error: "No tables found from this establishment" };
+            throw { error: "No tables found from this establishment", exception: NotFoundException };
         }
 
         return found_tables;

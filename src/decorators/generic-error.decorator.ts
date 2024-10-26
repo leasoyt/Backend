@@ -17,10 +17,10 @@ export function TryCatchWrapper(message: HttpMessagesEnum, exception: new (...ar
             } catch (err) {
 
                 if (err.exception) {
-                    throw new err.exception({message: message, error: err?.error || err});
+                    throw new err.exception({message: message, error: err?.error || err?.message});
                 }
 
-                throw new exception({ message: message, error: err?.error || err });
+                throw new exception({ message: message, error: err?.error || err?.message });
             }
         }
     }
