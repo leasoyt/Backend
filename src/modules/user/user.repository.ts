@@ -34,15 +34,36 @@ export class UserRepository {
     return actual_user;
   }
 
-  async addSubscriptionToUser(actual_user: User, idSubscription: string): Promise<void> {
+  async addSubscriptionToUser(actual_user: User, idSubscription: string, status: string): Promise<void> {
     actual_user.subscription = idSubscription;
+    switch (status) {
+      case 'pending':
+        actual_user.subscriptionStatus = SubscriptionStatus.PENDING;
+        break;
+      case 'authorized':
+        actual_user.subscriptionStatus = SubscriptionStatus.AUTHORIZED;
+        break;
+      case 'paused':
+        actual_user.subscriptionStatus = SubscriptionStatus.PAUSED;
+        break;
+      case 'cancelled':
+        actual_user.subscriptionStatus = SubscriptionStatus.CANCELLED;
+        break;
+      default:
+        throw new BadRequestException
+    }
     await this.userRepository.save(actual_user);
   }
 
   async updateSubscriptionStatus(status: string, idSubscription: string): Promise<void> {
-    const found_user: User = await this.userRepository.findOneBy({subscription: idSubscription })
+    const found_user: User | undefined = await this.userRepository.findOne({where: {
+      subscription: idSubscription
+    }})
+    if (!found_user) {
+      throw new Error('User not found');
+      }
     switch (status) {
-      case 'pendig':
+      case 'pending':
         found_user.subscriptionStatus = SubscriptionStatus.PENDING;
         break;
       case 'authorized':
