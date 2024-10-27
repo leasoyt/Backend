@@ -27,7 +27,7 @@ export class RestaurantRepository {
   async createRestaurant(future_manager: User, restaurantObject: RegisterRestaurantDto): Promise<Restaurant> {
     const { tables, ...rest } = restaurantObject;
 
-    const saved_restaurant: Restaurant = await this.restaurantRepository.save(this.restaurantRepository.create({ ...rest, manager: future_manager }));
+    const saved_restaurant: Restaurant = await this.restaurantRepository.save(this.restaurantRepository.create({ ...rest, manager: future_manager, rating: 0 }));
     return saved_restaurant;
   }
 
@@ -65,4 +65,9 @@ export class RestaurantRepository {
       .getManyAndCount();
     return { items: items, page: Number(page), limit: Number(limit), total_pages: Math.ceil(items / limit), restaurants };
   }
+
+  // async getRestaurantOrders(restaurantInstance: Restaurant): Promise<Order[]> {
+
+  // }
+
 }

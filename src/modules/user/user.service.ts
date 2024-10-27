@@ -43,8 +43,13 @@ export class UserService {
 
     @TryCatchWrapper(HttpMessagesEnum.UNKNOWN_ERROR, InternalServerErrorException)
     async getUsers(page: number, limit: number): Promise<Omit<User, "password">[]> {
-        return await this.userRepository.getUsers(page, limit);
-    }       //METER ERROR OUT OF BOUNDS AQUI
+        const found_users: Omit<User, "password">[] = await this.userRepository.getUsers(page, limit);
+
+        if (found_users.length === 0) {
+            throw {error: "Users list is empty", exception: NotFoundException};
+        }
+        return found_users;
+    }
 
     @TryCatchWrapper(HttpMessagesEnum.USER_UPDATE_FAILED, BadRequestException)
     async updateUser(id: string, modified_user: UpdateUserDto): Promise<SanitizedUserDto> {
@@ -59,7 +64,6 @@ export class UserService {
 
         return filtered_user;
     }
-
 
     async updatePassword(id: string, oldPassword: string, newPassword: string): Promise<SanitizedUserDto> {
 
@@ -98,13 +102,9 @@ export class UserService {
         return user;
     }
 
-    async getUserByMail(mail: string): Promise<User> {
+    async getUserByMail(mail: string): Promise<User | undefined> {
         const user: User | undefined = await this.userRepository.getUserByMail(mail);
-
-        if (isEmpty(user)) {
-            throw { error: "User email not registered", exception: NotFoundException };
-        }
-        return user;
+        return user ? user : undefined;
     }
 
     async deleteUser(id: string): Promise<SanitizedUserDto> {
@@ -118,8 +118,8 @@ export class UserService {
         const managerRolId: string = 'rol_jpBPeHyzDQ1DUuhV';
         const waiterRolId: string = 'rol_C5w7SEkBGdqxoQL8';
         // if(rol === UserRole.MANAGER) {
-            roleId = 'rol_jpBPeHyzDQ1DUuhV';
-            // await this.deleteRolUser(idUserAuth0, consumerRolId);
+        roleId = 'rol_jpBPeHyzDQ1DUuhV';
+        // await this.deleteRolUser(idUserAuth0, consumerRolId);
         // } else if (rol === UserRole.WAITER) {
         //     roleId = 'rol_C5w7SEkBGdqxoQL8';
         // }
@@ -134,17 +134,17 @@ export class UserService {
                 authorization: `Bearer ${accessToken}`,
                 'cache-control': 'no-cache'
             },
-            data: {roles: [roleId]}
-          };
-          try {
+            data: { roles: [roleId] }
+        };
+        try {
             const response = await firstValueFrom(this.httpService.request(options));
             console.log(response)
             return response.data;
-          } catch (error) {
+        } catch (error) {
             console.log('todo salió mal')
             console.error(error);
             throw new BadRequestException('Problema con el servidor de Auth0')
-          }
+        }
     }
 
     // Para quitar un Rol a un usuario de Auth0
@@ -160,16 +160,16 @@ export class UserService {
                 authorization: `Bearer ${accessToken}`,
                 'cache-control': 'no-cache'
             },
-            data: {roles: [idAuth0Rol]}
-          };
-          try {
+            data: { roles: [idAuth0Rol] }
+        };
+        try {
             const response = await firstValueFrom(this.httpService.request(options));
             console.log(response)
             return response.data;
-          } catch (error) {
+        } catch (error) {
             console.log('todo salió mal')
             console.error(error);
             throw error; // Maneja el error según tus necesidades
-          }
+        }
     }
 }

@@ -1,6 +1,6 @@
 import { IsDateString, IsInt, IsNotEmpty, IsOptional, IsUUID } from "class-validator";
 
-export class CreateReservationDto {
+export class ReservationCreateDto {
     @IsNotEmpty()
     @IsUUID()
     user_id: string;

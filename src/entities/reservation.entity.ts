@@ -1,7 +1,8 @@
-import {  Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from './user.entity';
 import { Restaurant_Table } from './tables.entity';
 import { ReservationStatus } from 'src/enums/reservationStatus.enum';
+import { Restaurant } from './restaurant.entity';
 
 @Entity({
   name: 'reservations',
@@ -10,7 +11,7 @@ export class Reservation {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('date')
+  @Column({type: "timestamp"})
   date: Date;
 
   @Column({
@@ -25,8 +26,13 @@ export class Reservation {
   user: User;
 
   @ManyToOne(() => Restaurant_Table, (table) => table.reservations, {
-    nullable: false,
+    nullable: true,
   })
   table: Restaurant_Table;
 
+  @Column()
+  seats: number;
+
+  @ManyToOne(() => Restaurant, (resta) => resta.id, { nullable: false })
+  restaurant: Restaurant;
 }
