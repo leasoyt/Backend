@@ -1,12 +1,12 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put, UseGuards } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Reservation } from 'src/entities/reservation.entity';
-import { CreateReservationDto } from 'src/dtos/reservation/create-reservation.dto';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { ReservationCreateDto } from 'src/dtos/reservation/reservation-create.dto';
 import { UserRole } from 'src/enums/roles.enum';
 import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { RolesGuard } from 'src/guards/roles.guard';
+import { ReservationResponseDto } from 'src/dtos/reservation/reservation-response.dto';
 
 @ApiTags('Reservation')
 @Controller('reservation')
@@ -14,26 +14,44 @@ export class ReservationController {
   constructor(private readonly reservationService: ReservationService) { }
 
   @Get('user/:id')
-  @ApiBearerAuth()
-  @Roles(UserRole.MANAGER, UserRole.CONSUMER)
-  @UseGuards(AuthGuard, RolesGuard)
-  async getUserReservations(@Param('id', ParseUUIDPipe) id: string): Promise<Reservation[]> {
+  // @ApiBearerAuth()
+  // @Roles(UserRole.MANAGER, UserRole.CONSUMER)
+  // @UseGuards(AuthGuard, RolesGuard)
+  async getUserReservations(@Param('id', ParseUUIDPipe) id: string): Promise<ReservationResponseDto[]> {
     return await this.reservationService.getUserReservations(id);
   }
 
+  @Get("restaurant/:id")
+  // @ApiBearerAuth()
+  // @Roles(UserRole.MANAGER)
+  // @UseGuards(AuthGuard, RolesGuard)
+  async getRestaurantReservations(@Param("id", ParseUUIDPipe) id: string): Promise<ReservationResponseDto[]> {
+    return await this.reservationService.getRestaurantReservations(id);
+  }
+
   @Get('table/:id')
-  @ApiBearerAuth()
-  @Roles(UserRole.MANAGER, UserRole.WAITER)
-  @UseGuards(AuthGuard, RolesGuard)
-  async getTableReservations(@Param('id', ParseUUIDPipe) id: string): Promise<Reservation[]> {
+  // @ApiBearerAuth()
+  // @Roles(UserRole.MANAGER, UserRole.WAITER)
+  // @UseGuards(AuthGuard, RolesGuard)
+  async getTableReservations(@Param('id', ParseUUIDPipe) id: string): Promise<ReservationResponseDto[]> {
     return await this.reservationService.getTableReservations(id);
   }
 
   @Post()
-  @ApiBearerAuth()
-  @Roles(UserRole.MANAGER, UserRole.CONSUMER)
-  @UseGuards(AuthGuard, RolesGuard)
-  async createReservation(@Body() reservationObject: CreateReservationDto): Promise<any> {
+  // @ApiBearerAuth()
+  // @Roles(UserRole.MANAGER, UserRole.CONSUMER)
+  // @UseGuards(AuthGuard, RolesGuard)
+  @ApiBody({
+    schema: {
+      example: {
+        user_id: "90b07572-524f-4acb-9c7b-4e7e31927643",
+        restaurant_id: "uuid",
+        date: "2024-10-29 15:45:30",
+        seats: 3
+      }
+    }
+  })
+  async createReservation(@Body() reservationObject: ReservationCreateDto): Promise<ReservationResponseDto> {
     return await this.reservationService.createReservation(reservationObject);
   }
 

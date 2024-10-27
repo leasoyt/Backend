@@ -11,6 +11,7 @@ import { User } from './user.entity';
 import { Restaurant_Table } from './tables.entity';
 import { Menu } from './menu.entity';
 import { RestaurantSchedule } from './restaurantSchedule.entity';
+import { Reservation } from './reservation.entity';
 
 @Entity()
 export class Restaurant {
@@ -57,6 +58,8 @@ export class Restaurant {
   })
   schedules: RestaurantSchedule[];
 
+  @OneToMany(() => Reservation, (reserv) => reserv.restaurant, { cascade: true })
+  reservations: Reservation;
   // @ManyToMany(() => Review, (review) => review.restaurant, { nullable: true })
   // reviews: Review[];
 }

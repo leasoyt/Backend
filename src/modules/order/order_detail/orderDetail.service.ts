@@ -26,22 +26,12 @@ export class OrderDetailService {
         return newOrderDetail;
     }
 
-    // async updateOrderDetail(currentOrderDetail: OrderDetail, dishes: OrderedDishesDto[]) {
-    //     try {
-    //         const newOrderDetail: OrderDetail = await this.createOrderDetail(dishes);
-    //         await this.orderDetailRepository.deleteOrderDetail(currentOrderDetail);
-    //         return newOrderDetail;
-    //     } catch (err) {
-    //         throw { error: err?.error || err || "Failed to update order detail" };
-    //     }
-    // }
-
-    async addDishToExistingDetail(currentOrderDetail: OrderDetail, dishes: OrderedDishesDto[]): Promise<OrderDetail> {
+    async addDishToExistingDetail(originalOrder: OrderDetail, dishes: OrderedDishesDto[]): Promise<OrderDetail> {
         return new OrderDetail();
 
         const found_dishes: Dish[] = await this.dishService.getManyDishesById(dishes);
         let price: Decimal = new Decimal(0);
-        let actualized_dishes: Dish[];
+        // let actualized_dishes: Dish[];
         dishes.forEach((dish) => {
             const dish_instance: undefined | Dish = found_dishes.find(x => x.id === dish.id);
 
