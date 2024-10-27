@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, Query, UseGuards } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { RegisterRestaurantDto } from "src/dtos/restaurant/register-restaurant.dto";
 import { RestaurantService } from "./restaurant.service";
@@ -10,6 +10,8 @@ import { AuthGuard } from "src/guards/auth.guard";
 import { HttpResponseDto } from "src/dtos/http-response.dto";
 import { UpdateRestaurant } from "src/dtos/restaurant/updateRestaurant.dto";
 import { RestaurantQueryManyDto } from "src/dtos/restaurant/restaurant-query-many.dto";
+import { TryCatchWrapper } from "src/decorators/generic-error.decorator";
+import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 
 @ApiTags('Restaurant')
 @Controller('restaurant')
@@ -18,16 +20,17 @@ export class RestaurantController {
 
     @Get('query')
     @ApiOperation({ summary: 'QueryParameter complejo para obtener una lista de restaurantes organizada' })
-    @ApiQuery({ name: "page", required: true, type: Number, example: 1 , description: "Numero de la pagina"})
-    @ApiQuery({ name: "limit", required: true, type: Number, example: 10 , description: "Objetos por pagina"})
-    @ApiQuery({ name: "rating", required: false, type: Number, example: 4 , description: "Rating de restaurantes"})
-    @ApiQuery({ name: "search", required: false, type: String, description: "Palabra de busqueda"})
+    @ApiQuery({ name: "page", required: true, type: Number, example: 1, description: "Numero de la pagina" })
+    @ApiQuery({ name: "limit", required: true, type: Number, example: 10, description: "Objetos por pagina" })
+    @ApiQuery({ name: "rating", required: false, type: Number, example: 4, description: "Rating de restaurantes" })
+    @ApiQuery({ name: "search", required: false, type: String, description: "Palabra de busqueda" })
     @ApiOperation({ summary: "QueryParameter complejo para obtener una lista de restaurantes organizada" })
     async getRestaurantsQuery(@Query("page") page: number = 1, @Query("limit") limit: number = 10, @Query("rating") rating?: number, @Query("search") search?: string): Promise<RestaurantQueryManyDto> {
         return await this.restaurantService.getRestaurantsQuery(page, limit, rating, search);
     }
 
     @Get(':id')
+    @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_NOT_FOUND, BadRequestException)
     @ApiOperation({ summary: "Obtiene los detalles de un restaurante", description: "Id recibido por parametro" })
     async getRestaurantByid(@Param('id', ParseUUIDPipe) id: string): Promise<Restaurant> {
         return await this.restaurantService.getRestaurantById(id);

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Param, ParseUUIDPipe, Post, Put, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { OrderService } from "./order.service";
 import { CreateOrderDto } from "src/dtos/order/create-order.dto";
@@ -36,16 +36,6 @@ export class OrderController {
         return await this.orderService.createOrder(orderToCreate);
     }
 
-    // @Put(':id')
-    // @Roles(UserRole.WAITER, UserRole.MANAGER)
-    // @UseGuards(AuthGuard, RolesGuard)
-    // @ApiBearerAuth()
-    // @ApiOperation({ summary: "Modifica una orden en especifico", description: "Id de orden y los datos que se desean cambiar" })
-    // @ApiParam({ name: 'id', type: String, description: 'ID de una orden' })
-    // async updateOrder(@Param('id', ParseUUIDPipe) id: string, @Body() OrderToModify: UpdateOrderDto): Promise<Order> {
-    //     return await this.orderService.updateOrder(id, OrderToModify);
-    // }
-
     @Put("status/:id")
     @Roles(UserRole.WAITER, UserRole.MANAGER)
     @UseGuards(AuthGuard, RolesGuard)
@@ -73,6 +63,16 @@ export class OrderController {
     async addDishToExisting(@Param("id", ParseUUIDPipe) id: string, @Body() toUpdate: Pick<CreateOrderDto, "ordered_dishes">): Promise<Order> {
         return await this.orderService.addDishToExisting(id, toUpdate);
     }
+
+    // @Get(":id")
+    // @Roles(UserRole.WAITER, UserRole.MANAGER)
+    // @UseGuards(AuthGuard, RolesGuard)
+    // @ApiBearerAuth()
+    // @ApiOperation({summary: "Una lista de las ordenes del restaurante", description: "Uuid del restaurante"})
+    // @ApiParam({ name: "id", type: String, description: "ID del restaurante" })
+    // async getRestaurantOrders(@Param("id", ParseUUIDPipe) id: string): Promise<Order[]> {
+    //     return await this.orderService.getRestaurantOrders(id);
+    // }
 
     @Delete(':id')
     @Roles(UserRole.MANAGER)

@@ -10,7 +10,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { CreateRestaurantScheduleDto } from './createRestaurantSchedule.dto';
-import { TableCreationDto } from '../table/table-creation.dto';
+import { TableNumberDto } from '../table/table-creation.dto';
 
 export class RegisterRestaurantDto {
   @IsNotEmpty()
@@ -45,6 +45,6 @@ export class RegisterRestaurantDto {
   @ValidateNested({ each: true })
   @IsArray()
   @IsOptional()
-  @Type(() => TableCreationDto)
-  tables?: TableCreationDto[];
+  @Type(() => TableNumberDto)
+  tables?: TableNumberDto[];
 }

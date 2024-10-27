@@ -17,12 +17,11 @@ export class RestaurantService {
 
   constructor(private readonly restaurantRepository: RestaurantRepository, private readonly userService: UserService, @Inject(forwardRef(() => MenuService)) private readonly menuService: MenuService) { }
 
-  @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, BadRequestException)
   async getRestaurantById(id: string): Promise<Restaurant> {
     const found_restaurant: Restaurant | undefined = await this.restaurantRepository.getRestaurantById(id);
 
     if (found_restaurant === undefined) {
-      throw { error: "Restaurant not found", NotFoundException };
+      throw { error: HttpMessagesEnum.RESTAURANT_NOT_FOUND, NotFoundException };
     }
 
     return found_restaurant;
@@ -70,4 +69,8 @@ export class RestaurantService {
 
     return found_restaurants;
   }
+
+  // async getRestaurantOrders(restaurantInstance: Restaurant): Promise<Order[]> {
+  //   const found_orders: Order[] = await this.restaurantRepository.getRestaurantOrders(restaurantInstance);
+  // }
 }

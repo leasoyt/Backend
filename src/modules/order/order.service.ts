@@ -10,15 +10,22 @@ import { TryCatchWrapper } from "src/decorators/generic-error.decorator";
 import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 import { HttpResponseDto } from "src/dtos/http-response.dto";
 import { OrderStatusDto } from "src/dtos/order/order-status.dto";
+import { RestaurantService } from "../restaurant/restaurant.service";
+import { Restaurant } from "src/entities/restaurant.entity";
 
 @Injectable()
 export class OrderService {
 
-    constructor(private readonly orderRepository: OrderRepository, private readonly tableService: TableService, private readonly orderDetailService: OrderDetailService) { }
+    constructor(
+        private readonly orderRepository: OrderRepository, 
+        private readonly tableService: TableService, 
+        private readonly orderDetailService: OrderDetailService,
+        private readonly restaurantService: RestaurantService
+    ) { }
 
     @TryCatchWrapper(HttpMessagesEnum.ORDER_CREATION_FAILED, InternalServerErrorException)
     async createOrder(orderToCreate: CreateOrderDto): Promise<Order> {
-        const found_table: Restaurant_Table = await this.tableService.getTableById(orderToCreate.table);
+        const found_table: Restaurant_Table = await this.tableService.getRawTableById(orderToCreate.table);
 
         const new_order_detail: OrderDetail = await this.orderDetailService.createOrderDetail(orderToCreate.ordered_dishes);
         const new_order: Order = await this.orderRepository.createOrder(orderToCreate, found_table, new_order_detail);
@@ -29,21 +36,16 @@ export class OrderService {
     async getOrderById(id: string): Promise<Order> {
         const found_order: Order | undefined = await this.orderRepository.getOrderById(id);
         if (found_order === undefined) {
-            throw { error: "Order not found", NotFoundException }
+            throw { error: HttpMessagesEnum.ORDER_NOT_FOUND, NotFoundException }
         }
         return found_order;
     }
 
-    // async updateOrder(id: string, dataToModify: UpdateOrderDto): Promise<Order> {
-    //     const existing_order: Order = await this.getOrderById(id);
-
-    //     if (dataToModify.ordered_dishes) {
-    //         const newOrderDetail: OrderDetail = await this.orderDetailService.updateOrderDetail(existing_order.orderDetail, dataToModify.ordered_dishes);
-    //         existing_order.orderDetail = newOrderDetail;
-    //     }
-
-    //     const updatedOrder: Order = await this.orderRepository.updateOrder(existing_order, dataToModify);
-    //     return updatedOrder;
+    // @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
+    // async getRestaurantOrders(id: string): Promise<Order[]> {
+    //     const found_restaurant: Restaurant = await this.restaurantService.getRestaurantById(id);
+    //     const found_orders: Order[] = await this.restaurantService.getRestaurantOrders(found_restaurant);
+    //     return found_orders;
     // }
 
     @TryCatchWrapper(HttpMessagesEnum.ORDER_UPDATE_FAILED, BadRequestException)

@@ -11,6 +11,7 @@ import { User } from './user.entity';
 import { Restaurant_Table } from './tables.entity';
 import { Menu } from './menu.entity';
 import { RestaurantSchedule } from './restaurantSchedule.entity';
+import { Reservation } from './reservation.entity';
 
 @Entity()
 export class Restaurant {
@@ -26,7 +27,10 @@ export class Restaurant {
   @Column('text', { nullable: true })
   description: string;
 
-  @Column({ default: 'default-image-url.jpg' })
+  @Column({
+    default:
+      'https://res.cloudinary.com/dvgvcleky/image/upload/v1729701300/RestO/c4pyhwljetkgahtkwkpi.webp',
+  })
   imgUrl: string;
 
   @Column({ nullable: true })
@@ -57,6 +61,8 @@ export class Restaurant {
   })
   schedules: RestaurantSchedule[];
 
+  @OneToMany(() => Reservation, (reserv) => reserv.restaurant, { cascade: true })
+  reservations: Reservation;
   // @ManyToMany(() => Review, (review) => review.restaurant, { nullable: true })
   // reviews: Review[];
 }
