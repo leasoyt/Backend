@@ -1,35 +1,21 @@
-import { Injectable } from '@nestjs/common';
-import { MercadoPagoConfig, PreApproval } from 'mercadopago';
-import { AnyError } from 'typeorm';
+import { Inject, Injectable } from '@nestjs/common';
+import { MercadoPagoConfig, PreApproval} from 'mercadopago';
+import { UserService } from '../user/user.service';
+import { CreatePaymentDto } from 'src/dtos/payment/payment.dto';
+import { BodyToPreaprobalAnnual } from 'src/config/annualSubscriptionMercadoPago.config'
+import { CancelSubscriptionDto } from 'src/dtos/payment/cancelPayment.dto';
 
 @Injectable()
 export class PaymentsService {
-  constructor() {}
-  async create(createPaymentDto: any) {
-    // Step 1: Initialize the Mercado Pago client
-    const client = new MercadoPagoConfig({
-      accessToken: 'APP_USR-7920252870111813-102209-232ad587351038e2eb666b1bc4f41b0b-2049054865', // Replace with your actual access token
-      options: { timeout: 5000 },
-    })
-    const preapproval = new PreApproval(client)
-    const body = {
-      reason: 'Suscripción mensual',
-      auto_recurring: {
-        frequency: 1,
-        frequency_type: 'months',
-        transaction_amount: 1000, // Amount for the subscription
-        currency_id: "MXN", // Currency
-        start_date: new Date().toISOString(), // Start date
-        end_date: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString(), // End date
-      },
-      payer_email: 'test_user_992596436@testuser.com',
-      back_url: 'https://www.your-app.com/confirmation', // Redirect URL after payment
-      notification_url: 'https://9c30-200-92-174-158.ngrok-free.app/payments/webhook'
-    };
+  constructor(private readonly userService: UserService, @Inject('MercadoPago') private readonly mercadoPago: MercadoPagoConfig) {}
+  async create(createPaymentDto: CreatePaymentDto): Promise<string> {
+    const preapproval = new PreApproval(this.mercadoPago)
+    let body = BodyToPreaprobalAnnual;
+    // body.payer_email = createPaymentDto.email;
     try {
       const response = await preapproval.create({ body });
-      // The response contains the init_point URL for redirection
-      console.log(response.init_point)
+      // this.userService.addSubscriptionToUser(response.payer_email, response.id)
+      await this.userService.addSubscriptionToUser('test_user_992596436@testuser.com', response.id, response.status);
       return response.init_point;
     } catch (error) {
       console.error('Error creating preapproval: ', error);
@@ -37,25 +23,41 @@ export class PaymentsService {
     }
   }
 
-  receiverWebhook(query: any, body: any, cabecera: any) {
-    if(!cabecera.tracestate) return
-    // console.log(query)
-    // console.log(body)
-    console.log(cabecera)
+  async cancelSubscription(cancelSubscription: CancelSubscriptionDto) {
+    const preapproval = new PreApproval(this.mercadoPago)
+    let id: string;
+    id = cancelSubscription.idSubscription;
+    // id = 'c55d591e09cb49c78a3d036c5d2bf9c9';
+    try {
+      const response = await preapproval.update({
+        id: id,
+        body: {
+          status: "cancelled"
+        }
+      })
+      await this.userService.updateSubscriptionStatus(response.id, response.status)
+      const subscriptionCancelled = {
+        id: response.id,
+        status: response.status
+      }
+      return subscriptionCancelled;
+    } catch (error) {
+      throw error
+    }
+    
   }
-  // findAll() {
-  //   return `This action returns all payments`;
-  // }
-
-  // findOne(id: number) {
-  //   return `This action returns a #${id} payment`;
-  // }
-
-  // update(id: number, updatePaymentDto: UpdatePaymentDto) {
-  //   return `This action updates a #${id} payment`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} payment`;
-  // }
+  
+  async receiverWebhook(body: any) {
+    const idSubscriptionUpdated = body.data.id;
+    const preapproval = new PreApproval(this.mercadoPago)
+    try {
+      const updatedsubscription = await preapproval.get({id: idSubscriptionUpdated});
+      const idSubscriptionUptaded = updatedsubscription.id
+      const updatedsubscriptionStatus = updatedsubscription.status 
+      await this.userService.updateSubscriptionStatus(idSubscriptionUptaded, updatedsubscriptionStatus)
+    } catch (error) {
+      console.error('Error searching preapproval: ', error);
+      throw error;
+    }
+  }
 }

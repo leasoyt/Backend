@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isEmpty } from 'class-validator';
 import { RegisterDto } from 'src/dtos/auth/register.dto';
 import { UpdateUserDto } from 'src/dtos/user/update-user.dto';
 import { User } from 'src/entities/user.entity';
 import { UserRole } from 'src/enums/roles.enum';
+import { SubscriptionStatus } from 'src/enums/subscriptionStatus.enum';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -31,6 +32,53 @@ export class UserRepository {
     await this.userRepository.save(actual_user);
 
     return actual_user;
+  }
+
+  async addSubscriptionToUser(actual_user: User, idSubscription: string, status: string): Promise<void> {
+    actual_user.subscription = idSubscription;
+    switch (status) {
+      case 'pending':
+        actual_user.subscriptionStatus = SubscriptionStatus.PENDING;
+        break;
+      case 'authorized':
+        actual_user.subscriptionStatus = SubscriptionStatus.AUTHORIZED;
+        break;
+      case 'paused':
+        actual_user.subscriptionStatus = SubscriptionStatus.PAUSED;
+        break;
+      case 'cancelled':
+        actual_user.subscriptionStatus = SubscriptionStatus.CANCELLED;
+        break;
+      default:
+        throw new BadRequestException
+    }
+    await this.userRepository.save(actual_user);
+  }
+
+  async updateSubscriptionStatus(status: string, idSubscription: string): Promise<void> {
+    const found_user: User | undefined = await this.userRepository.findOne({where: {
+      subscription: idSubscription
+    }})
+    if (!found_user) {
+      throw new Error('User not found');
+      }
+    switch (status) {
+      case 'pending':
+        found_user.subscriptionStatus = SubscriptionStatus.PENDING;
+        break;
+      case 'authorized':
+        found_user.subscriptionStatus = SubscriptionStatus.AUTHORIZED;
+        break;
+      case 'paused':
+        found_user.subscriptionStatus = SubscriptionStatus.PAUSED;
+        break;
+      case 'cancelled':
+        found_user.subscriptionStatus = SubscriptionStatus.CANCELLED;
+        break;
+      default:
+        throw new BadRequestException
+    }
+    await this.userRepository.save(found_user);
   }
 
   async getUserByMail(email: string): Promise<User> {

@@ -14,6 +14,7 @@ import { config as dotenvConfig } from 'dotenv';
 import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 import { TryCatchWrapper } from "src/decorators/generic-error.decorator";
 import { UserProfileDto } from "src/dtos/user/profile-user.dto";
+import { error } from "console";
 
 dotenvConfig({ path: './env' });
 
@@ -171,5 +172,17 @@ export class UserService {
             console.error(error);
             throw error; // Maneja el error según tus necesidades
         }
+    }
+
+    @TryCatchWrapper(HttpMessagesEnum.USER_NOT_FOUND, BadRequestException)
+    async addSubscriptionToUser(emailUser: string, idSubscription: string, status: string){
+        const foundedUser: User | undefined =  await this.getUserByMail(emailUser);
+        if (!foundedUser) throw new error
+        await this.userRepository.addSubscriptionToUser(foundedUser, idSubscription, status)
+    }
+
+    @TryCatchWrapper(HttpMessagesEnum.USER_NOT_FOUND, BadRequestException)
+    async updateSubscriptionStatus(idSubscription: string, statusSubscription: string) {
+        await this.userRepository.updateSubscriptionStatus(statusSubscription, idSubscription);
     }
 }
