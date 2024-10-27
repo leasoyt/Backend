@@ -1,6 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Headers, UseGuards, ParseUUIDPipe, Put } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { MercadopagoGuard } from 'src/guards/mercadopago.guard';
+import { CreatePaymentDto } from 'src/dtos/payment.dto';
 
 @ApiTags('Pagos con mercadopago')
 @Controller('payments')
@@ -9,15 +11,22 @@ export class PaymentsController {
   
   @ApiOperation({ summary: "Permite realizar el pago por una suscripción a esta página" })
   @Post()
-  create(@Body() createPaymentDto: any) {
+  create(@Body() createPaymentDto: CreatePaymentDto) {
     return this.paymentsService.create(createPaymentDto);
   }
 
+  @UseGuards(MercadopagoGuard)
   @Post('webhook')
   @ApiOperation({ summary: "Recibe notificaciones de mercadopago sobre actualizacione en los pagos" })
-  receiverWebhook(@Query() query: any, @Body() body: any, @Headers() cabecera: any){
-    const respuesta = this.paymentsService.receiverWebhook(query, body, cabecera);
+  receiverWebhook(@Body() body){
+    const respuesta = this.paymentsService.receiverWebhook(body);
     return;
+  }
+
+  @Put('cancel:id')
+  cancelarSubscription(@Param() idSubscription: string){
+    const respuesta = this.paymentsService.cancelSubscription(idSubscription)
+    return respuesta;
   }
   // @Get()
   // findAll() {

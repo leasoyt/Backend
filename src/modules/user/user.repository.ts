@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isEmpty } from 'class-validator';
 import { RegisterDto } from 'src/dtos/auth/register.dto';
 import { UpdateUserDto } from 'src/dtos/user/update-user.dto';
 import { User } from 'src/entities/user.entity';
 import { UserRole } from 'src/enums/roles.enum';
+import { SubscriptionStatus } from 'src/enums/subscriptionStatus.enum';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -31,6 +32,32 @@ export class UserRepository {
     await this.userRepository.save(actual_user);
 
     return actual_user;
+  }
+
+  async addSubscriptionToUser(actual_user: User, idSubscription: string): Promise<void> {
+    actual_user.subscription = idSubscription;
+    await this.userRepository.save(actual_user);
+  }
+
+  async updateSubscriptionStatus(status: string, idSubscription: string): Promise<void> {
+    const found_user: User = await this.userRepository.findOneBy({subscription: idSubscription })
+    switch (status) {
+      case 'pendig':
+        found_user.subscriptionStatus = SubscriptionStatus.PENDING;
+        break;
+      case 'authorized':
+        found_user.subscriptionStatus = SubscriptionStatus.AUTHORIZED;
+        break;
+      case 'paused':
+        found_user.subscriptionStatus = SubscriptionStatus.PAUSED;
+        break;
+      case 'cancelled':
+        found_user.subscriptionStatus = SubscriptionStatus.CANCELLED;
+        break;
+      default:
+        throw new BadRequestException
+    }
+    await this.userRepository.save(found_user);
   }
 
   async getUserByMail(email: string): Promise<User> {

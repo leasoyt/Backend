@@ -172,4 +172,13 @@ export class UserService {
             throw error; // Maneja el error según tus necesidades
           }
     }
+
+    async addSubscriptionToUser(emailUser: string, idSubscription: string){
+        const foundedUser: User =  await this.getUserByMail(emailUser);
+        await this.userRepository.addSubscriptionToUser(foundedUser, idSubscription)
+    }
+
+    async updateSubscriptionStatus(idSubscription: string, statusSubscription: string) {
+        await this.userRepository.updateSubscriptionStatus(statusSubscription, idSubscription);
+    }
 }
