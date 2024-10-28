@@ -31,4 +31,9 @@ export class OrderRepository {
         return this.orderRepository.remove(existingOrder);
     }
 
+    async getOrderByTable(tableInstance: Restaurant_Table): Promise<Order | undefined> {
+        const found_order = await this.orderRepository.findOne({ where: { table: tableInstance }, relations: ["orderDetail", "orderDetail.products"] });
+        return found_order === null ? undefined : found_order;
+    }
+
 }

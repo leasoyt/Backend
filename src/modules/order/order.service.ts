@@ -11,7 +11,7 @@ import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 import { HttpResponseDto } from "src/dtos/http-response.dto";
 import { OrderStatusDto } from "src/dtos/order/order-status.dto";
 import { RestaurantService } from "../restaurant/restaurant.service";
-import { Restaurant } from "src/entities/restaurant.entity";
+import { OrderResponseDto } from "src/dtos/order/order-response.dto";
 
 @Injectable()
 export class OrderService {
@@ -36,7 +36,7 @@ export class OrderService {
     async getOrderById(id: string): Promise<Order> {
         const found_order: Order | undefined = await this.orderRepository.getOrderById(id);
         if (found_order === undefined) {
-            throw { error: HttpMessagesEnum.ORDER_NOT_FOUND, NotFoundException }
+            throw { error: HttpMessagesEnum.ORDER_NOT_FOUND, exception: NotFoundException }
         }
         return found_order;
     }
@@ -71,5 +71,17 @@ export class OrderService {
         const existingOrder: Order = await this.getOrderById(id);
         await this.orderRepository.deleteOrder(existingOrder);
         return { message: HttpMessagesEnum.ORDER_DELETION_SUCCESS };
+    }
+
+    @TryCatchWrapper(HttpMessagesEnum.NO_ORDERS_IN_TABLE, NotFoundException)
+    async getOrderByTable(id: string): Promise<OrderResponseDto> {
+        const found_table: Restaurant_Table = await this.tableService.getRawTableById(id);
+        const found_order: Order | undefined = await this.orderRepository.getOrderByTable(found_table);
+
+        if (found_order === undefined) {
+            throw {};
+        }
+
+        return {...found_order, table_id: found_table.number };
     }
 }

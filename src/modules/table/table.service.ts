@@ -58,7 +58,7 @@ export class TableService {
     }
 
     @TryCatchWrapper(HttpMessagesEnum.TABLE_CREATION_FAIL, BadRequestException)
-    async addTable(restaurantId: string, tableNumber: number): Promise<TableResponseDto[]> {
+    async addTable(restaurantId: string, tableNumber: number): Promise<HttpResponseDto> {
         const restaurant: Restaurant = await this.restaurantService.getRestaurantById(restaurantId);
         const created_table: Restaurant_Table | undefined = await this.tableRepository.addTable(restaurant, tableNumber);
 
@@ -66,7 +66,7 @@ export class TableService {
             throw { error: "Something went wrong" };
         }
 
-        return await this.getRestaurantTables(restaurantId);
+        return { message: HttpMessagesEnum.TABLE_CREATED_SUCCESSFULLY };
     }
 
     @TryCatchWrapper(HttpMessagesEnum.TABLE_DELETION_FAIL, BadRequestException)

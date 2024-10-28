@@ -28,6 +28,7 @@ export class Reservation {
   @ManyToOne(() => Restaurant_Table, (table) => table.reservations, {
     nullable: true,
   })
+  @JoinColumn()
   table: Restaurant_Table;
 
   @Column()
