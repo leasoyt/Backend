@@ -35,7 +35,7 @@ export class User {
   }) 
   subscriptionStatus: SubscriptionStatus;
 
-  @Column({nullable: true})
+  @Column({default: 'nothing', nullable: true})
   subscription: string;
 
   @Column({
