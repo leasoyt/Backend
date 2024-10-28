@@ -27,7 +27,10 @@ export class Restaurant {
   @Column('text', { nullable: true })
   description: string;
 
-  @Column({ default: 'default-image-url.jpg' })
+  @Column({
+    default:
+      'https://res.cloudinary.com/dvgvcleky/image/upload/v1729701300/RestO/c4pyhwljetkgahtkwkpi.webp',
+  })
   imgUrl: string;
 
   @Column({ nullable: true })

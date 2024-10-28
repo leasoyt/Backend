@@ -1,6 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Headers, UseGuards, ParseUUIDPipe, Put } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { MercadopagoGuard } from 'src/guards/mercadopago.guard';
+import { CreatePaymentDto } from 'src/dtos/payment/payment.dto';
+import { CancelSubscriptionDto } from 'src/dtos/payment/cancelPayment.dto';
 
 @ApiTags('Pagos con mercadopago')
 @Controller('payments')
@@ -8,30 +11,23 @@ export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
   
   @ApiOperation({ summary: "Permite realizar el pago por una suscripción a esta página" })
-  @Post()
-  create(@Body() createPaymentDto: any) {
-    return this.paymentsService.create(createPaymentDto);
+  @Post('create')
+  async create(@Body() createPaymentDto: CreatePaymentDto) {
+    return await this.paymentsService.create(createPaymentDto);
   }
 
+  @UseGuards(MercadopagoGuard)
   @Post('webhook')
   @ApiOperation({ summary: "Recibe notificaciones de mercadopago sobre actualizacione en los pagos" })
-  receiverWebhook(@Query() query: any, @Body() body: any, @Headers() cabecera: any){
-    const respuesta = this.paymentsService.receiverWebhook(query, body, cabecera);
+  async receiverWebhook(@Body() body) {
+    const respuesta =  await this.paymentsService.receiverWebhook(body);
     return;
   }
-  // @Get()
-  // findAll() {
-  //   return this.paymentsService.findAll();
-  // }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.paymentsService.findOne(+id);
-  // }
-
- 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.paymentsService.remove(+id);
-  // }
+  @ApiOperation({ summary: "Cancela una suscripción" })
+  @Put('cancel')
+  async cancelarSubscription(@Body() cancelPayment: CancelSubscriptionDto){
+    const respuesta = await this.paymentsService.cancelSubscription(cancelPayment)
+    return respuesta;
+  }
 }

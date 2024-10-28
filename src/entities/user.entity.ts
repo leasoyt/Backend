@@ -2,6 +2,7 @@ import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'ty
 import { Restaurant } from './restaurant.entity';
 import { Reservation } from './reservation.entity';
 import { UserRole } from 'src/enums/roles.enum';
+import { SubscriptionStatus } from 'src/enums/subscriptionStatus.enum';
 // import { Review } from './review.entity';
 
 @Entity({ name: 'users' })
@@ -26,6 +27,16 @@ export class User {
 
   @Column({ default: false })
   isAdmin: boolean;
+
+  @Column({
+    type: 'enum',
+    enum: SubscriptionStatus,
+    default: SubscriptionStatus.NOTHING
+  }) 
+  subscriptionStatus: SubscriptionStatus;
+
+  @Column({nullable: true})
+  subscription: string;
 
   @Column({
     type: 'enum',
