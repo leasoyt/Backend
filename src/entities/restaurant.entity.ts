@@ -3,9 +3,9 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
-  ManyToOne,
   OneToOne,
   JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Restaurant_Table } from './tables.entity';
@@ -61,8 +61,8 @@ export class Restaurant {
   })
   schedules: RestaurantSchedule[];
 
-  @OneToMany(() => Reservation, (reserv) => reserv.restaurant, { cascade: true })
-  reservations: Reservation;
-  // @ManyToMany(() => Review, (review) => review.restaurant, { nullable: true })
-  // reviews: Review[];
+  @OneToMany(() => Reservation, (reserv) => reserv.restaurant, {
+    cascade: true,
+  })
+  reservations: Reservation[];
 }
