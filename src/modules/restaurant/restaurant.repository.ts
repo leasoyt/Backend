@@ -28,7 +28,7 @@ export class RestaurantRepository {
     const found_restaurant: Restaurant | null =
       await this.restaurantRepository.findOne({
         where: { id: id },
-        relations: ['menu', 'menu.categories'],
+        relations: ['menu', 'menu.categories', 'menu.categories.dishes'],
       });
     console.log('Restaurant Data: ', found_restaurant);
     return found_restaurant === null ? undefined : found_restaurant;
