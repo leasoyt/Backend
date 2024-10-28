@@ -6,4 +6,12 @@ export class TableResponseDto extends OmitType(Restaurant_Table, ["restaurant", 
     @IsOptional()
     @IsUUID()
     order?: string | undefined;
+
+    @IsOptional()
+    @IsUUID()
+    reservations?: string | undefined;
+
+    @IsOptional()
+    @IsUUID()
+    restaurant?: string | undefined;
  }

@@ -9,6 +9,7 @@ import { RolesGuard } from "src/guards/roles.guard";
 import { Order } from "src/entities/order.entity";
 import { HttpResponseDto } from "src/dtos/http-response.dto";
 import { OrderStatusDto } from "src/dtos/order/order-status.dto";
+import { OrderResponseDto } from "src/dtos/order/order-response.dto";
 
 @ApiTags('Order')
 @Controller('order')
@@ -17,9 +18,9 @@ export class OrderController {
     constructor(private readonly orderService: OrderService) { }
 
     @Post()
-    @Roles(UserRole.WAITER, UserRole.MANAGER)
-    @UseGuards(AuthGuard, RolesGuard)
-    @ApiBearerAuth()
+    // @Roles(UserRole.WAITER, UserRole.MANAGER)
+    // @UseGuards(AuthGuard, RolesGuard)
+    // @ApiBearerAuth()
     @ApiBody({
         schema: {
             example: {
@@ -37,9 +38,9 @@ export class OrderController {
     }
 
     @Put("status/:id")
-    @Roles(UserRole.WAITER, UserRole.MANAGER)
-    @UseGuards(AuthGuard, RolesGuard)
-    @ApiBearerAuth()
+    // @Roles(UserRole.WAITER, UserRole.MANAGER)
+    // @UseGuards(AuthGuard, RolesGuard)
+    // @ApiBearerAuth()
     @ApiOperation({
         summary: "Actualiza el estado de la orden",
         description: "Manejado solo por staff de restaurante, el status debe ser uno de los siguientes: " +
@@ -51,10 +52,19 @@ export class OrderController {
         return await this.orderService.updateStatus(id, toUpdate);
     }
 
+    @Get(":id")
+    // @Roles(UserRole.WAITER, UserRole.MANAGER)
+    // @UseGuards(AuthGuard, RolesGuard)
+    // @ApiBearerAuth()
+    @ApiParam({name: "id", type: String, description: "ID de la mesa"})
+    async getOrderByTable(@Param("id", ParseUUIDPipe)id: string): Promise<OrderResponseDto> {
+        return await this.orderService.getOrderByTable(id);
+    }
+
     @Put("addDish/:id")
-    @Roles(UserRole.WAITER, UserRole.MANAGER)
-    @UseGuards(AuthGuard, RolesGuard)
-    @ApiBearerAuth()
+    // @Roles(UserRole.WAITER, UserRole.MANAGER)
+    // @UseGuards(AuthGuard, RolesGuard)
+    // @ApiBearerAuth()
     @ApiOperation({
         summary: "Agrega un nuevo plato a una orden existente", description: "requiere el uuid de uno o mas platos?"
     })
@@ -75,9 +85,9 @@ export class OrderController {
     // }
 
     @Delete(':id')
-    @Roles(UserRole.MANAGER)
-    @UseGuards(AuthGuard, RolesGuard)
-    @ApiBearerAuth()
+    // @Roles(UserRole.MANAGER)
+    // @UseGuards(AuthGuard, RolesGuard)
+    // @ApiBearerAuth()
     @ApiOperation({ summary: "Elimina el registro de una orden", description: "Manejado solo por manager de restaurante" })
     @ApiParam({ name: 'id', type: String, description: 'ID de una orden' })
     async deleteOrder(@Param('id', ParseUUIDPipe) id: string): Promise<HttpResponseDto> {

@@ -51,7 +51,7 @@ export class TableController {
   })
   @ApiParam({ name: "id", description: "ID del restaurante" })
   @ApiOperation({ summary: 'Añadir una nueva mesa al restaurante', description: 'Uuid del negocio y numero de la mesa 0 - 1000' })
-  async addTable(@Param("id", ParseUUIDPipe) id: string, @Body() tableOjbect: TableNumberDto): Promise<TableResponseDto[]> {
+  async addTable(@Param("id", ParseUUIDPipe) id: string, @Body() tableOjbect: TableNumberDto): Promise<HttpResponseDto> {
     return await this.tableService.addTable(id, tableOjbect.table_number);
   }
 

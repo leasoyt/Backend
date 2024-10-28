@@ -1,7 +1,7 @@
-import { IsNotEmpty, IsNumber, Min, Max } from 'class-validator';
+import { IsNotEmpty, Min, Max, IsInt } from 'class-validator';
 
 export class TableNumberDto {
-  @IsNumber()
+  @IsInt()
   @Min(0)
   @Max(1000)
   @IsNotEmpty()

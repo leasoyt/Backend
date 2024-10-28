@@ -50,6 +50,7 @@ export enum HttpMessagesEnum {
     TABLE_DELETION_FAIL = "Failed to delete table",
     TABLE_CREATION_FAIL = "Failed to create a new table",
     TABLE_NOT_FOUND = "Table not found",
+    TABLE_CREATED_SUCCESSFULLY = "Table created successfully",
 
     NO_RESERVATIONS_IN_RESTAURANT = "No reservations found from this establishment",
     NO_RESERVATIONS_IN_USER = "No reservations found from this user",
