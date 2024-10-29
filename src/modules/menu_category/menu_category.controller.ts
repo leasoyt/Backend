@@ -17,9 +17,9 @@ export class MenuCategoryController {
   constructor(private readonly menuCategoryService: MenuCategoryService) { }
 
   @Post()
-  @ApiBearerAuth()
-  @Roles(UserRole.MANAGER)
-  @UseGuards(AuthGuard,RolesGuard)
+  // @ApiBearerAuth()
+  // @Roles(UserRole.MANAGER)
+  // @UseGuards(AuthGuard,RolesGuard)
   @ApiOperation({ summary: "crear una nueva categoria", description: "se necesita el nombre de la categoria y el id del restaurante" })
   @ApiBody({
     schema: {
@@ -41,9 +41,9 @@ export class MenuCategoryController {
   }
 
   @Delete(':id') 
-  @ApiBearerAuth()
-  @Roles(UserRole.MANAGER)
-  @UseGuards(AuthGuard,RolesGuard)
+  // @ApiBearerAuth()
+  // @Roles(UserRole.MANAGER)
+  // @UseGuards(AuthGuard,RolesGuard)
   @ApiOperation({ summary: "Eliminacion de una categoria del menu", description: "uuid de la categoria, !ADVERTENCIA: esto eliminaria a los platos que contiene" })
   async deleteMenuCategory(@Param('id', ParseUUIDPipe) id: string): Promise<HttpResponseDto> {
     return await this.menuCategoryService.deleteMenuCategory(id);

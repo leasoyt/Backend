@@ -1,16 +1,4 @@
-import { Type } from 'class-transformer';
-import {
-  IsArray,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsUrl,
-  IsUUID,
-  Length,
-  ValidateNested,
-} from 'class-validator';
-import { CreateRestaurantScheduleDto } from './createRestaurantSchedule.dto';
-import { TableNumberDto } from '../table/table-creation.dto';
+import {  IsNotEmpty,  IsOptional,  IsString,  IsUrl,  Length,} from 'class-validator';
 
 export class RegisterRestaurantDto {
   @IsNotEmpty()
@@ -31,20 +19,8 @@ export class RegisterRestaurantDto {
   @IsUrl()
   imgUrl?: string;
 
-  @IsUUID()
-  @IsOptional()
-  future_manager: string;
+  //@IsUUID() //NUNCA DEBE SER NULO
+  // @IsNotEmpty()
+  future_manager?: string;
 
-  // Array de horarios del restaurante
-  @IsArray()
-  @IsOptional()
-  @ValidateNested({ each: true })
-  @Type(() => CreateRestaurantScheduleDto) // Indica que debe validar un array de DTOs de horario
-  schedules?: CreateRestaurantScheduleDto[];
-  
-  @ValidateNested({ each: true })
-  @IsArray()
-  @IsOptional()
-  @Type(() => TableNumberDto)
-  tables?: TableNumberDto[];
 }
