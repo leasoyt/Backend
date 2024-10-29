@@ -38,7 +38,7 @@ export class Restaurant {
 
   @OneToOne(() => Menu, (menu) => menu.restaurant, {
     cascade: true,
-    nullable: true,
+    nullable: false, //NUNCA PUEDE SER NULLABLE
   })
   @JoinColumn({ name: 'menu_id' })
   menu: Menu;

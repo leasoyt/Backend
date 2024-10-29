@@ -13,10 +13,9 @@ export class MenuService {
   async createMenu(restaurantId: string): Promise<Menu> {
     try {
       const restaurant: Restaurant = await this.restaurantService.getRestaurantById(restaurantId);
-
       return this.menuRepository.createMenu(restaurant);
     } catch (err) {
-      throw err?.error || { error: "Menu creation failed" };
+      throw err?.message || { error: "Menu creation failed" };
     }
   }
 
