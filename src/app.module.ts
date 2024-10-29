@@ -15,6 +15,7 @@ import { UploadModule } from './uploads/upload.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './guards/jwt.strategy';
 import { ReservationModule } from './modules/reservation/reservation.module';
+import { ChatModule } from './modules/chat/chat.module';
 
 
 @Module({
@@ -46,7 +47,8 @@ import { ReservationModule } from './modules/reservation/reservation.module';
     RestaurantModule,
     PaymentsModule,
     UploadModule,
-    ReservationModule
+    ReservationModule,
+    ChatModule
   ],
   controllers: [],
   providers: [JwtStrategy],
