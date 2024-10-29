@@ -36,7 +36,7 @@ export class UserService {
         const ranked_up: User | undefined = await this.userRepository.rankUpTo(found_user, role);
 
         if (ranked_up === undefined) {
-            throw { error: HttpMessagesEnum.RANKING_UP_FAIL };
+            throw { error: HttpMessagesEnum.RANKING_UP_FAIL, exception: NotFoundException };
         }
 
         return ranked_up;

@@ -11,10 +11,11 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class RestaurantRepository {
+  
   constructor(
     @InjectRepository(Restaurant)
     private restaurantRepository: Repository<Restaurant>,
-  ) {}
+  ) { }
 
   async updateRestaurant(
     restaurantInstance: Restaurant,
@@ -34,18 +35,13 @@ export class RestaurantRepository {
     return found_restaurant === null ? undefined : found_restaurant;
   }
 
-  async createRestaurant(
-    future_manager: User,
-    restaurantObject: RegisterRestaurantDto,
-  ): Promise<Restaurant> {
-    const { tables, ...rest } = restaurantObject;
+  async createRestaurant(future_manager: User, restaurantObject: RegisterRestaurantDto,): Promise<Restaurant> {
 
-    const saved_restaurant: Restaurant = await this.restaurantRepository.save(
-      this.restaurantRepository.create({
-        ...rest,
-        manager: future_manager,
-        rating: 0,
-      }),
+    const saved_restaurant: Restaurant = await this.restaurantRepository.save(this.restaurantRepository.create({
+      ...restaurantObject,
+      manager: future_manager,
+      rating: 0,
+    }),
     );
     return saved_restaurant;
   }
@@ -70,8 +66,7 @@ export class RestaurantRepository {
 
     const searchQuery = `(restaurant.name ILIKE :search OR restaurant.description ILIKE :search OR restaurant.address ILIKE :search)`;
     const ratingQuery = 'restaurant.rating = :rating';
-    const no_rating_query =
-      'restaurant.rating IS NOT NULL OR restaurant.rating IS NULL';
+    const no_rating_query = 'restaurant.rating IS NOT NULL OR restaurant.rating IS NULL';
 
     if (is_search && is_rating) {
       queryBuilder
