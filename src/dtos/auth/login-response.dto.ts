@@ -31,5 +31,5 @@ class InnerResponseInfo extends PickType(RegisterDto, ["name", "email", "country
 
     @IsNotEmpty()
     @IsEnum(UserRole)
-    role: UserRole
+    role: UserRole;
  }

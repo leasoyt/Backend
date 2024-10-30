@@ -8,7 +8,7 @@ dotenvConfig({ path: '.env' });
 @Injectable()
 export class AdminGuard implements CanActivate {
 
-  constructor(private jwtService: JwtService) {}
+  constructor(private jwtService: JwtService) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -19,7 +19,9 @@ export class AdminGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(token, { secret: process.env.JWT_SECRET });
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_SECRET
+      });
 
       // Verificar si el usuario es administrador usando el campo isAdmin
       if (!payload.isAdmin) {

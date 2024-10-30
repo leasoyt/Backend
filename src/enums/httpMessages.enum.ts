@@ -11,6 +11,7 @@ export enum HttpMessagesEnum {
     USER_UPDATE_FAILED = "Failed to update user",
     USER_UPDATE_SUCCESS = "User updated successfully",
     RANKING_UP_FAIL = "Failed to rank up user",
+    RANKING_UP_SUCCESS = "Ranked user up successfully",
     USER_NOT_FOUND = "User not found",
 
     DISH_CREATION_FAILED = "Failed to create a new dish",

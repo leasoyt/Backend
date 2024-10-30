@@ -1,5 +1,5 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, Query, UseGuards } from "@nestjs/common";
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { RegisterRestaurantDto } from "src/dtos/restaurant/register-restaurant.dto";
 import { RestaurantService } from "./restaurant.service";
 import { Restaurant } from "src/entities/restaurant.entity";
@@ -31,8 +31,9 @@ export class RestaurantController {
     }
 
     @Get(':id')
-    @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_NOT_FOUND, BadRequestException)
+    @ApiParam({name: "id", description: "Id de restaurante"})
     @ApiOperation({ summary: "Obtiene los detalles de un restaurante", description: "Id recibido por parametro" })
+    @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_NOT_FOUND, BadRequestException)
     async getRestaurantByid(@Param('id', ParseUUIDPipe) id: string): Promise<Restaurant> {
         return await this.restaurantService.getRestaurantById(id);
     }
