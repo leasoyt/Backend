@@ -33,7 +33,7 @@ export class RestaurantRepository {
         where: { id: id },
         relations: ['menu', 'menu.categories', 'menu.categories.dishes'],
       });
-    console.log('Restaurant Data: ', found_restaurant);
+      
     return found_restaurant === null ? undefined : found_restaurant;
   }
 
