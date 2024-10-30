@@ -31,14 +31,14 @@ export class UserController {
 
   @Get('all')
   @ApiBearerAuth()
-  @UseGuards(AdminGuard)
+  //@UseGuards(AdminGuard)
   @ApiOperation({
     summary: 'obtiene todos los usuarios',
     description: 'debe ser ejecutado por un usuario con rol admin',
   })
   async getUsers(
     @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
+    @Query('limit') limit: number = 100,
   ): Promise<SanitizedUserDto[]> {
     return await this.userService.getUsers(page, limit);
   }
@@ -48,6 +48,20 @@ export class UserController {
   // @Get('assignAuth0rol')
   // async assignRoleUser(@Param("id") id: string, @Body() rol: any){
   //     return await this.userService.assignRoleUser(id, rol)
+  // }
+  npm;
+
+  // @ApiBearerAuth()
+  // @Get('profile')
+  // @UseGuards(AuthGuard)
+  // @ApiOperation({
+  //   summary: 'obtener el perfil del usuario autenticado',
+  //   description: 'Obtiene los datos del usuario logueado',
+  // })
+  // async getProfile(
+  //   @Req() req: Request,
+  // ) {
+  //   return this.userService.getProfile(req.user.id)
   // }
 
   @Get('profile')

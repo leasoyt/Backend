@@ -10,7 +10,7 @@ export class OrderDetail {
     id: string;
 
     @Column({
-      type: "decimal", precision: 10, scale: 2, transformer: {
+      type: "decimal", precision: 10, scale: 2, nullable: false, transformer: {
         to: (value: Decimal) => value.toNumber(),
         from: (value: string) => new Decimal(value),
       }

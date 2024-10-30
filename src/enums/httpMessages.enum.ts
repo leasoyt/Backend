@@ -60,5 +60,7 @@ export enum HttpMessagesEnum {
     NO_ORDERS_IN_USER = "No orders found from this user",
     NO_ORDERS_IN_TABLE = "No orders found from this table",
 
-    NO_TABLES_IN_RESTAURANT = "No tables found from this establishment"
+    NO_TABLES_IN_RESTAURANT = "No tables found from this establishment",
+
+    TOKEN_EXPIRED = "User token expired!",
 }

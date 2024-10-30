@@ -8,25 +8,29 @@ import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 
 @Injectable()
 export class MenuService {
+
   constructor(private readonly menuRepository: MenuRepository, @Inject(forwardRef(() => RestaurantService)) private restaurantService: RestaurantService) { }
 
-  async createMenu(restaurantId: string): Promise<Menu> {
+  async createMenu(): Promise<Menu> {
     try {
-      const restaurant: Restaurant = await this.restaurantService.getRestaurantById(restaurantId);
-
-      return this.menuRepository.createMenu(restaurant);
+      // const restaurant: Restaurant = await this.restaurantService.getRestaurantById(restaurantId);
+      return this.menuRepository.createMenu();
     } catch (err) {
-      throw err?.error || { error: "Menu creation failed" };
+      throw err?.message || { error: "Menu creation failed" };
     }
+  }
+
+  async updateMenu(created_menu: Menu, created_restaurant: Restaurant) {
+    await this.menuRepository.updateMenu(created_menu, created_restaurant);
   }
 
   @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
   async getMenuWithCategories(restaurantId: string): Promise<Menu> {
     const restaurant: Restaurant = await this.restaurantService.getRestaurantById(restaurantId);
     const found_menu: Menu | undefined = await this.menuRepository.getMenuByRestaurant(restaurant, true);
-    
+
     if (found_menu === undefined) {
-      throw {error: "Menu with categories can't be found"}
+      throw { error: "Menu with categories can't be found" }
     }
 
     return found_menu;

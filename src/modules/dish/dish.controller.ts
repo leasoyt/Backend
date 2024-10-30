@@ -23,7 +23,7 @@ export class DishController {
     // Protección para la autenticación y por roles de Auth0
     // @UseGuards(Auth0Guard('jwt'), RolesAuth0Guard)
     @ApiOperation({summary: "consigue toda la info de un platillo", description: "Se necesita la uuid del platillo"})
-    @Roles(UserRole.MANAGER)
+    // @Roles(UserRole.MANAGER)
     @Get(":id")
     @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
     @ApiOperation({ summary: "consigue toda la info de un platillo", description: "Se necesita la uuid del platillo" })
@@ -33,9 +33,9 @@ export class DishController {
     }
 
     @Post()
-    @ApiBearerAuth()
-    @Roles(UserRole.MANAGER)
-    @UseGuards(AuthGuard, RolesGuard)
+    // @ApiBearerAuth()
+    // @Roles(UserRole.MANAGER)
+    // @UseGuards(AuthGuard, RolesGuard)
     @ApiOperation({ summary: "crear platillos nuevos", description: "Se necesita la uuid de la categoria y el objeto a crear" })
     @ApiBody({
         schema: {
@@ -52,9 +52,9 @@ export class DishController {
     }
 
     @Put(":id")
-    @ApiBearerAuth()
-    @Roles(UserRole.MANAGER)
-    @UseGuards(AuthGuard, RolesGuard)
+    // @ApiBearerAuth()
+    // @Roles(UserRole.MANAGER)
+    // @UseGuards(AuthGuard, RolesGuard)
     @ApiOperation({ summary: "actualizar informacion de platillos", description: "Se necesita la uuid del plato" })
     @ApiBody({
         schema: {
@@ -70,9 +70,9 @@ export class DishController {
     }
 
     @Delete(":id")
-    @ApiBearerAuth()
-    @Roles(UserRole.MANAGER)
-    @UseGuards(AuthGuard, RolesGuard)
+    // @ApiBearerAuth()
+    // @Roles(UserRole.MANAGER)
+    // @UseGuards(AuthGuard, RolesGuard)
     async deleteDish(@Param("id", ParseUUIDPipe) id: string): Promise<HttpResponseDto> {
         return await this.dishService.deleteDish(id);
     }
