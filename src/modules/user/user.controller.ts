@@ -31,7 +31,7 @@ export class UserController {
 
   @Get('all')
   @ApiBearerAuth()
-  //@UseGuards(AdminGuard)
+  @UseGuards(AdminGuard)
   @ApiOperation({
     summary: 'obtiene todos los usuarios',
     description: 'debe ser ejecutado por un usuario con rol admin',
