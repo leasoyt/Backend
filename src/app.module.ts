@@ -16,24 +16,22 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './guards/jwt.strategy';
 import { ReservationModule } from './modules/reservation/reservation.module';
 import { ChatModule } from './modules/chat/chat.module';
-
 import { MailerModule } from '@nestjs-modules/mailer';
 import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
-import { join } from 'path';
 
 @Module({
   imports: [
     MailerModule.forRootAsync({
       imports: [ConfigModule],
-      inject:[ConfigService],
+      inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         transport: {
           host: 'smtp.gmail.com',
           port: 465,
           secure: true,
           auth: {
-            user: configService.get('NODEMAILER_USER'), 
-            pass: configService.get('NODEMAILER_PASSWORD'), 
+            user: configService.get('NODEMAILER_USER'),
+            pass: configService.get('NODEMAILER_PASSWORD'),
           },
         },
         defaults: {
@@ -77,7 +75,7 @@ import { join } from 'path';
     PaymentsModule,
     UploadModule,
     ReservationModule,
-    ChatModule
+    ChatModule,
   ],
   controllers: [],
   providers: [JwtStrategy],
