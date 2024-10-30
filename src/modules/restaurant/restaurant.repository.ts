@@ -5,16 +5,18 @@ import { isNotEmpty } from 'class-validator';
 import { RegisterRestaurantDto } from 'src/dtos/restaurant/register-restaurant.dto';
 import { RestaurantQueryManyDto } from 'src/dtos/restaurant/restaurant-query-many.dto';
 import { UpdateRestaurant } from 'src/dtos/restaurant/updateRestaurant.dto';
+import { Menu } from 'src/entities/menu.entity';
 import { Restaurant } from 'src/entities/restaurant.entity';
 import { User } from 'src/entities/user.entity';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 
 @Injectable()
 export class RestaurantRepository {
-  
+
   constructor(
     @InjectRepository(Restaurant)
     private restaurantRepository: Repository<Restaurant>,
+    // private menuRepository: Repository<Menu>
   ) { }
 
   async updateRestaurant(
@@ -35,21 +37,26 @@ export class RestaurantRepository {
     return found_restaurant === null ? undefined : found_restaurant;
   }
 
-  async createRestaurant(future_manager: User, restaurantObject: RegisterRestaurantDto,): Promise<Restaurant> {
-
+  async createRestaurant(future_manager: User, restaurantObject: RegisterRestaurantDto, created_menu: Menu,): Promise<Restaurant> {
+    // const created_menu: Menu = this.menuRepository.create();
     const saved_restaurant: Restaurant = await this.restaurantRepository.save(this.restaurantRepository.create({
       ...restaurantObject,
       manager: future_manager,
       rating: 0,
+      menu: created_menu
     }),
     );
-    return saved_restaurant;
+    return saved_restaurant === null ? undefined : saved_restaurant;
+
   }
 
   async deleteRestaurant(restaurantInstance: Restaurant): Promise<boolean> {
-    const removed: Restaurant =
-      await this.restaurantRepository.remove(restaurantInstance);
-    return removed instanceof Restaurant ? true : false;
+    const removed: DeleteResult = await this.restaurantRepository.createQueryBuilder("user")
+    .delete()
+    .where("restaurant.id = :id", { id: restaurantInstance.id })
+    .execute();
+
+    return removed.affected !== 0 ? true : false;
   }
 
   async getRestaurantsQuery(

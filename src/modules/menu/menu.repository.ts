@@ -6,11 +6,12 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class MenuRepository {
+
   constructor(
     @InjectRepository(Menu) private menuRepository: Repository<Menu>) { }
 
-  async createMenu(restaurant: Restaurant): Promise<Menu> {
-    const newMenu = this.menuRepository.create({ restaurant, categories: [] });
+  async createMenu(): Promise<Menu> {
+    const newMenu = this.menuRepository.create();
     return await this.menuRepository.save(newMenu);
   }
 
@@ -21,5 +22,10 @@ export class MenuRepository {
     });
 
     return menu === null ? undefined : menu;
+  }
+
+  async updateMenu(created_menu: Menu, created_restaurant: Restaurant) {
+    created_menu.restaurant = created_restaurant;
+    await this.menuRepository.save(created_menu);
   }
 }
