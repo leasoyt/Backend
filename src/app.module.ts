@@ -15,6 +15,8 @@ import { UploadModule } from './uploads/upload.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './guards/jwt.strategy';
 import { ReservationModule } from './modules/reservation/reservation.module';
+import { ChatModule } from './modules/chat/chat.module';
+
 import { MailerModule } from '@nestjs-modules/mailer';
 import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
 import { join } from 'path';
@@ -75,6 +77,7 @@ import { join } from 'path';
     PaymentsModule,
     UploadModule,
     ReservationModule,
+    ChatModule
   ],
   controllers: [],
   providers: [JwtStrategy],

@@ -11,6 +11,7 @@ import { TableModule } from "../table/table.module";
 @Module({
     imports: [UsersModule, RestaurantModule, TableModule, TypeOrmModule.forFeature([Reservation])],
     controllers: [ReservationController],
-    providers: [ReservationService, ReservationRepository]
+    providers: [ReservationService, ReservationRepository],
+    exports: [ReservationService]
 })
 export class ReservationModule { }

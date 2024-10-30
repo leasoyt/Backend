@@ -103,6 +103,12 @@ export class RestaurantRepository {
     };
   }
 
+  async getRestaurantByName(name: string): Promise<Restaurant | undefined> {
+    const found_restaurant: Restaurant | null =
+      await this.restaurantRepository.findOne({where: { name }});
+    return found_restaurant;
+  }
+
   // async getRestaurantOrders(restaurantInstance: Restaurant): Promise<Order[]> {
 
   // }
