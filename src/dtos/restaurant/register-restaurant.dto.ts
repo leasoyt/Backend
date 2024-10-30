@@ -1,4 +1,4 @@
-import {  IsNotEmpty,  IsOptional,  IsString,  IsUrl,  Length,} from 'class-validator';
+import {  IsNotEmpty,  IsOptional,  IsString,  IsUrl,  IsUUID,  Length,} from 'class-validator';
 
 export class RegisterRestaurantDto {
   @IsNotEmpty()
@@ -19,8 +19,8 @@ export class RegisterRestaurantDto {
   @IsUrl()
   imgUrl?: string;
 
-  //@IsUUID() //NUNCA DEBE SER NULO
-  // @IsNotEmpty()
-  future_manager?: string;
+  @IsUUID() //NUNCA DEBE SER NULO
+  @IsNotEmpty()
+  future_manager: string;
 
 }

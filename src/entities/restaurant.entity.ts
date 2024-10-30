@@ -6,6 +6,7 @@ import {
   OneToOne,
   JoinColumn,
   ManyToOne,
+  BeforeInsert,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Restaurant_Table } from './tables.entity';
@@ -18,7 +19,7 @@ export class Restaurant {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({nullable: false})
   name: string;
 
   @Column()
@@ -39,12 +40,14 @@ export class Restaurant {
   @OneToOne(() => Menu, (menu) => menu.restaurant, {
     cascade: true,
     nullable: false, //NUNCA PUEDE SER NULLABLE
+    onDelete: "CASCADE" //ELIMINA AL MENU SI ESTA SE BORRA
   })
   @JoinColumn({ name: 'menu_id' })
   menu: Menu;
 
   @OneToMany(() => Restaurant_Table, (table) => table.restaurant, {
-    cascade: true,
+    cascade: true, 
+    nullable: true
   })
   tables: Restaurant_Table[];
 
@@ -57,12 +60,21 @@ export class Restaurant {
   manager: User;
 
   @OneToMany(() => RestaurantSchedule, (schedule) => schedule.restaurant, {
-    cascade: true,
+    cascade: true, 
+    nullable: true
   })
   schedules: RestaurantSchedule[];
 
   @OneToMany(() => Reservation, (reserv) => reserv.restaurant, {
-    cascade: true,
+    cascade: true, 
+    nullable: true
   })
   reservations: Reservation[];
+
+  @BeforeInsert()
+  async createSecondaryEntity() {
+    if (!this.menu) {
+      this.menu = new Menu();
+    }
+  }
 }

@@ -75,10 +75,12 @@ export class AuthService {
           message: HttpMessagesEnum.LOGIN_SUCCESS,
           token,
           user: {
+            id: user.id,
             name: user.name,
             email: user.email,
             country: user.country,
             profile_image: user.profile_image,
+            role: user.role
           },
         };
       }

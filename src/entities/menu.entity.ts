@@ -2,8 +2,8 @@ import {
   Column,
   Entity,
   OneToMany,
-  ManyToOne,
   PrimaryGeneratedColumn,
+  OneToOne,
 } from 'typeorm';
 import { Restaurant } from './restaurant.entity';
 import { Menu_Category } from './menu_category.entity';
@@ -16,14 +16,16 @@ export class Menu {
   @Column({ default: 'menu' })
   name: string;
 
-  @ManyToOne(() => Restaurant, (restaurant) => restaurant.menu, {
-    nullable: true,
+  @OneToOne(() => Restaurant, (restaurant) => restaurant.menu, {
+    nullable: true, 
+    // onDelete: "CASCADE"
   })
-  restaurant: Restaurant; // Esto creará el restaurant_id en la tabla menu
+  restaurant: Restaurant;
 
   @OneToMany(() => Menu_Category, (cat) => cat.menu, {
     nullable: true,
     cascade: true,
+    onDelete: "CASCADE"
   })
   categories: Menu_Category[];
 }
