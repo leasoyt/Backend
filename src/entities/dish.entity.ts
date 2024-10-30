@@ -18,9 +18,9 @@ export class Dish {
   stock: boolean
 
   @Column({
-    type: "decimal", precision: 10, scale: 2, transformer: {
+    type: "decimal", precision: 10, scale: 2, nullable: false, transformer: {
       to: (value: Decimal) => value.toNumber(),
-      from: (value: string) => new Decimal(value),
+      from: (value: string) => value ? new Decimal(value) : null
     }
   })
   price: Decimal;
@@ -28,7 +28,7 @@ export class Dish {
   @Column({ default: 'default-image-url.jpg' })
   imgUrl: string;
 
-  @ManyToOne(() => Menu_Category, (cat) => cat.dishes)
+  @ManyToOne(() => Menu_Category, (cat) => cat.dishes, { onDelete: "CASCADE" })
   category: Menu_Category;
 
   @ManyToMany(() => OrderDetail, (orderDetail) => orderDetail.products)

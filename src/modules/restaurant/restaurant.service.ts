@@ -11,6 +11,8 @@ import { HttpResponseDto } from 'src/dtos/http-response.dto';
 import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 import { TryCatchWrapper } from 'src/decorators/generic-error.decorator';
 import { RestaurantQueryManyDto } from 'src/dtos/restaurant/restaurant-query-many.dto';
+import { Menu } from 'src/entities/menu.entity';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class RestaurantService {
@@ -32,6 +34,7 @@ export class RestaurantService {
   }
 
   @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_DELETION_FAILED, InternalServerErrorException)
+  // @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_DELETION_FAILED, InternalServerErrorException)
   async deleteRestaurant(id: string): Promise<HttpResponseDto> {
     const found_restaurant: Restaurant = await this.getRestaurantById(id);
     const was_deleted: boolean = await this.restaurantRepository.deleteRestaurant(found_restaurant);
@@ -45,13 +48,31 @@ export class RestaurantService {
 
   @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_CREATION_FAILED, InternalServerErrorException)
   async createRestaurant(restaurantObject: RegisterRestaurantDto): Promise<Restaurant> {
+    let id = "";
+    try {
+      const future_manager: User = await this.userService.rankUpTo(restaurantObject.future_manager, UserRole.MANAGER);
+      const created_menu: Menu = await this.menuService.createMenu();
+      const created_restaurant: Restaurant | undefined = await this.restaurantRepository.createRestaurant(future_manager, restaurantObject, created_menu);
 
-    const future_manager: User = await this.userService.rankUpTo(restaurantObject.future_manager, UserRole.MANAGER);
-    const created_restaurant: Restaurant | undefined = await this.restaurantRepository.createRestaurant(future_manager, restaurantObject);
+      if (created_restaurant === undefined) {
+        throw { message: HttpMessagesEnum.RESTAURANT_CREATION_FAILED, exception: InternalServerErrorException }
+      }
 
-    await this.menuService.createMenu(created_restaurant.id);
+      await this.menuService.updateMenu(created_menu, created_restaurant);
+      id = created_restaurant.id;
 
-    return await this.getRestaurantById(created_restaurant.id);
+      return await this.getRestaurantById(created_restaurant.id);
+
+    } catch (err) {
+
+      await this.userService.rankUpTo(restaurantObject.future_manager, UserRole.CONSUMER);
+
+      if (isUUID(id)) {
+        await this.deleteRestaurant(id);
+      }
+
+      throw err;
+    }
   }
 
   async updateRestaurant(id: string, updateData: UpdateRestaurant): Promise<Restaurant> {

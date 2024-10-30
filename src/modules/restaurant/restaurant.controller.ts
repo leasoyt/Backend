@@ -12,6 +12,7 @@ import { UpdateRestaurant } from "src/dtos/restaurant/updateRestaurant.dto";
 import { RestaurantQueryManyDto } from "src/dtos/restaurant/restaurant-query-many.dto";
 import { TryCatchWrapper } from "src/decorators/generic-error.decorator";
 import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
+import { filterNullFields } from "src/utils/objectNullFilter";
 
 @ApiTags('Restaurant')
 @Controller('restaurant')
@@ -37,9 +38,9 @@ export class RestaurantController {
     }
 
     @Post("create")
-    // @Roles(UserRole.CONSUMER)
-    // @UseGuards(RolesGuard, AuthGuard)
-    // @ApiBearerAuth()
+    @Roles(UserRole.CONSUMER)
+    @UseGuards(RolesGuard, AuthGuard)
+    @ApiBearerAuth()
     @ApiBody({
         schema: {
             example: {
@@ -52,7 +53,7 @@ export class RestaurantController {
     })
     @ApiOperation({ summary: "Registra un nuevo restaurante", description: "Id de usuario y objeto a crear" })
     async createRestaurant(@Body() restaurantObject: RegisterRestaurantDto): Promise<Restaurant> {
-        return await this.restaurantService.createRestaurant(restaurantObject);
+        return await this.restaurantService.createRestaurant(filterNullFields(restaurantObject));
     }
 
     @Put("update")
@@ -60,7 +61,7 @@ export class RestaurantController {
     @UseGuards(RolesGuard, AuthGuard)
     @ApiBearerAuth()
     @ApiOperation({ summary: "Actualiza un restaurante", description: "Id de restaurante y objeto de modificacion" })
-    async updateRestaurant(@Param(":id", ParseUUIDPipe) id: string, @Body() restaurantObject: UpdateRestaurant): Promise<Restaurant> {
+    async updateRestaurant(@Param("id", ParseUUIDPipe) id: string, @Body() restaurantObject: UpdateRestaurant): Promise<Restaurant> {
         return await this.restaurantService.updateRestaurant(id, restaurantObject);
     }
 
@@ -68,7 +69,7 @@ export class RestaurantController {
     @Roles(UserRole.MANAGER)
     @UseGuards(RolesGuard)
     @ApiBearerAuth()
-    async deleteRestaurant(@Param(":id", ParseUUIDPipe) id: string): Promise<HttpResponseDto> {
+    async deleteRestaurant(@Param("id", ParseUUIDPipe) id: string): Promise<HttpResponseDto> {
         return await this.restaurantService.deleteRestaurant(id);
     }
 }
