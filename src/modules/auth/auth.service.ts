@@ -1,22 +1,30 @@
-import { BadRequestException, ConflictException, Injectable, InternalServerErrorException } from "@nestjs/common";
-import { RegisterDto } from "src/dtos/auth/register.dto";
-import { UserService } from "../user/user.service";
-import { SanitizedUserDto } from "src/dtos/user/sanitized-user.dto";
-import { User } from "src/entities/user.entity";
-import { isNotEmpty } from "class-validator";
-import { LoginDto } from "src/dtos/auth/login.dto";
-import { LoginResponseDto } from "src/dtos/auth/login-response.dto";
-import { UpdatePasswordDto } from "src/dtos/user/update-password.dto";
-import * as bcrypt from "bcrypt";
-import { JwtService } from "@nestjs/jwt";
-import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
-import { TryCatchWrapper } from "src/decorators/generic-error.decorator";
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
+import { RegisterDto } from 'src/dtos/auth/register.dto';
+import { UserService } from '../user/user.service';
+import { SanitizedUserDto } from 'src/dtos/user/sanitized-user.dto';
+import { User } from 'src/entities/user.entity';
+import { isNotEmpty } from 'class-validator';
+import { LoginDto } from 'src/dtos/auth/login.dto';
+import { LoginResponseDto } from 'src/dtos/auth/login-response.dto';
+import { UpdatePasswordDto } from 'src/dtos/user/update-password.dto';
+import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import { HttpMessagesEnum } from 'src/enums/httpMessages.enum';
+import { TryCatchWrapper } from 'src/decorators/generic-error.decorator';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class AuthService {
-
-  constructor(private readonly userService: UserService, private readonly jwtService: JwtService) { }
-
+  constructor(
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
+  ) {}
 
   @TryCatchWrapper(HttpMessagesEnum.REGISTRATION_FAIL, BadRequestException)
   async userRegistration(userObject: RegisterDto): Promise<SanitizedUserDto> {
@@ -26,24 +34,43 @@ export class AuthService {
       throw { error: "Passwords don't match!" };
     }
 
-    const is_existent: User | undefined = await this.userService.getUserByMail(email);
+    const is_existent: User | undefined =
+      await this.userService.getUserByMail(email);
     if (isNotEmpty(is_existent)) {
-      throw { error: "Email already on use!", exception: ConflictException };
+      throw { error: 'Email already on use!', exception: ConflictException };
     }
 
     const hashed_password = await bcrypt.hash(password, 10);
 
     if (!hashed_password) {
-      throw { error: "Failed to hash password", exception: InternalServerErrorException };
+      throw {
+        error: 'Failed to hash password',
+        exception: InternalServerErrorException,
+      };
     }
 
-    const user: SanitizedUserDto = await this.userService.createUser({ ...rest_user, email, password: hashed_password });
+    const user: SanitizedUserDto = await this.userService.createUser({
+      ...rest_user,
+      email,
+      password: hashed_password,
+    });
+    try {
+      await this.mailService.sendWelcomeEmail(user);
+    } catch (error) {
+      console.error('Error sending welcome email:', error);
+      throw {
+        error: 'No se pudo enviar el email de bienvenida.',
+        exception: InternalServerErrorException,
+      };
+    }
     return user;
   }
 
-
-  @TryCatchWrapper(HttpMessagesEnum.PASSWORD_UPDATE_FAILED,)
-  async updateAndHashPassword(id: string, passwordModification: UpdatePasswordDto): Promise<SanitizedUserDto> {
+  @TryCatchWrapper(HttpMessagesEnum.PASSWORD_UPDATE_FAILED)
+  async updateAndHashPassword(
+    id: string,
+    passwordModification: UpdatePasswordDto,
+  ): Promise<SanitizedUserDto> {
     const { password, confirmPassword, old_password } = passwordModification;
 
     if (password !== confirmPassword) {
@@ -53,7 +80,6 @@ export class AuthService {
     return await this.userService.updatePassword(id, old_password, password);
   }
 
-
   @TryCatchWrapper(HttpMessagesEnum.LOGIN_FAIL, BadRequestException)
   async userLogin(credentials: LoginDto): Promise<LoginResponseDto> {
     const { email, password } = credentials;
@@ -61,7 +87,6 @@ export class AuthService {
     const user: User | undefined = await this.userService.getUserByMail(email);
 
     if (isNotEmpty(user)) {
-
       const is_valid_password = await bcrypt.compare(password, user.password);
 
       if (is_valid_password) {
