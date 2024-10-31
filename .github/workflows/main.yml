@@ -24,7 +24,7 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/nest-demo:latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/rest0:latest
     -
       name: Deploy a Docker image to Render platform
         # You may pin to the exact commit or the version.
@@ -32,6 +32,6 @@ jobs:
       uses: gh-actions-workflows/deploy-docker-render@v1.3
       with:
         deploy-hook: ${{ secrets.RENDER_DEPLOY_HOOK }}
-        image-url: ${{ secrets.DOCKERHUB_USERNAME }}/nest-demo:latest
+        image-url: ${{ secrets.DOCKERHUB_USERNAME }}/rest0:latest
         render-api-key: ${{ secrets.RENDER_API_KEY }}
         wait-for-deployment: true
