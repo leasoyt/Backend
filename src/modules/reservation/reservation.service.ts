@@ -26,15 +26,15 @@ export class ReservationService {
     @TryCatchWrapper(HttpMessagesEnum.RESERVATION_CREATION_FAIL, InternalServerErrorException)
     async createReservation(reservationObject: ReservationCreateDto): Promise<ReservationResponseDto> {
         const { user_id, restaurant_id, ...rest } = reservationObject;
-
         const found_restaurant: Restaurant = await this.restaurantService.getRestaurantById(restaurant_id);
         const found_user: User = await this.userService.getRawUserById(user_id);
-
         const datedto = new Date(reservationObject.date);
+        console.log(reservationObject.date)
+        console.log(datedto)
         if (isEmpty(datedto)) {
             throw { error: "Date format is invalid", exception: BadRequestException };
         }
-
+        
         const created_reservation = await this.reservationRepository.createReservation(found_restaurant, found_user, { ...rest, date: datedto });
         return this.formatReservation(created_reservation);
     }

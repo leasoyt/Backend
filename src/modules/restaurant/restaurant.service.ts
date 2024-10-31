@@ -29,6 +29,7 @@ export class RestaurantService {
     return found_restaurant;
   }
 
+  @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, InternalServerErrorException)
   async getRestaurantByName(name: string): Promise<Restaurant | null> {
     return await this.restaurantRepository.getRestaurantByName(name)
   }
@@ -93,6 +94,11 @@ export class RestaurantService {
     }
 
     return found_restaurants;
+  }
+
+  @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, InternalServerErrorException)
+  async getAllRestaurantNames(): Promise<string[]> {
+    return await this.restaurantRepository.getAllRestaurantNames()
   }
 
   // async getRestaurantOrders(restaurantInstance: Restaurant): Promise<Order[]> {
