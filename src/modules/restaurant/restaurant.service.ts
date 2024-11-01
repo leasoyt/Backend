@@ -13,6 +13,7 @@ import { TryCatchWrapper } from 'src/decorators/generic-error.decorator';
 import { RestaurantQueryManyDto } from 'src/dtos/restaurant/restaurant-query-many.dto';
 import { Menu } from 'src/entities/menu.entity';
 import { isUUID } from 'class-validator';
+import { UuidBodyDto } from 'src/dtos/generic-uuid-body.dto';
 
 @Injectable()
 export class RestaurantService {
@@ -29,13 +30,28 @@ export class RestaurantService {
     return found_restaurant;
   }
 
-  @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, InternalServerErrorException)
+  @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_NOT_FOUND, InternalServerErrorException)
+  async getRestaurantByManager(id: string): Promise<UuidBodyDto> {
+    const found_manager: User = await this.userService.getRawUserById(id);
+    const found_restaurant: Restaurant | undefined = await this.restaurantRepository.getRestaurantByManager(found_manager);
+
+    if (found_restaurant === undefined) {
+      throw { error: HttpMessagesEnum.RESTAURANT_NOT_FOUND, NotFoundException };
+
+    }
+
+    return { id: found_restaurant.id };
+
+  }
+
+
+  @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_NOT_FOUND, InternalServerErrorException)
   async getRestaurantByName(name: string): Promise<Restaurant | null> {
     return await this.restaurantRepository.getRestaurantByName(name)
   }
 
-  @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_DELETION_FAILED, InternalServerErrorException)
   // @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_DELETION_FAILED, InternalServerErrorException)
+  @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_DELETION_FAILED, InternalServerErrorException)
   async deleteRestaurant(id: string): Promise<HttpResponseDto> {
     const found_restaurant: Restaurant = await this.getRestaurantById(id);
     const was_deleted: boolean = await this.restaurantRepository.deleteRestaurant(found_restaurant);
