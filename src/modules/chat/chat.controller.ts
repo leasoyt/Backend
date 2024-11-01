@@ -5,8 +5,8 @@ import { ChatService } from './chat.service';
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
   @Post()
-  // Le deje un id a cliente para poder identifcarlo en caso de que se hiciera una reservación, ahora que ya no se podrá no tiene función pero lo dejé para no tener que modificar el código
-  async createResponse(@Body() mensaje: any){
-    return await this.chatService.createResponse(mensaje.mensaje, mensaje.id)
+  async createResponse(@Body() data: { message: string ,userId:string}) {
+    const response = await this.chatService.processingMessage(data.message,data.userId);
+    return response;
   }
 }

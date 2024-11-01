@@ -33,7 +33,7 @@ export class RestaurantRepository {
         where: { id: id },
         relations: ['menu', 'menu.categories', 'menu.categories.dishes'],
       });
-      
+
     return found_restaurant === null ? undefined : found_restaurant;
   }
 
@@ -52,11 +52,17 @@ export class RestaurantRepository {
 
   async deleteRestaurant(restaurantInstance: Restaurant): Promise<boolean> {
     const removed: DeleteResult = await this.restaurantRepository.createQueryBuilder("user")
-    .delete()
-    .where("restaurant.id = :id", { id: restaurantInstance.id })
-    .execute();
+      .delete()
+      .where("restaurant.id = :id", { id: restaurantInstance.id })
+      .execute();
 
     return removed.affected !== 0 ? true : false;
+  }
+
+  async getRestaurantByManager(found_manager: User): Promise<Restaurant> {
+    const found_restaurant = await this.restaurantRepository.findOne({where:{manager: found_manager}});
+
+    return found_restaurant === null ? undefined : found_restaurant;
   }
 
   async getRestaurantsQuery(
@@ -105,7 +111,7 @@ export class RestaurantRepository {
 
   async getRestaurantByName(name: string): Promise<Restaurant | undefined> {
     const found_restaurant: Restaurant | null =
-      await this.restaurantRepository.findOne({where: { name }});
+      await this.restaurantRepository.findOne({ where: { name } });
     return found_restaurant;
   }
 
