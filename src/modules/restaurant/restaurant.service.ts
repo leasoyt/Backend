@@ -13,12 +13,18 @@ import { TryCatchWrapper } from 'src/decorators/generic-error.decorator';
 import { RestaurantQueryManyDto } from 'src/dtos/restaurant/restaurant-query-many.dto';
 import { Menu } from 'src/entities/menu.entity';
 import { isUUID } from 'class-validator';
+import { NotificationsService } from '../notifications/notifications.service';
 import { UuidBodyDto } from 'src/dtos/generic-uuid-body.dto';
 
 @Injectable()
 export class RestaurantService {
 
-  constructor(private readonly restaurantRepository: RestaurantRepository, private readonly userService: UserService, @Inject(forwardRef(() => MenuService)) private readonly menuService: MenuService) { }
+  constructor(
+    private readonly restaurantRepository: RestaurantRepository, 
+    private readonly userService: UserService, 
+    @Inject(forwardRef(() => MenuService)) private readonly menuService: MenuService,
+    private readonly notificationService: NotificationsService
+  ) { }
 
   async getRestaurantById(id: string): Promise<Restaurant> {
     const found_restaurant: Restaurant | undefined = await this.restaurantRepository.getRestaurantById(id);
@@ -77,7 +83,7 @@ export class RestaurantService {
 
       await this.menuService.updateMenu(created_menu, created_restaurant);
       id = created_restaurant.id;
-
+      this.notificationService.sendNotification('Se ha registrado un nuevo restaurante a Rest0')
       return await this.getRestaurantById(created_restaurant.id);
 
     } catch (err) {

@@ -65,10 +65,13 @@ export class ChatService {
 
     if ((intentName === 'get_restaurants')) {
       const restaurants=await this.restaurantService.getRestaurantsQuery(1,5,4)
-      console.log('restaurants',restaurants);
-      
+      const nombresString = restaurants.restaurants.map(rest => rest.name)
+      if (nombresString.length > 0) {
+        respuestaTexto = nombresString.join(', ')
+      } else {
+        respuestaTexto = nombresString[0];
+      }
     }
-
     return respuestaTexto;
   }
 
