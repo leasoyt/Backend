@@ -28,7 +28,8 @@ import { AdminGuard } from 'src/guards/admin.guard';
 @ApiTags('User')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  
+  constructor(private readonly userService: UserService) { }
 
   @Get('all')
   @ApiBearerAuth()
@@ -38,10 +39,7 @@ export class UserController {
     summary: 'obtiene todos los usuarios',
     description: 'debe ser ejecutado por un usuario con rol admin',
   })
-  async getUsers(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
-  ): Promise<SanitizedUserDto[]> {
+  async getUsers(@Query('page') page: number = 1, @Query('limit') limit: number = 10,): Promise<SanitizedUserDto[]> {
     return await this.userService.getUsers(page, limit);
   }
 
@@ -108,9 +106,7 @@ export class UserController {
       },
     },
   })
-  async rankUp(
-    @Body() body: UuidBodyDto & { rank: UserRole },
-  ): Promise<HttpResponseDto> {
+  async rankUp(@Body() body: UuidBodyDto & { rank: UserRole },): Promise<HttpResponseDto> {
     const ranked_up: User = await this.userService.rankUpTo(body.id, body.rank);
     if (ranked_up.role === body.rank) {
       return { message: HttpMessagesEnum.RANKING_UP_SUCCESS };
@@ -122,9 +118,7 @@ export class UserController {
   @Get(':id')
   // @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'obtiene un usuario por su id' })
-  async getUser(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<SanitizedUserDto> {
+  async getUser(@Param('id', ParseUUIDPipe) id: string,): Promise<SanitizedUserDto> {
     return await this.userService.getUserById(id);
   }
 
@@ -141,10 +135,7 @@ export class UserController {
       },
     },
   })
-  async updateUser(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() modified_user: UpdateUserDto,
-  ): Promise<SanitizedUserDto> {
+  async updateUser(@Param('id', ParseUUIDPipe) id: string, @Body() modified_user: UpdateUserDto,): Promise<SanitizedUserDto> {
     if (!isNotEmptyObject(modified_user)) {
       throw new BadRequestException({
         message: HttpMessagesEnum.USER_UPDATE_FAILED,
