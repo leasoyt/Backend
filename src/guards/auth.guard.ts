@@ -1,48 +1,54 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
-import { config as dotenvConfig } from 'dotenv';
+import { Reflector } from '@nestjs/core';
 import { UserRole } from 'src/enums/roles.enum';
-dotenvConfig({ path: '.env' });
+import { ROLES_KEY } from 'src/decorators/roles.decorator';
+import { HttpMessagesEnum } from 'src/enums/httpMessages.enum';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService) { }
+  constructor(private jwtService: JwtService, private reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
+    
     if (!token) {
-      throw new UnauthorizedException('Token missing!');
+      throw new UnauthorizedException(HttpMessagesEnum.TOKEN_NOT_FOUND);
     }
 
+    let payload;
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
+      payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET,
       });
 
-      payload.exp = new Date(payload.exp * 1000);
-      payload.int = new Date(payload.int * 1000);
-      payload.role =
-        payload.role === UserRole.MANAGER ?
-          [UserRole.MANAGER] : payload.role === UserRole.WAITER ?
-            [UserRole.WAITER] : payload.role === UserRole.ADMIN ?
-              [UserRole.ADMIN] : [UserRole.CONSUMER];
-
       request.user = payload;
+
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid token');
     }
+
+    const requiredRoles = this.reflector.get<UserRole[]>(ROLES_KEY, context.getHandler());
+    
+    if (requiredRoles && requiredRoles.length > 0) {
+      const hasRole = () => requiredRoles.some((role) => role === payload.role);
+
+      if (!hasRole()) {
+        throw new ForbiddenException(HttpMessagesEnum.INSUFFICIENT_PERMISSIONS);
+      }
+
+    }
+
     return true;
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+    const authHeader = request.headers['authorization'];
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      return authHeader.split(' ')[1];
+    }
+    return undefined;
   }
 }

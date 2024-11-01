@@ -7,7 +7,6 @@ import { SanitizedUserDto } from 'src/dtos/user/sanitized-user.dto';
 import { UserRole } from 'src/enums/roles.enum';
 import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { RolesGuard } from 'src/guards/roles.guard';
 import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 import { UserProfileDto } from 'src/dtos/user/profile-user.dto';
 import { UuidBodyDto } from 'src/dtos/generic-uuid-body.dto';
@@ -97,7 +96,7 @@ export class UserController {
   @Put(':id')
   @ApiBearerAuth()
   @Roles(UserRole.MANAGER, UserRole.CONSUMER)
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'actualiza la informacion de un usuario, por id y body', description: 'uuid de user y objeto a actualizar' })
   @ApiBody({
     schema: {

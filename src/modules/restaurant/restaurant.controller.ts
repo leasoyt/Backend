@@ -5,7 +5,6 @@ import { RestaurantService } from "./restaurant.service";
 import { Restaurant } from "src/entities/restaurant.entity";
 import { Roles } from "src/decorators/roles.decorator";
 import { UserRole } from "src/enums/roles.enum";
-import { RolesGuard } from "src/guards/roles.guard";
 import { AuthGuard } from "src/guards/auth.guard";
 import { HttpResponseDto } from "src/dtos/http-response.dto";
 import { UpdateRestaurant } from "src/dtos/restaurant/updateRestaurant.dto";
@@ -13,10 +12,12 @@ import { RestaurantQueryManyDto } from "src/dtos/restaurant/restaurant-query-man
 import { TryCatchWrapper } from "src/decorators/generic-error.decorator";
 import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 import { filterNullFields } from "src/utils/objectNullFilter";
+import { UuidBodyDto } from "src/dtos/generic-uuid-body.dto";
 
 @ApiTags('Restaurant')
 @Controller('restaurant')
 export class RestaurantController {
+    
     constructor(private readonly restaurantService: RestaurantService) { }
 
     @Get('query')
@@ -31,16 +32,33 @@ export class RestaurantController {
     }
 
     @Get(':id')
-    @ApiParam({name: "id", description: "Id de restaurante"})
+    @ApiParam({ name: "id", description: "Id de restaurante" })
     @ApiOperation({ summary: "Obtiene los detalles de un restaurante", description: "Id recibido por parametro" })
     @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_NOT_FOUND, BadRequestException)
     async getRestaurantByid(@Param('id', ParseUUIDPipe) id: string): Promise<Restaurant> {
         return await this.restaurantService.getRestaurantById(id);
     }
 
+    @Put('manager')
+    @UseGuards(AuthGuard)
+    @Roles(UserRole.MANAGER, UserRole.ADMIN)
+    @ApiBearerAuth()
+    @ApiBody({
+        schema: {
+            example: {
+                id: "uuid..."
+            }
+        }
+    })
+    @ApiOperation({ summary: "Obtiene los detalles de un restaurante", description: "Id del manager" })
+    @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_NOT_FOUND, BadRequestException)
+    async getRestaurantByManager(@Body() id: UuidBodyDto): Promise<UuidBodyDto> {
+        return await this.restaurantService.getRestaurantByManager(id.id);
+    }
+
     @Post("create")
     @Roles(UserRole.CONSUMER)
-    @UseGuards(RolesGuard, AuthGuard)
+    @UseGuards(AuthGuard)
     @ApiBearerAuth()
     @ApiBody({
         schema: {
@@ -59,7 +77,7 @@ export class RestaurantController {
 
     @Put("update")
     @Roles(UserRole.MANAGER)
-    @UseGuards(RolesGuard, AuthGuard)
+    @UseGuards(AuthGuard)
     @ApiBearerAuth()
     @ApiOperation({ summary: "Actualiza un restaurante", description: "Id de restaurante y objeto de modificacion" })
     async updateRestaurant(@Param("id", ParseUUIDPipe) id: string, @Body() restaurantObject: UpdateRestaurant): Promise<Restaurant> {
@@ -68,7 +86,7 @@ export class RestaurantController {
 
     @Delete(':id')
     @Roles(UserRole.MANAGER)
-    @UseGuards(RolesGuard)
+    @UseGuards()
     @ApiBearerAuth()
     async deleteRestaurant(@Param("id", ParseUUIDPipe) id: string): Promise<HttpResponseDto> {
         return await this.restaurantService.deleteRestaurant(id);

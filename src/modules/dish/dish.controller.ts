@@ -12,7 +12,6 @@ import { TryCatchWrapper } from "src/decorators/generic-error.decorator";
 import { Roles } from "src/decorators/roles.decorator";
 import { UserRole } from "src/enums/roles.enum";
 import { AuthGuard } from "src/guards/auth.guard";
-import { RolesGuard } from "src/guards/roles.guard";
 
 @ApiTags("Dishes")
 @Controller('dish')
@@ -35,7 +34,7 @@ export class DishController {
     @Post()
     // @ApiBearerAuth()
     // @Roles(UserRole.MANAGER)
-    // @UseGuards(AuthGuard, RolesGuard)
+    // @UseGuards(AuthGuard)
     @ApiOperation({ summary: "crear platillos nuevos", description: "Se necesita la uuid de la categoria y el objeto a crear" })
     @ApiBody({
         schema: {
@@ -54,7 +53,7 @@ export class DishController {
     @Put(":id")
     // @ApiBearerAuth()
     // @Roles(UserRole.MANAGER)
-    // @UseGuards(AuthGuard, RolesGuard)
+    // @UseGuards(AuthGuard)
     @ApiOperation({ summary: "actualizar informacion de platillos", description: "Se necesita la uuid del plato" })
     @ApiBody({
         schema: {
@@ -72,7 +71,7 @@ export class DishController {
     @Delete(":id")
     // @ApiBearerAuth()
     // @Roles(UserRole.MANAGER)
-    // @UseGuards(AuthGuard, RolesGuard)
+    // @UseGuards(AuthGuard)
     async deleteDish(@Param("id", ParseUUIDPipe) id: string): Promise<HttpResponseDto> {
         return await this.dishService.deleteDish(id);
     }

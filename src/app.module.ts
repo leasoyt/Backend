@@ -19,7 +19,6 @@ import { ChatModule } from './modules/chat/chat.module';
 
 import { MailerModule } from '@nestjs-modules/mailer';
 import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
-import { join } from 'path';
 
 @Module({
   imports: [
