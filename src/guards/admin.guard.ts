@@ -2,6 +2,8 @@ import { CanActivate, ExecutionContext, Injectable, ForbiddenException, Unauthor
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { config as dotenvConfig } from 'dotenv';
+import { log } from 'console';
+import { UserRole } from 'src/enums/roles.enum';
 
 dotenvConfig({ path: '.env' });
 
@@ -13,6 +15,8 @@ export class AdminGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
+    console.log('tokee',token);
+    
 
     if (!token) {
       throw new UnauthorizedException('Token missing');
@@ -22,6 +26,16 @@ export class AdminGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET
       });
+
+      payload.exp = new Date(payload.exp * 1000);
+      payload.int = new Date(payload.int * 1000);
+      payload.role =
+        payload.role === UserRole.MANAGER
+          ? [UserRole.MANAGER]
+          : payload.role === UserRole.WAITER
+            ? [UserRole.WAITER]
+            : [UserRole.CONSUMER];
+console.log('payload',payload);
 
       // Verificar si el usuario es administrador usando el campo isAdmin
       if (!payload.isAdmin) {

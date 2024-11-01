@@ -89,13 +89,19 @@ export class AuthService {
     if (isNotEmpty(user)) {
       const is_valid_password = await bcrypt.compare(password, user.password);
 
+
+
+
       if (is_valid_password) {
         const token = this.jwtService.sign({
           id: user.id,
           email: user.email,
           role: user.role,
-          isAdmin: user.isAdmin
+          isAdmin:user.isAdmin
         });
+
+        console.log('isadmin',user.isAdmin);
+        
 
         return {
           message: HttpMessagesEnum.LOGIN_SUCCESS,

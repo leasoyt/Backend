@@ -87,6 +87,7 @@ export class RestaurantService {
     }
 
     const found_restaurants: RestaurantQueryManyDto = await this.restaurantRepository.getRestaurantsQuery(page, limit, rating, search);
+console.log('found',found_restaurants);
 
     if (found_restaurants.restaurants.length === 0) {
       throw { error: "The restaurant list is empty", exception: BadRequestException };

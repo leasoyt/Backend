@@ -1,54 +1,87 @@
 import { Injectable } from '@nestjs/common';
-import { Wit } from 'node-wit'
+import { Wit } from 'node-wit';
 import { config as dotenvConfig } from 'dotenv';
-import { ChatProcessingService } from './chatProcessing.service';
+import { RestaurantService } from '../restaurant/restaurant.service';
 
 dotenvConfig({ path: './env' });
 
 @Injectable()
 export class ChatService {
-  constructor (private readonly chatProcessingService: ChatProcessingService){}
-  private messages: { contenidoMensaje: string, idCliente: string, timestamp: Date }[] = [];
+  constructor(private readonly restaurantService: RestaurantService) {}
 
-  saveMessage(contenidoMensaje: string, idCliente: string){
-    const newMessage = {
-      contenidoMensaje,
-      idCliente,
-      timestamp: new Date(),
-    };
-    this.messages.push(newMessage);
-    return newMessage;
-  }
+  private messageHistory: {
+    type: 'user' | 'bot';
+    message: string;
+    userId: string;
+    timestamp: Date;
+  }[] = [];
 
-  getMessagesForUser(userId: string) {
-    return this.messages.filter(msg => msg.idCliente === userId);
-  }
+  private witClient: Wit;
 
-  async createResponse(contenidoMensaje: string) {
-    // this.saveMessage(contenidoMensaje, idCliente);
-    const respuesta = await this.processingMessage(contenidoMensaje);
-    return respuesta;
-  }
-
-  async processingMessage(mensaje:string) {
-    const clientWit = new Wit({
+  onModuleInit() {
+    this.witClient = new Wit({
       accessToken: process.env.WITTOKEN,
     });
-    const respuesta = await clientWit.message(mensaje)
-    let respuestaTexto;
-    console.log(respuesta);
-    const entities = respuesta?.entities;
-    const intents = respuesta?.entities?.intent;
+  }
+
+  async processingMessage(mensaje: string, userId: string) {
+    try {
+      this.logMessage('user', mensaje, userId);
+
+      const witResponse = await this.witClient.message(mensaje);
+      console.log('Respuesta de Wit.ai:', JSON.stringify(witResponse, null, 2));
+
+      const response = await this.generateResponse(witResponse, userId);
+
+      this.logMessage('bot', response, userId);
+      return { response };
+    } catch (error) {
+      console.error('Error al procesar mensaje:', error);
+      const errorResponse =
+        'Lo siento, hubo un error al procesar tu mensaje. ¿Podrías intentarlo de nuevo?';
+      this.logMessage('bot', errorResponse, userId);
+      return errorResponse;
+    }
+  }
+
+  private async generateResponse(witResponse: any, userId: string) {
+    let respuestaTexto: string =
+      'Lo siento, no entiendo tu pregunta, recuerda que sólo puedo darte los restaurantes que tengo registrados y el menu de cada uno de ellos';
+    const intents = witResponse?.entities?.intent;
+
     if (!intents || intents.length === 0) {
-      return 'Lo siento no puedo entenderte'
+      return respuestaTexto;
     }
+
     const intentName = intents[0].value;
-    if (intentName === 'Saludo'){
-      respuestaTexto = 'Hola soy el asistente virtual de Rest0, ¿En qué puedo ayudarte?'
+
+    console.log('intentName');
+
+    // Para los intents específicos de restaurante
+    if (intentName === 'Saludo') {
+      respuestaTexto =
+        'Hola soy el asistente virtual de Rest0, puedo ayudarte a obtener los restaurantes registrados en nuestra plataforma y  ver su menu,considera que sólo puedo hacer una cosa a la vez, ¿En qué puedo ayudarte?';
     }
-    else if(intentName === 'post_reservation') {
-      respuestaTexto = this.chatProcessingService.createReservation(entities)
+
+    if ((intentName === 'get_restaurants')) {
+      const restaurants=await this.restaurantService.getRestaurantsQuery(1,5,4)
+      console.log('restaurants',restaurants);
+      
     }
-    return respuestaTexto
+
+    return respuestaTexto;
+  }
+
+  private logMessage(type: 'user' | 'bot', message: string, userId: string) {
+    this.messageHistory.push({
+      type,
+      message,
+      userId,
+      timestamp: new Date(),
+    });
+  }
+
+  async getChatHistory(userId: string) {
+    return this.messageHistory.filter((msg) => msg.userId === userId);
   }
 }

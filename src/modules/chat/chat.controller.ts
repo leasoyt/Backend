@@ -4,8 +4,9 @@ import { ChatService } from './chat.service';
 @Controller('chat')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
-  // @Post()
-  // async createResponse(@Body() mensaje: any){
-  //   return await this.chatService.createResponse(mensaje.mensaje)
-  // }
+  @Post()
+  async createResponse(@Body() data: { message: string ,userId:string}) {
+    const response = await this.chatService.processingMessage(data.message,data.userId);
+    return response;
+  }
 }

@@ -67,7 +67,7 @@ export class RestaurantController {
     }
 
     @Delete(':id')
-    @Roles(UserRole.MANAGER)
+    @Roles(UserRole.ADMIN)
     @UseGuards(RolesGuard)
     @ApiBearerAuth()
     async deleteRestaurant(@Param("id", ParseUUIDPipe) id: string): Promise<HttpResponseDto> {
