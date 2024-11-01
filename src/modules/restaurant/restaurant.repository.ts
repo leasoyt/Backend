@@ -115,6 +115,14 @@ export class RestaurantRepository {
     return found_restaurant;
   }
 
+  async getAllRestaurantNames(): Promise<string[]> {
+    const restaurants = await this.restaurantRepository.find({ 
+      select: ['name'],
+    });
+    const restaurantNames = restaurants.map(restaurant => restaurant.name);
+    return restaurantNames;
+  }
+
   // async getRestaurantOrders(restaurantInstance: Restaurant): Promise<Order[]> {
 
   // }

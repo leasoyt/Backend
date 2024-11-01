@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { ReservationCreateDto } from 'src/dtos/reservation/reservation-create.dto';
@@ -10,7 +19,7 @@ import { ReservationResponseDto } from 'src/dtos/reservation/reservation-respons
 @ApiTags('Reservation')
 @Controller('reservation')
 export class ReservationController {
-  constructor(private readonly reservationService: ReservationService) { }
+  constructor(private readonly reservationService: ReservationService) {}
 
   @Get('user/:id')
   // @ApiBearerAuth()
@@ -20,7 +29,7 @@ export class ReservationController {
     return await this.reservationService.getUserReservations(id);
   }
 
-  @Get("restaurant/:id")
+  @Get('restaurant/:id')
   // @ApiBearerAuth()
   // @Roles(UserRole.MANAGER)
   // @UseGuards(AuthGuard)
@@ -36,21 +45,23 @@ export class ReservationController {
     return await this.reservationService.getTableReservations(id);
   }
 
-  @Post()
+  @Post('new')
   // @ApiBearerAuth()
   // @Roles(UserRole.MANAGER, UserRole.CONSUMER)
   // @UseGuards(AuthGuard)
   @ApiBody({
     schema: {
       example: {
-        user_id: "90b07572-524f-4acb-9c7b-4e7e31927643",
-        restaurant_id: "uuid",
-        date: "2024-10-29 15:45:30",
-        seats: 3
-      }
-    }
+        user_id: '90b07572-524f-4acb-9c7b-4e7e31927643',
+        restaurant_id: 'uuid',
+        date: '2024-10-29 15:45:30',
+        seats: 3,
+      },
+    },
   })
-  async createReservation(@Body() reservationObject: ReservationCreateDto): Promise<ReservationResponseDto> {
+  async createReservation(
+    @Body() reservationObject: ReservationCreateDto,
+  ): Promise<ReservationResponseDto> {
     return await this.reservationService.createReservation(reservationObject);
   }
 

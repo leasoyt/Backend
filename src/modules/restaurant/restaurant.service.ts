@@ -45,12 +45,13 @@ export class RestaurantService {
   }
 
 
+  @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_NOT_FOUND, InternalServerErrorException)
   async getRestaurantByName(name: string): Promise<Restaurant | null> {
     return await this.restaurantRepository.getRestaurantByName(name)
   }
 
-  @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_DELETION_FAILED, InternalServerErrorException)
   // @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_DELETION_FAILED, InternalServerErrorException)
+  @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_DELETION_FAILED, InternalServerErrorException)
   async deleteRestaurant(id: string): Promise<HttpResponseDto> {
     const found_restaurant: Restaurant = await this.getRestaurantById(id);
     const was_deleted: boolean = await this.restaurantRepository.deleteRestaurant(found_restaurant);
@@ -109,6 +110,11 @@ export class RestaurantService {
     }
 
     return found_restaurants;
+  }
+
+  @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, InternalServerErrorException)
+  async getAllRestaurantNames(): Promise<string[]> {
+    return await this.restaurantRepository.getAllRestaurantNames()
   }
 
   // async getRestaurantOrders(restaurantInstance: Restaurant): Promise<Order[]> {

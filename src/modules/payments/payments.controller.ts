@@ -12,7 +12,7 @@ export class PaymentsController {
   
   @ApiOperation({ summary: "Permite realizar el pago por una suscripción a esta página" })
   @Post('create')
-  async create(@Body() createPaymentDto: CreatePaymentDto) {
+  async create(@Body() createPaymentDto: CreatePaymentDto): Promise<string> {
     return await this.paymentsService.create(createPaymentDto);
   }
 
