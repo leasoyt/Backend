@@ -12,11 +12,12 @@ dotenvConfig({ path: '.env' });
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService) { }
+  constructor(private jwtService: JwtService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
+    console.log(token);
     if (!token) {
       throw new UnauthorizedException('Token missing!');
     }
@@ -29,10 +30,13 @@ export class AuthGuard implements CanActivate {
       payload.exp = new Date(payload.exp * 1000);
       payload.int = new Date(payload.int * 1000);
       payload.role =
-        payload.role === UserRole.MANAGER ?
-          [UserRole.MANAGER] : payload.role === UserRole.WAITER ?
-            [UserRole.WAITER] : payload.role === UserRole.ADMIN ?
-              [UserRole.ADMIN] : [UserRole.CONSUMER];
+        payload.role === UserRole.MANAGER
+          ? [UserRole.MANAGER]
+          : payload.role === UserRole.WAITER
+            ? [UserRole.WAITER]
+            : payload.role === UserRole.ADMIN
+              ? [UserRole.ADMIN]
+              : [UserRole.CONSUMER];
 
       request.user = payload;
     } catch {
