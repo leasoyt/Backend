@@ -17,7 +17,7 @@ export class MenuController {
   @ApiParam({name: "id", description: "Id de restaurante"})
   @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
   async getMenuWithCategories(@Param('id', ParseUUIDPipe) id: string, @Query("sub") sub: boolean): Promise<Menu> {
-    
+
     return sub ?
       await this.menuService.getMenuWithCategories(id)
       :

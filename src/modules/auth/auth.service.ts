@@ -37,7 +37,7 @@ export class AuthService {
     const is_existent: User | undefined =
       await this.userService.getUserByMail(email);
     if (isNotEmpty(is_existent)) {
-      throw { error: 'Este corre ya esta registrado!', exception: ConflictException };
+      throw { error: 'Este correo ya esta registrado!', exception: ConflictException };
     }
 
     const hashed_password = await bcrypt.hash(password, 10);
