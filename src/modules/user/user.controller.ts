@@ -18,13 +18,13 @@ import { SanitizedUserDto } from 'src/dtos/user/sanitized-user.dto';
 import { UserRole } from 'src/enums/roles.enum';
 import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { RolesGuard } from 'src/guards/roles.guard';
 import { HttpMessagesEnum } from 'src/enums/httpMessages.enum';
 import { UserProfileDto } from 'src/dtos/user/profile-user.dto';
 import { UuidBodyDto } from 'src/dtos/generic-uuid-body.dto';
 import { HttpResponseDto } from 'src/dtos/http-response.dto';
 import { User } from 'src/entities/user.entity';
 import { AdminGuard } from 'src/guards/admin.guard';
+import { GetUser } from 'src/decorators/get-user.decorator';
 
 @ApiTags('User')
 @Controller('user')
@@ -53,48 +53,14 @@ export class UserController {
   //     return await this.userService.assignRoleUser(id, rol)
   // }npm
 
-  // @ApiBearerAuth()
-  // @Get('profile')
-  // @UseGuards(AuthGuard)
-  // @ApiOperation({
-  //   summary: 'obtener el perfil del usuario autenticado',
-  //   description: 'Obtiene los datos del usuario logueado',
-  // })
-  // async getProfile(
-  //   @Req() req: Request,
-  // ) {
-  //   return this.userService.getProfile(req.user.id)
-  // }
-
-  // @ApiBearerAuth()
-  // @Get('profile')
-  // @UseGuards(AuthGuard)
-  // @ApiOperation({
-  //   summary: 'obtener el perfil del usuario autenticado',
-  //   description: 'Obtiene los datos del usuario logueado',
-  // })
-  // async getProfile(
-  //   @Req() req: Request,
-  // ) {
-  //   return this.userService.getProfile(req.user.id)
-  // }
-
   @Get('profile')
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard)
-  @ApiBody({
-    schema: {
-      example: {
-        id: 'uuid...',
-      },
-    },
-  })
+  //@ApiBearerAuth()
+  //@UseGuards(AuthGuard)
   @ApiOperation({
-    summary: 'obtener el perfil del usuario autenticado',
-    description: 'uuid de usuario por body',
+    summary: 'Obtener el perfil del usuario autenticado',
   })
-  async getProfile(@Body() body: UuidBodyDto): Promise<UserProfileDto> {
-    return this.userService.getProfile(body.id);
+  async getProfile(@GetUser() id: string): Promise<UserProfileDto> {
+    return this.userService.getUserById(id); // Usa getUserById directamente
   }
 
   @Put('rankup')
@@ -121,7 +87,7 @@ export class UserController {
 
   // @ApiBearerAuth()
   @Get(':id')
-  // @UseGuards(AdminGuard)
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'obtiene un usuario por su id' })
   async getUser(
     @Param('id', ParseUUIDPipe) id: string,
@@ -132,7 +98,7 @@ export class UserController {
   @Put(':id')
   @ApiBearerAuth()
   @Roles(UserRole.MANAGER, UserRole.CONSUMER)
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'actualiza la informacion de un usuario, por id y body',
     description: 'uuid de user y objeto a actualizar',

@@ -6,7 +6,6 @@ import { TableDeletionDto } from 'src/dtos/table/table-deletion.dto';
 import { UserRole } from 'src/enums/roles.enum';
 import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { RolesGuard } from 'src/guards/roles.guard';
 import { TryCatchWrapper } from 'src/decorators/generic-error.decorator';
 import { HttpMessagesEnum } from 'src/enums/httpMessages.enum';
 import { HttpResponseDto } from 'src/dtos/http-response.dto';
@@ -20,7 +19,7 @@ export class TableController {
   @Get(':id')
   // @ApiBearerAuth()
   // @Roles(UserRole.MANAGER, UserRole.CONSUMER)
-  // @UseGuards(AuthGuard, RolesGuard)
+  // @UseGuards(AuthGuard)
   @ApiParam({ name: "id", description: "ID del restaurante" })
   @ApiOperation({ summary: 'Conseguir una mesa y toda su informacion', description: 'id de la mesa' })
   @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
@@ -31,7 +30,7 @@ export class TableController {
   @Get('all/:id')
   // @ApiBearerAuth()
   // @Roles(UserRole.MANAGER, UserRole.CONSUMER)
-  // @UseGuards(AuthGuard, RolesGuard)
+  // @UseGuards(AuthGuard)
   @ApiParam({ name: "id", description: "ID del restaurante" })
   @ApiOperation({ summary: 'Conseguir una lista de las mesas', description: 'Uuid del negocio' })
   async getTables(@Param('id', ParseUUIDPipe) id: string,): Promise<TableResponseDto[]> {
@@ -41,7 +40,7 @@ export class TableController {
   @Post('create/:id')
   // @ApiBearerAuth()
   // @Roles(UserRole.MANAGER)
-  // @UseGuards(AuthGuard, RolesGuard)
+  // @UseGuards(AuthGuard)
   @ApiBody({
     schema: {
       example: {
@@ -58,7 +57,7 @@ export class TableController {
   @Delete('remove/:id')
   // @ApiBearerAuth()
   // @Roles(UserRole.MANAGER, UserRole.CONSUMER)
-  // @UseGuards(AuthGuard, RolesGuard)
+  // @UseGuards(AuthGuard)
   @ApiBody({
     schema: {
       example: {

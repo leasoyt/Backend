@@ -62,6 +62,7 @@ export class ChatService {
       return { response: respuestaTexto };
     }
 
+
     const intentName = intents[0].value;
 
     console.log('intentName');

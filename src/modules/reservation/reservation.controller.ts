@@ -14,7 +14,6 @@ import { ReservationCreateDto } from 'src/dtos/reservation/reservation-create.dt
 import { UserRole } from 'src/enums/roles.enum';
 import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { RolesGuard } from 'src/guards/roles.guard';
 import { ReservationResponseDto } from 'src/dtos/reservation/reservation-response.dto';
 
 @ApiTags('Reservation')
@@ -25,37 +24,31 @@ export class ReservationController {
   @Get('user/:id')
   // @ApiBearerAuth()
   // @Roles(UserRole.MANAGER, UserRole.CONSUMER)
-  // @UseGuards(AuthGuard, RolesGuard)
-  async getUserReservations(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<ReservationResponseDto[]> {
+  // @UseGuards(AuthGuard)
+  async getUserReservations(@Param('id', ParseUUIDPipe) id: string): Promise<ReservationResponseDto[]> {
     return await this.reservationService.getUserReservations(id);
   }
 
   @Get('restaurant/:id')
   // @ApiBearerAuth()
   // @Roles(UserRole.MANAGER)
-  // @UseGuards(AuthGuard, RolesGuard)
-  async getRestaurantReservations(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<ReservationResponseDto[]> {
+  // @UseGuards(AuthGuard)
+  async getRestaurantReservations(@Param("id", ParseUUIDPipe) id: string): Promise<ReservationResponseDto[]> {
     return await this.reservationService.getRestaurantReservations(id);
   }
 
   @Get('table/:id')
   // @ApiBearerAuth()
   // @Roles(UserRole.MANAGER, UserRole.WAITER)
-  // @UseGuards(AuthGuard, RolesGuard)
-  async getTableReservations(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<ReservationResponseDto[]> {
+  // @UseGuards(AuthGuard)
+  async getTableReservations(@Param('id', ParseUUIDPipe) id: string): Promise<ReservationResponseDto[]> {
     return await this.reservationService.getTableReservations(id);
   }
 
   @Post('new')
   // @ApiBearerAuth()
   // @Roles(UserRole.MANAGER, UserRole.CONSUMER)
-  // @UseGuards(AuthGuard, RolesGuard)
+  // @UseGuards(AuthGuard)
   @ApiBody({
     schema: {
       example: {
@@ -74,12 +67,12 @@ export class ReservationController {
 
   @Put('cancel/:id')
   @Roles(UserRole.MANAGER, UserRole.CONSUMER)
-  @UseGuards(AuthGuard, RolesGuard)
-  async cancelReservation(@Param('id') id: string): Promise<any> {}
+  @UseGuards(AuthGuard)
+  async cancelReservation(@Param('id') id: string): Promise<any> { }
 
   @Put('complete/:id')
   @ApiBearerAuth()
   @Roles(UserRole.MANAGER, UserRole.WAITER)
-  @UseGuards(AuthGuard, RolesGuard)
-  async completeReservation(@Param('id') id: string): Promise<any> {}
+  @UseGuards(AuthGuard)
+  async completeReservation(@Param('id') id: string): Promise<any> { }
 }

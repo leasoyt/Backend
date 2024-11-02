@@ -1,34 +1,40 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { JwtService } from '@nestjs/jwt';
-import { Observable } from 'rxjs';
-import { ROLES_KEY } from 'src/decorators/roles.decorator';
-import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
-import { UserRole } from 'src/enums/roles.enum';
+// import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+// import { Reflector } from '@nestjs/core';
+// import { JwtService } from '@nestjs/jwt';
+// import { Observable } from 'rxjs';
+// import { ROLES_KEY } from 'src/decorators/roles.decorator';
+// import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
+// import { UserRole } from 'src/enums/roles.enum';
 
-@Injectable()
-export class RolesGuard implements CanActivate {
+/**
+ * 
+        NO FUNCIONA, CON EL AUTHGUARD ES SUFICIENTE
+ * 
+ */
 
-  constructor(private reflector: Reflector, private readonly jwtService: JwtService) { }
+// @Injectable()
+// export class RolesGuard implements CanActivate {
 
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
-    const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(ROLES_KEY, [context.getHandler(), context.getClass()]);
+//   constructor(private reflector: Reflector, private readonly jwtService: JwtService) { }
 
-    const request = context.switchToHttp().getRequest();
-    const token = request.headers.authorization?.split(' ')[1];
+//   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+//     const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(ROLES_KEY, [context.getHandler(), context.getClass()]);
 
-    if (token == undefined) {
-      throw new ForbiddenException({ message: HttpMessagesEnum.UNAUTHORIZED, error: "Token not provided" });
-    }
+//     const request = context.switchToHttp().getRequest();
+//     const token = request.headers.authorization?.split(' ')[1];
 
-    const user = this.jwtService.verify(token);
+//     if (token == undefined) {
+//       throw new ForbiddenException({ message: HttpMessagesEnum.UNAUTHORIZED, error: "Token not provided" });
+//     }
 
-    const has_roles: boolean = requiredRoles.some((role) => user?.role?.includes(role));
+//     const user = this.jwtService.verify(token);
 
-    if (!has_roles) {
-      throw new ForbiddenException({ message: HttpMessagesEnum.UNAUTHORIZED, error: "You don't have the required role" });
-    }
+//     const has_roles: boolean = requiredRoles.some((role) => user?.role?.includes(role));
 
-    return true;
-  }
-}
+//     if (!has_roles) {
+//       throw new ForbiddenException({ message: HttpMessagesEnum.UNAUTHORIZED, error: "You don't have the required role" });
+//     }
+
+//     return true;
+//   }
+// }
