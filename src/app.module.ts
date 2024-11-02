@@ -18,6 +18,7 @@ import { ReservationModule } from './modules/reservation/reservation.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
     UploadModule,
     ReservationModule,
     ChatModule,
+    NotificationsModule
   ],
   controllers: [],
   providers: [JwtStrategy],

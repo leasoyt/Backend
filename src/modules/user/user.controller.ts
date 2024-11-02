@@ -18,18 +18,18 @@ import { SanitizedUserDto } from 'src/dtos/user/sanitized-user.dto';
 import { UserRole } from 'src/enums/roles.enum';
 import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
-import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
+import { HttpMessagesEnum } from 'src/enums/httpMessages.enum';
 import { UserProfileDto } from 'src/dtos/user/profile-user.dto';
 import { UuidBodyDto } from 'src/dtos/generic-uuid-body.dto';
 import { HttpResponseDto } from 'src/dtos/http-response.dto';
 import { User } from 'src/entities/user.entity';
 import { AdminGuard } from 'src/guards/admin.guard';
+import { GetUser } from 'src/decorators/get-user.decorator';
 
 @ApiTags('User')
 @Controller('user')
 export class UserController {
-  
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @Get('all')
   @ApiBearerAuth()
@@ -39,7 +39,10 @@ export class UserController {
     summary: 'obtiene todos los usuarios',
     description: 'debe ser ejecutado por un usuario con rol admin',
   })
-  async getUsers(@Query('page') page: number = 1, @Query('limit') limit: number = 10,): Promise<SanitizedUserDto[]> {
+  async getUsers(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ): Promise<SanitizedUserDto[]> {
     return await this.userService.getUsers(page, limit);
   }
 
@@ -50,48 +53,14 @@ export class UserController {
   //     return await this.userService.assignRoleUser(id, rol)
   // }npm
 
-  // @ApiBearerAuth()
-  // @Get('profile')
-  // @UseGuards(AuthGuard)
-  // @ApiOperation({
-  //   summary: 'obtener el perfil del usuario autenticado',
-  //   description: 'Obtiene los datos del usuario logueado',
-  // })
-  // async getProfile(
-  //   @Req() req: Request,
-  // ) {
-  //   return this.userService.getProfile(req.user.id)
-  // }
-
-  // @ApiBearerAuth()
-  // @Get('profile')
-  // @UseGuards(AuthGuard)
-  // @ApiOperation({
-  //   summary: 'obtener el perfil del usuario autenticado',
-  //   description: 'Obtiene los datos del usuario logueado',
-  // })
-  // async getProfile(
-  //   @Req() req: Request,
-  // ) {
-  //   return this.userService.getProfile(req.user.id)
-  // }
-
   @Get('profile')
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard)
-  @ApiBody({
-    schema: {
-      example: {
-        id: 'uuid...',
-      },
-    },
-  })
+  //@ApiBearerAuth()
+  //@UseGuards(AuthGuard)
   @ApiOperation({
-    summary: 'obtener el perfil del usuario autenticado',
-    description: 'uuid de usuario por body',
+    summary: 'Obtener el perfil del usuario autenticado',
   })
-  async getProfile(@Body() body: UuidBodyDto): Promise<UserProfileDto> {
-    return this.userService.getProfile(body.id);
+  async getProfile(@GetUser() id: string): Promise<UserProfileDto> {
+    return this.userService.getUserById(id); // Usa getUserById directamente
   }
 
   @Put('rankup')
@@ -106,7 +75,9 @@ export class UserController {
       },
     },
   })
-  async rankUp(@Body() body: UuidBodyDto & { rank: UserRole },): Promise<HttpResponseDto> {
+  async rankUp(
+    @Body() body: UuidBodyDto & { rank: UserRole },
+  ): Promise<HttpResponseDto> {
     const ranked_up: User = await this.userService.rankUpTo(body.id, body.rank);
     if (ranked_up.role === body.rank) {
       return { message: HttpMessagesEnum.RANKING_UP_SUCCESS };
@@ -116,9 +87,11 @@ export class UserController {
 
   // @ApiBearerAuth()
   @Get(':id')
-  // @UseGuards(AdminGuard)
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'obtiene un usuario por su id' })
-  async getUser(@Param('id', ParseUUIDPipe) id: string,): Promise<SanitizedUserDto> {
+  async getUser(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<SanitizedUserDto> {
     return await this.userService.getUserById(id);
   }
 
@@ -126,7 +99,10 @@ export class UserController {
   @ApiBearerAuth()
   @Roles(UserRole.MANAGER, UserRole.CONSUMER)
   @UseGuards(AuthGuard)
-  @ApiOperation({ summary: 'actualiza la informacion de un usuario, por id y body', description: 'uuid de user y objeto a actualizar' })
+  @ApiOperation({
+    summary: 'actualiza la informacion de un usuario, por id y body',
+    description: 'uuid de user y objeto a actualizar',
+  })
   @ApiBody({
     schema: {
       example: {
@@ -135,7 +111,10 @@ export class UserController {
       },
     },
   })
-  async updateUser(@Param('id', ParseUUIDPipe) id: string, @Body() modified_user: UpdateUserDto,): Promise<SanitizedUserDto> {
+  async updateUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() modified_user: UpdateUserDto,
+  ): Promise<SanitizedUserDto> {
     if (!isNotEmptyObject(modified_user)) {
       throw new BadRequestException({
         message: HttpMessagesEnum.USER_UPDATE_FAILED,
