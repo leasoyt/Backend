@@ -1,9 +1,9 @@
-import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
-import { Server, Socket } from 'socket.io'
-import { ChatService } from "./chat.service";
+// import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
+// import { Server, Socket } from 'socket.io'
+// import { ChatService } from "./chat.service";
 
-@WebSocketGateway({ namespace: '/chat' })
-export class WebSocketGatewayChat implements OnGatewayConnection, OnGatewayDisconnect {
+// @WebSocketGateway({ namespace: '/chat' })
+// export class WebSocketGatewayChat implements OnGatewayConnection, OnGatewayDisconnect {
     
 	constructor(private readonly chatService: ChatService) {}
 
