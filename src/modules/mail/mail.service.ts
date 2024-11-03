@@ -28,7 +28,7 @@ export class MailService {
       });
   }
 
-  @Cron(CronExpression.EVERY_5_MINUTES)
+  // @Cron(CronExpression.EVERY_DAY_AT_11AM)
   async sendNotificationEmail(): Promise<void>{
     const suscripciones = await this.paymentService.getAllSuscription();
     // const suscripciones = suscripcionesPrueba;
