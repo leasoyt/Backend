@@ -9,6 +9,11 @@ import { CancelSubscriptionDto } from 'src/dtos/payment/cancelPayment.dto';
 @Controller('payments')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
+
+  @Get()
+  async getAllSuscription(){
+    await this.paymentsService.getAllSuscription()
+  }
   
   @ApiOperation({ summary: "Permite realizar el pago por una suscripción a esta página" })
   @Post('create')
