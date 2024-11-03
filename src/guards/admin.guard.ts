@@ -18,17 +18,19 @@ export class AdminGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
-    console.log(token);
+    //console.log(token);
     if (!token) {
       throw new UnauthorizedException('Token missing');
     }
-
+    //const payload = this.jwtService.decode(token) as any;     verificacion de los datos que llegan por payload
+    //console.log('Decoded Payload:', payload);
     try {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET,
       });
 
       // Verificar si el usuario es administrador usando el campo isAdmin
+
       if (!payload.isAdmin) {
         throw new ForbiddenException('Access denied, admin only');
       }

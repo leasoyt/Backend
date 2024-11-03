@@ -4,10 +4,12 @@ import {
   Controller,
   Delete,
   Get,
+  InternalServerErrorException,
   Param,
   ParseUUIDPipe,
   Put,
   Query,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { UpdateUserDto } from 'src/dtos/user/update-user.dto';
@@ -34,14 +36,13 @@ export class UserController {
   @Get('all')
   @ApiBearerAuth()
   @UseGuards(AdminGuard, AuthGuard)
-  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'obtiene todos los usuarios',
     description: 'debe ser ejecutado por un usuario con rol admin',
   })
   async getUsers(
     @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
+    @Query('limit') limit: number = 100,
   ): Promise<SanitizedUserDto[]> {
     return await this.userService.getUsers(page, limit);
   }
@@ -54,13 +55,19 @@ export class UserController {
   // }npm
 
   @Get('profile')
-  //@ApiBearerAuth()
-  //@UseGuards(AuthGuard)
-  @ApiOperation({
-    summary: 'Obtener el perfil del usuario autenticado',
-  })
-  async getProfile(@GetUser() id: string): Promise<UserProfileDto> {
-    return this.userService.getUserById(id); // Usa getUserById directamente
+  async getProfile(@GetUser() user: any): Promise<UserProfileDto> {
+    try {
+      console.log('User:', user); // Imprime el objeto user
+      if (!user) {
+        throw new UnauthorizedException('Usuario no autenticado');
+      }
+      return await this.userService.getUserById(user.id);
+    } catch (error) {
+      console.error('Error en getProfile:', error);
+      throw new InternalServerErrorException(
+        'Error al obtener el perfil del usuario',
+      );
+    }
   }
 
   @Put('rankup')
