@@ -37,7 +37,7 @@ export class AuthService {
     const is_existent: User | undefined =
       await this.userService.getUserByMail(email);
     if (isNotEmpty(is_existent)) {
-      throw { error: 'Este corre ya esta registrado!', exception: ConflictException };
+      throw { error: 'Este correo ya esta registrado!', exception: ConflictException };
     }
 
     const hashed_password = await bcrypt.hash(password, 10);
@@ -89,13 +89,19 @@ export class AuthService {
     if (isNotEmpty(user)) {
       const is_valid_password = await bcrypt.compare(password, user.password);
 
+
+
+
       if (is_valid_password) {
         const token = this.jwtService.sign({
           id: user.id,
           email: user.email,
           role: user.role,
-          isAdmin: user.isAdmin
+          isAdmin:user.isAdmin
         });
+
+        console.log('isadmin',user.isAdmin);
+        
 
         return {
           message: HttpMessagesEnum.LOGIN_SUCCESS,
