@@ -62,15 +62,15 @@ export class ChatService {
       return { response: respuestaTexto };
     }
 
-
     const intentName = intents[0].value;
 
-    console.log('intentName');
+    console.log('intentName', intentName);
 
     // Para los intents específicos de restaurante
     if (intentName === 'Saludo') {
       respuestaTexto =
         'Hola soy el asistente virtual de Rest0, puedo ayudarte a obtener los restaurantes registrados en nuestra plataforma y  ver su menu,considera que sólo puedo hacer una cosa a la vez, ¿En qué puedo ayudarte?';
+      return { response: respuestaTexto };
     }
 
     if (intentName === 'get_restaurants') {
@@ -89,6 +89,7 @@ export class ChatService {
 
         respuestaTexto = `Aquí tienes la lista de restaurantes:\n${enumeratedRestaurants}`;
       }
+      return { response: respuestaTexto };
     }
 
     if (intentName === 'get_menu_restaurant') {
@@ -106,6 +107,7 @@ export class ChatService {
           : `No se encontró el menú de ${restaurantName}.`;
         delete this.userStates[userId]; // Limpiar el estado después de procesar la solicitud
       }
+      return { response: respuestaTexto };
     }
 
     // Solo captura el nombre del restaurante si es un mensaje válido
@@ -116,8 +118,8 @@ export class ChatService {
         this.userStates[userId].restaurantName = mensaje; // Guardar el nombre del restaurante
         respuestaTexto = `Entendido, estás buscando el menú de ${mensaje}.`;
       }
+      return { response: respuestaTexto };
     }
-    return { response: respuestaTexto };
   }
 
   private async checkIfValidRestaurantName(name: string): Promise<boolean> {
