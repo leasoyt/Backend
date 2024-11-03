@@ -9,5 +9,6 @@ import { MercadoPagoProvider } from 'src/config/mercadoPago.config';
   imports: [UsersModule],
   controllers: [PaymentsController],
   providers: [PaymentsService, MercadoPagoProvider],
+  exports: [PaymentsService]
 })
 export class PaymentsModule {}

@@ -18,6 +18,9 @@ import { ReservationModule } from './modules/reservation/reservation.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { MailModule } from './modules/mail/mail.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -64,6 +67,8 @@ import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
         configService.get('typeorm'),
     }),
 
+    ScheduleModule.forRoot(),
+
     PassportModule.register({ defaultStrategy: 'jwt' }),
     UsersModule,
     AuthModule,
@@ -76,6 +81,8 @@ import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
     UploadModule,
     ReservationModule,
     ChatModule,
+    NotificationsModule,
+    MailModule
   ],
   controllers: [],
   providers: [JwtStrategy],

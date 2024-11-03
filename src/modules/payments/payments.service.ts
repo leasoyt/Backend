@@ -8,6 +8,13 @@ import { CancelSubscriptionDto } from 'src/dtos/payment/cancelPayment.dto';
 @Injectable()
 export class PaymentsService {
   constructor(private readonly userService: UserService, @Inject('MercadoPago') private readonly mercadoPago: MercadoPagoConfig) {}
+
+  private preaproval;
+  
+  onModuleInit(){
+    this.preaproval = new PreApproval(this.mercadoPago)
+  }
+
   async create(createPaymentDto: CreatePaymentDto): Promise<string> {
     const preapproval = new PreApproval(this.mercadoPago)
     let body = BodyToPreaprobalAnnual;
@@ -46,10 +53,25 @@ export class PaymentsService {
     }
     
   }
+
+  async getAllSuscription(){
+    try {
+      const allSuscription = await this.preaproval.search({
+        options: {
+          limit: 10
+        }
+      })
+      return allSuscription.results;
+    } catch (error) {
+      console.log(error)
+      throw error;
+    }
+  }
   
   async receiverWebhook(body: any) {
     const idSubscriptionUpdated = body.data.id;
     const preapproval = new PreApproval(this.mercadoPago)
+    preapproval.search
     try {
       const updatedsubscription = await preapproval.get({id: idSubscriptionUpdated});
       const idSubscriptionUptaded = updatedsubscription.id

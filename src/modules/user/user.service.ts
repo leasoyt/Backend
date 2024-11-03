@@ -237,4 +237,14 @@ export class UserService {
       idSubscription,
     );
   }
+
+  @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, BadRequestException)
+  async getUsersBySuscription(idsSubscription: string[]): Promise<SanitizedUserDto[]> {
+    const found_users: User[] = await this.userRepository.getUserBySuscriptions(idsSubscription);
+    const sanitizedUsers: SanitizedUserDto[] = found_users.map((found_user) => {
+      const { password, isAdmin, ...filtered } = found_user;
+      return filtered
+    })
+    return sanitizedUsers;
+  }
 }
