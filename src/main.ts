@@ -22,10 +22,9 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   app.enableCors({
-    origin: [
-      'http://localhost:3000', // Permitir el acceso desde tu entorno de desarrollo
-      'https://resto-omega-nine.vercel.app', // Permitir el acceso desde tu entorno de producción
-    ],
+    origin: '*', // Permite cualquier origen
+    methods: 'GET,POST,PUT,DELETE,OPTIONS',
+    credentials: true, // Si usas cookies o sesiones
   });
 
   app.useGlobalPipes(new ValidationPipe());
