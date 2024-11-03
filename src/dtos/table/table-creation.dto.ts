@@ -1,13 +1,9 @@
-import { IsInt, IsNotEmpty, IsUUID, Max, Min } from "class-validator";
+import { IsNotEmpty, Min, Max, IsInt } from 'class-validator';
 
-export class TableCreationDto {
-    @IsInt()
-    @Min(0)
-    @Max(1000)
-    @IsNotEmpty()
-    table_number: number;
-
-    @IsUUID()
-    @IsNotEmpty()
-    restaurant_id: string;
+export class TableNumberDto {
+  @IsInt()
+  @Min(0)
+  @Max(1000)
+  @IsNotEmpty()
+  table_number: number;
 }

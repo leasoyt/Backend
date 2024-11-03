@@ -1,15 +1,25 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, OneToOne, JoinColumn, } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  OneToOne,
+  JoinColumn,
+  ManyToOne,
+  BeforeInsert,
+} from 'typeorm';
 import { User } from './user.entity';
 import { Restaurant_Table } from './tables.entity';
 import { Menu } from './menu.entity';
 import { RestaurantSchedule } from './restaurantSchedule.entity';
+import { Reservation } from './reservation.entity';
 
 @Entity()
 export class Restaurant {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({nullable: false})
   name: string;
 
   @Column()
@@ -18,14 +28,27 @@ export class Restaurant {
   @Column('text', { nullable: true })
   description: string;
 
-  @Column({ default: 'default-image-url.jpg' })
+  @Column({
+    default:
+      'https://res.cloudinary.com/dvgvcleky/image/upload/v1729701300/RestO/c4pyhwljetkgahtkwkpi.webp',
+  })
   imgUrl: string;
 
-  @OneToOne(() => Menu, (menu) => menu.restaurant, { cascade: true, nullable: true })
+  @Column({ nullable: true })
+  rating: number;
+
+  @OneToOne(() => Menu, (menu) => menu.restaurant, {
+    cascade: true,
+    nullable: false, //NUNCA PUEDE SER NULLABLE
+    onDelete: "CASCADE" //ELIMINA AL MENU SI ESTA SE BORRA
+  })
   @JoinColumn({ name: 'menu_id' })
   menu: Menu;
 
-  @OneToMany(() => Restaurant_Table, (table) => table.restaurant)
+  @OneToMany(() => Restaurant_Table, (table) => table.restaurant, {
+    cascade: true, 
+    nullable: true
+  })
   tables: Restaurant_Table[];
 
   // Asociación inversa para meseros
@@ -37,11 +60,21 @@ export class Restaurant {
   manager: User;
 
   @OneToMany(() => RestaurantSchedule, (schedule) => schedule.restaurant, {
-    cascade: true,
+    cascade: true, 
+    nullable: true
   })
   schedules: RestaurantSchedule[];
 
-  // @ManyToMany(() => Review, (review) => review.restaurant, { nullable: true })
-  // reviews: Review[];
+  @OneToMany(() => Reservation, (reserv) => reserv.restaurant, {
+    cascade: true, 
+    nullable: true
+  })
+  reservations: Reservation[];
 
+  @BeforeInsert()
+  async createSecondaryEntity() {
+    if (!this.menu) {
+      this.menu = new Menu();
+    }
+  }
 }

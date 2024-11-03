@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Menu } from 'src/entities/menu.entity';
 import { Restaurant } from 'src/entities/restaurant.entity';
@@ -6,54 +6,26 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class MenuRepository {
+
   constructor(
-    @InjectRepository(Menu) private menuRepository: Repository<Menu>,
-    @InjectRepository(Restaurant)
-    private restaurantRepository: Repository<Restaurant>,
-  ) { }
+    @InjectRepository(Menu) private menuRepository: Repository<Menu>) { }
 
-  async createMenu(restaurant: Restaurant): Promise<Menu> {
-    const newMenu = this.menuRepository.create({
-      restaurant,  // Relacionamos el menú con el restaurante
-      categories: [],  // Inicializamos la lista de categorías vacía
-    });
-
-
-    await this.menuRepository.save(newMenu);
-    return newMenu;
+  async createMenu(): Promise<Menu> {
+    const newMenu = this.menuRepository.create();
+    return await this.menuRepository.save(newMenu);
   }
 
-  async getMenuWithDishes(restaurant: Restaurant): Promise<Menu | undefined> {
+  async getMenuByRestaurant(restaurantInstance: Restaurant, categories: boolean): Promise<Menu | undefined> {
     const menu = await this.menuRepository.findOne({
-      where: { id: restaurant.menu.id },
-      relations: ['categories', 'categories.dishes'],
+      where: { restaurant: restaurantInstance },
+      relations: categories ? ['categories'] : null,
     });
 
-    if (!menu) {
-      throw new NotFoundException(
-        `Menu not found for restaurant with ID ${restaurant.id}`,
-      );
-    }
-
-    return menu;
+    return menu === null ? undefined : menu;
   }
 
-  async deleteMenu(id: string) {
-    const menu = await this.menuRepository.findOneBy({ id });
-    if (!menu) {
-      throw new NotFoundException('menu no encontrado');
-    }
-    return await this.menuRepository.delete(id);
-  }
-
-  async getMenuById(id: string): Promise<Menu> {
-    const menu = await this.menuRepository.findOne({
-      where: { id },
-      relations: ['categories', 'restaurant'],
-    });
-    if (!menu) {
-      throw new NotFoundException('menu no encontrado');
-    }
-    return menu;
+  async updateMenu(created_menu: Menu, created_restaurant: Restaurant) {
+    created_menu.restaurant = created_restaurant;
+    await this.menuRepository.save(created_menu);
   }
 }

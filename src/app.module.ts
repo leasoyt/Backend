@@ -10,9 +10,46 @@ import { MenuCategoryModule } from './modules/menu_category/menu_category.module
 import { Module } from '@nestjs/common';
 import { RestaurantModule } from './modules/restaurant/restaurant.module';
 import { JwtModule } from '@nestjs/jwt';
+import { PaymentsModule } from './modules/payments/payments.module';
+import { UploadModule } from './uploads/upload.module';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './guards/jwt.strategy';
+import { ReservationModule } from './modules/reservation/reservation.module';
+import { ChatModule } from './modules/chat/chat.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { MailModule } from './modules/mail/mail.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        transport: {
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
+          auth: {
+            user: configService.get('NODEMAILER_USER'),
+            pass: configService.get('NODEMAILER_PASSWORD'),
+          },
+        },
+        defaults: {
+          from: '"nest-modules" <modules@nestjs.com>',
+        },
+        template: {
+          dir: 'src/templates',
+          adapter: new PugAdapter(),
+          options: {
+            strict: true,
+          },
+        },
+      }),
+    }),
+
     JwtModule.register({
       global: true,
       signOptions: { expiresIn: '1h' },
@@ -23,12 +60,16 @@ import { JwtModule } from '@nestjs/jwt';
       isGlobal: true,
       load: [TypeOrmConfig],
     }),
-    
+
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) =>
         configService.get('typeorm'),
     }),
+
+    ScheduleModule.forRoot(),
+
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     UsersModule,
     AuthModule,
     DishModule,
@@ -36,8 +77,14 @@ import { JwtModule } from '@nestjs/jwt';
     OrderModule,
     MenuCategoryModule,
     RestaurantModule,
+    PaymentsModule,
+    UploadModule,
+    ReservationModule,
+    ChatModule,
+    NotificationsModule,
+    MailModule
   ],
   controllers: [],
-  providers: [],
+  providers: [JwtStrategy],
 })
 export class AppModule {}

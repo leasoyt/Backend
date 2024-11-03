@@ -1,9 +1,4 @@
-import {
-    Column,
-    Entity,
-    OneToOne,
-    PrimaryGeneratedColumn,
-  } from 'typeorm';
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn, } from 'typeorm';
 import { OrderDetail } from './orderDetail.entity';
 import { Restaurant_Table } from './tables.entity';
 import { orderStatus } from 'src/enums/orderStatus.enum';
@@ -13,7 +8,7 @@ export class Order {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('date')
+  @Column("timestamp")
   date: Date;
 
   @Column({
@@ -23,9 +18,10 @@ export class Order {
   })
   status: orderStatus;
 
-  @OneToOne(() => Restaurant_Table, (table) => table.order, { nullable: true }) // Puede ser nullable si no siempre hay una mesa
+  @OneToOne(() => Restaurant_Table, (table) => table.order, { nullable: false })
   table: Restaurant_Table;
 
   @OneToOne(() => OrderDetail, (orderDetail) => orderDetail.order, { cascade: ['remove'] })
   orderDetail: OrderDetail;
+
 }

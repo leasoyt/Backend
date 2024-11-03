@@ -13,7 +13,7 @@ export class Menu_Category {
   @ManyToOne(() => Menu, (menu) => menu.categories)
   menu: Menu;
 
-  @OneToMany(() => Dish, (dish) => dish.category, { cascade: true })
+  @OneToMany(() => Dish, (dish) => dish.category, { cascade: true, onDelete: "CASCADE" })
   dishes: Dish[];
   
 }

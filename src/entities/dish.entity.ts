@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany } from 'typeorm';
 import { OrderDetail } from './orderDetail.entity';
 import { Menu_Category } from './menu_category.entity';
+import Decimal from 'decimal.js';
 
 @Entity()
 export class Dish {
@@ -16,13 +17,18 @@ export class Dish {
   @Column({ default: true })
   stock: boolean
 
-  @Column('decimal', { precision: 10, scale: 2 })
-  price: number;
+  @Column({
+    type: "decimal", precision: 10, scale: 2, nullable: false, transformer: {
+      to: (value: Decimal) => value.toNumber(),
+      from: (value: string) => value ? new Decimal(value) : null
+    }
+  })
+  price: Decimal;
 
   @Column({ default: 'default-image-url.jpg' })
   imgUrl: string;
 
-  @ManyToOne(() => Menu_Category, (cat) => cat.dishes)
+  @ManyToOne(() => Menu_Category, (cat) => cat.dishes, { onDelete: "CASCADE" })
   category: Menu_Category;
 
   @ManyToMany(() => OrderDetail, (orderDetail) => orderDetail.products)

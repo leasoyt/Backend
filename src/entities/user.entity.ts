@@ -1,7 +1,14 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Restaurant } from './restaurant.entity';
 import { Reservation } from './reservation.entity';
 import { UserRole } from 'src/enums/roles.enum';
+import { SubscriptionStatus } from 'src/enums/subscriptionStatus.enum';
 // import { Review } from './review.entity';
 
 @Entity({ name: 'users' })
@@ -15,7 +22,10 @@ export class User {
   @Column({ unique: true, length: 50, nullable: false })
   email: string;
 
-  @Column({ default: 'default-image-url.jpg' })
+  @Column({
+    default:
+      'https://res.cloudinary.com/dvgvcleky/image/upload/f_auto,q_auto/v1/RestO/ffgx6ywlaix0mb3jghux',
+  })
   profile_image: string;
 
   @Column({ length: 50, nullable: true })
@@ -29,6 +39,16 @@ export class User {
 
   @Column({
     type: 'enum',
+    enum: SubscriptionStatus,
+    default: SubscriptionStatus.NOTHING,
+  })
+  subscriptionStatus: SubscriptionStatus;
+
+  @Column({ default: 'nothing', nullable: true })
+  subscription: string;
+
+  @Column({
+    type: 'enum',
     enum: UserRole,
     default: UserRole.CONSUMER,
   })
@@ -37,16 +57,22 @@ export class User {
   /**
    * Asociación para meseros (un mesero solo puede estar en un restaurante)
    */
-  @ManyToOne(() => Restaurant, (restaurant) => restaurant.waiters, { nullable: true })
+  @ManyToOne(() => Restaurant, (restaurant) => restaurant.waiters, {
+    nullable: true,
+  })
   waiterRestaurant: Restaurant;
 
   /**
    * Asociación para gerentes (un gerente puede estar en varios restaurantes)
    */
-  @OneToMany(() => Restaurant, (restaurant) => restaurant.manager, { nullable: true })
+  @OneToMany(() => Restaurant, (restaurant) => restaurant.manager, {
+    nullable: true,
+  })
   managedRestaurants: Restaurant[];
 
-  @OneToMany(() => Reservation, (reservation) => reservation.user, { nullable: true })
+  @OneToMany(() => Reservation, (reservation) => reservation.user, {
+    nullable: true,
+  })
   reservations: Reservation[];
 
   // @OneToMany(() => Review, (review) => review.user, { nullable: true, onDelete: 'CASCADE' })
