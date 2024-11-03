@@ -7,7 +7,7 @@ import { UpdateUserDto } from 'src/dtos/user/update-user.dto';
 import { User } from 'src/entities/user.entity';
 import { UserRole } from 'src/enums/roles.enum';
 import { SubscriptionStatus } from 'src/enums/subscriptionStatus.enum';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class UserRepository {
@@ -85,6 +85,14 @@ export class UserRepository {
     return await this.userRepository.findOne({ where: { email: email } });
   }
 
+  async getUserBySuscriptions(idsSubscription: string[]): Promise<User[]> {
+    return await this.userRepository.find({
+      where: {
+        subscription: In(idsSubscription),
+      },
+    });
+  }
+
   async createUser(userObject: Omit<RegisterDto, 'confirmPassword'>): Promise<User> {
     const created_user: User = this.userRepository.create(userObject);
     return await this.userRepository.save(created_user);
@@ -105,4 +113,6 @@ export class UserRepository {
     await this.userRepository.save(userInstance);
     return await this.getUserById(userInstance.id);
   }
+
+
 }
