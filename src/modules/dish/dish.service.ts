@@ -11,6 +11,7 @@ import { Menu_Category } from 'src/entities/menu_category.entity';
 import { MenuCategoryService } from '../menu_category/menu_category.service';
 import { TryCatchWrapper } from 'src/decorators/generic-error.decorator';
 import Decimal from 'decimal.js';
+import { isNotEmpty, isNotEmptyObject } from 'class-validator';
 
 @Injectable()
 export class DishService {
@@ -45,24 +46,28 @@ export class DishService {
 
   @TryCatchWrapper(HttpMessagesEnum.DISH_UPDATE_FAILED, BadRequestException)
   async updateDish(id: string, modified_dish: UpdateDishDto): Promise<Dish> {
-
+    if (!isNotEmptyObject(modified_dish)) {
+      throw { error: HttpMessagesEnum.NOTHING_UPDATED, exception: BadRequestException }
+  }
+    const { price, ...rest } = modified_dish;
     const existingDish: Dish = await this.getDishById(id);
-    let found_category: Menu_Category;
     let found_price: Decimal;
 
-    if (modified_dish.category) {
-      found_category = await this.menu_category_service.getCategoryAndDishes(modified_dish.category);
-    }
-    if (modified_dish.price) {
-      found_price = new Decimal(modified_dish.price);
+    const built_dish: Partial<Dish> = { ...rest };
+
+    if (isNotEmpty(price)) {
+      found_price = new Decimal(price);
+      built_dish.price = found_price;
     }
 
-    return this.dishRepository.updateDish(existingDish, {
-      ...modified_dish,
-      price: modified_dish.price ? found_price : null,
-      category: modified_dish.category ? found_category : null
-    });
+    return this.dishRepository.updateDish(existingDish, { ...this.cleanObject(built_dish) });
 
+  }
+
+  private cleanObject<T extends Record<string, any>>(obj: T): Partial<T> {
+    return Object.fromEntries(
+      Object.entries(obj).filter(([_, value]) => value != null && value !== "")
+    ) as Partial<T>;
   }
 
   @TryCatchWrapper(HttpMessagesEnum.DISH_DELETE_FAIL, InternalServerErrorException)
