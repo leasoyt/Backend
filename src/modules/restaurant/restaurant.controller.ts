@@ -95,6 +95,18 @@ export class RestaurantController {
         return await this.restaurantService.updateRestaurant(id, restaurantObject);
     }
 
+    @Put('deactivate/:id')
+    // @ApiBearerAuth()
+    // @Roles(UserRole.MANAGER, UserRole.CONSUMER)
+    // @UseGuards(AuthGuard)
+    @ApiOperation({
+        summary: 'Hace un soft delete a un restaurante',
+        description: 'recibe el id de un restaurante por parametro y le hace un soft delete',
+    })
+    async deactivateUser(@Param('id', ParseUUIDPipe) id: string){
+        return this.restaurantService.deactivateRestaurant(id)
+    }
+
     @Delete(':id')
     @Roles(UserRole.MANAGER)
     @UseGuards()

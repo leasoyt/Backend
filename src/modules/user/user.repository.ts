@@ -12,7 +12,6 @@ import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class UserRepository {
-
   constructor(@InjectRepository(User) private userRepository: Repository<User>) { }
 
   async getUsers(page: number, limit: number): Promise<Omit<User, 'password'>[]> {
@@ -128,5 +127,10 @@ export class UserRepository {
     return await this.getUserById(userInstance.id);
   }
 
-
+  async deactivateUser(userToDeactivate: User): Promise<boolean>{
+    if (userToDeactivate.was_deleted === true) throw new BadRequestException('El usario ya fue eliminado')
+    userToDeactivate.was_deleted = true;
+    const response: User = await this.userRepository.save(userToDeactivate);
+    return response.was_deleted === true;
+  }
 }
