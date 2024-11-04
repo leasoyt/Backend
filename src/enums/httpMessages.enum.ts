@@ -11,6 +11,7 @@ export enum HttpMessagesEnum {
     RANKING_UP_FAIL = "Error al mejorar el rango del usuario",
     RANKING_UP_SUCCESS = "El rol de este usuario ha cambiado",
     USER_NOT_FOUND = "Usuario no encontrado",
+    NO_WAITERS_IN_RESTAURANT = "Aun no hay meseros para este restaurante",
 
     DISH_CREATION_FAILED = "Error al crear un nuevo plato",
     DISH_UPDATE_FAILED = "Error al actualizar el plato",
@@ -27,6 +28,7 @@ export enum HttpMessagesEnum {
     UNKNOWN_ERROR = "Algo salió mal",
     RESOURCE_NOT_FOUND = "Recurso no encontrado",
     UNAUTHORIZED = "Acceso denegado",
+    NOTHING_UPDATED = "No se ha hecho ninguna actualizacion",
 
     MENU_CATEGORY_DELETE_FAILED = "Error al eliminar la categoría del menú",
     MENU_CATEGORY_CREATION_FAILED = "Error al crear una nueva categoría del menú",

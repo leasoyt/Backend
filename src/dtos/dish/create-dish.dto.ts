@@ -12,7 +12,6 @@ export class CreateDishDto {
 
     @IsOptional()
     @IsString()
-    @Length(8, 100)
     description?: string;
 
     @IsOptional()
