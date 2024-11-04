@@ -54,6 +54,8 @@ export class UserController {
   //     return await this.userService.assignRoleUser(id, rol)
   // }npm
 
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Get('profile')
   async getProfile(@GetUser() user: any): Promise<UserProfileDto> {
     try {
