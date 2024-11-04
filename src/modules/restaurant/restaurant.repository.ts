@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isNotEmpty } from 'class-validator';
 import { RegisterRestaurantDto } from 'src/dtos/restaurant/register-restaurant.dto';
@@ -12,7 +12,6 @@ import { DeleteResult, Repository } from 'typeorm';
 
 @Injectable()
 export class RestaurantRepository {
-
   constructor(
     @InjectRepository(Restaurant)
     private restaurantRepository: Repository<Restaurant>,
@@ -126,4 +125,11 @@ export class RestaurantRepository {
   // async getRestaurantOrders(restaurantInstance: Restaurant): Promise<Order[]> {
 
   // }
+
+  async deactivateRestaurant(found_restaurant: Restaurant): Promise<boolean> {
+    if (found_restaurant.was_deleted === true) throw new BadRequestException('El restaurante ya fue eliminado')
+    found_restaurant.was_deleted = true;
+    const response: Restaurant = await this.restaurantRepository.save(found_restaurant);
+    return response.was_deleted === true;
+  }
 }

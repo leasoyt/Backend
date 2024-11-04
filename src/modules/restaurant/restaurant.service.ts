@@ -13,14 +13,13 @@ import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 import { TryCatchWrapper } from 'src/decorators/generic-error.decorator';
 import { RestaurantQueryManyDto } from 'src/dtos/restaurant/restaurant-query-many.dto';
 import { Menu } from 'src/entities/menu.entity';
-import { isUUID } from 'class-validator';
+import { isEmpty, isUUID } from 'class-validator';
 import { NotificationsService } from '../notifications/notifications.service';
 import { UuidBodyDto } from 'src/dtos/generic-uuid-body.dto';
 import { SanitizedUserDto } from '../../dtos/user/sanitized-user.dto';
 
 @Injectable()
 export class RestaurantService {
-
   constructor(
     private readonly restaurantRepository: RestaurantRepository,
     private readonly userService: UserService,
@@ -151,4 +150,26 @@ export class RestaurantService {
   // async getRestaurantOrders(restaurantInstance: Restaurant): Promise<Order[]> {
   //   const found_orders: Order[] = await this.restaurantRepository.getRestaurantOrders(restaurantInstance);
   // }
+
+  async deactivateRestaurant(id: string) {
+    const found_restaurant: Restaurant | undefined = await this.restaurantRepository.getRestaurantById(id);
+
+    if (isEmpty(found_restaurant)) {
+      throw new BadRequestException('El restuarante indicado no existe')
+    }
+    try {
+      const updated_restaurant: boolean = await this.restaurantRepository.deactivateRestaurant(found_restaurant);
+      if (updated_restaurant) return {
+        message: 'Eliminado correctamente'
+      }
+      else {
+        return {
+          message: 'No se pudo eliminar el restaurante'
+        }
+      }    
+    } catch (error) {
+      console.log(error)
+      throw error;
+    }
+  }
 }

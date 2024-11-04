@@ -54,6 +54,8 @@ export class UserController {
   //     return await this.userService.assignRoleUser(id, rol)
   // }npm
 
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Get('profile')
   async getProfile(@GetUser() user: any): Promise<UserProfileDto> {
     try {
@@ -91,6 +93,8 @@ export class UserController {
     return { message: HttpMessagesEnum.RANKING_UP_FAIL };
   }
 
+  // Parace no tener uso 
+  // @ApiBearerAuth()
   @ApiBearerAuth()
   @Get(':id')
   @UseGuards(AuthGuard)
@@ -130,6 +134,18 @@ export class UserController {
     }
 
     return await this.userService.updateUser(id, modified_user);
+  }
+  
+  @Put('deactivate/:id')
+  // @ApiBearerAuth()
+  // @Roles(UserRole.MANAGER, UserRole.CONSUMER)
+  // @UseGuards(AuthGuard)
+  @ApiOperation({
+    summary: 'Hace un soft delete a un usuario',
+    description: 'recibe el id de un usuario por parametro y le hace un soft delete',
+  })
+  async deactivateUser(@Param('id', ParseUUIDPipe) id: string){
+    return this.userService.deactivateUser(id)
   }
 
   @Delete(':id')

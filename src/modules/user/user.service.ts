@@ -254,4 +254,28 @@ export class UserService {
     })
     return sanitizedUsers;
   }
+
+  @TryCatchWrapper(HttpMessagesEnum.USER_UPDATE_FAILED, BadRequestException)
+  async deactivateUser(id: string) {
+    const found_user: User | undefined = await this.userRepository.getUserById(id);
+
+    if (isEmpty(found_user)) {
+      throw { error: 'user not found', exception: NotFoundException };
+    }
+    try {
+      const updated_user: boolean = await this.userRepository.deactivateUser(found_user);
+      if (updated_user) return {
+        message: 'Eliminado correctamente'
+      }
+      else {
+        return {
+          message: 'No se pudo eliminar el usuario'
+        }
+      }
+    } catch (error) {
+      console.log(error)
+      throw error
+    }
+    
+  }
 }
