@@ -13,6 +13,7 @@ import { TryCatchWrapper } from "src/decorators/generic-error.decorator";
 import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 import { filterNullFields } from "src/utils/objectNullFilter";
 import { UuidBodyDto } from "src/dtos/generic-uuid-body.dto";
+import { SanitizedUserDto } from "src/dtos/user/sanitized-user.dto";
 
 @ApiTags('Restaurant')
 @Controller('restaurant')
@@ -29,6 +30,16 @@ export class RestaurantController {
     @ApiOperation({ summary: "QueryParameter complejo para obtener una lista de restaurantes organizada" })
     async getRestaurantsQuery(@Query("page") page: number = 1, @Query("limit") limit: number = 10, @Query("rating") rating?: number, @Query("search") search?: string): Promise<RestaurantQueryManyDto> {
         return await this.restaurantService.getRestaurantsQuery(page, limit, rating, search);
+    }
+
+    @Get("waiters/:id")
+    // @Roles(UserRole.MANAGER, UserRole.ADMIN)
+    // @UseGuards(AuthGuard)
+    // @ApiBearerAuth()
+    @ApiParam({name: "id", description: "Id de restaurante"})
+    @ApiOperation({summary: "Obtiene los meseros de un restaurante", description: "Id recibido por parametro"})
+    async getRestaurantWaiters(@Param("id", ParseUUIDPipe) id: string): Promise<SanitizedUserDto[]> {
+        return await this.restaurantService.getRestaurantWaiters(id);
     }
 
     @Get(':id')

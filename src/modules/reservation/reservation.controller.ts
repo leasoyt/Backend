@@ -19,7 +19,7 @@ import { ReservationResponseDto } from 'src/dtos/reservation/reservation-respons
 @ApiTags('Reservation')
 @Controller('reservation')
 export class ReservationController {
-  constructor(private readonly reservationService: ReservationService) {}
+  constructor(private readonly reservationService: ReservationService) { }
 
   @Get('user/:id')
   // @ApiBearerAuth()
@@ -59,9 +59,7 @@ export class ReservationController {
       },
     },
   })
-  async createReservation(
-    @Body() reservationObject: ReservationCreateDto,
-  ): Promise<ReservationResponseDto> {
+  async createReservation(@Body() reservationObject: ReservationCreateDto): Promise<ReservationResponseDto> {
     return await this.reservationService.createReservation(reservationObject);
   }
 

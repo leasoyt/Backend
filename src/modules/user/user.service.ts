@@ -21,6 +21,7 @@ import { HttpMessagesEnum } from 'src/enums/httpMessages.enum';
 import { TryCatchWrapper } from 'src/decorators/generic-error.decorator';
 import { UserProfileDto } from 'src/dtos/user/profile-user.dto';
 import { error } from 'console';
+import { Restaurant } from 'src/entities/restaurant.entity';
 
 dotenvConfig({ path: './env' });
 
@@ -29,15 +30,26 @@ export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly httpService: HttpService,
-  ) {}
+  ) { }
 
   @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
   async getProfile(id: string): Promise<UserProfileDto> {
     const user = await this.userRepository.getUserById(id);
     if (!user) {
-      throw new NotFoundException('Usuario no encontrado');
+      throw { error: HttpMessagesEnum.USER_NOT_FOUND, exception: NotFoundException };
     }
-    return new UserProfileDto(user); // Convierte el usuario en un DTO específico
+    return new UserProfileDto(user);
+  }
+
+  async getRestaurantWaiters(restaurant: Restaurant): Promise<User[]> {
+    const waiters: User[] | undefined = await this.userRepository.getRestaurantWaiters(restaurant);
+
+    if (waiters === undefined || waiters.length === 0) {
+      throw { error: HttpMessagesEnum.NO_WAITERS_IN_RESTAURANT, exception: NotFoundException };
+    }
+
+    return waiters;
+
   }
 
   async rankUpTo(id: string, role: UserRole): Promise<User> {
@@ -58,10 +70,7 @@ export class UserService {
   }
 
   @TryCatchWrapper(HttpMessagesEnum.UNKNOWN_ERROR, InternalServerErrorException)
-  async getUsers(
-    page: number,
-    limit: number,
-  ): Promise<Omit<User, 'password'>[]> {
+  async getUsers(page: number, limit: number): Promise<Omit<User, 'password'>[]> {
     const found_users: Omit<User, 'password'>[] =
       await this.userRepository.getUsers(page, limit);
 
@@ -72,12 +81,8 @@ export class UserService {
   }
 
   @TryCatchWrapper(HttpMessagesEnum.USER_UPDATE_FAILED, BadRequestException)
-  async updateUser(
-    id: string,
-    modified_user: UpdateUserDto,
-  ): Promise<SanitizedUserDto> {
-    const found_user: User | undefined =
-      await this.userRepository.getUserById(id);
+  async updateUser(id: string, modified_user: UpdateUserDto): Promise<SanitizedUserDto> {
+    const found_user: User | undefined = await this.userRepository.getUserById(id);
 
     if (isEmpty(found_user)) {
       throw { error: 'user not found', exception: NotFoundException };
@@ -92,16 +97,13 @@ export class UserService {
     return filtered_user;
   }
 
-  async updatePassword(
-    id: string,
-    oldPassword: string,
-    newPassword: string,
-  ): Promise<SanitizedUserDto> {
+  async updatePassword(id: string, oldPassword: string, newPassword: string): Promise<SanitizedUserDto> {
     const user = await this.getRawUserById(id);
     const is_valid_password = await bcrypt.compare(oldPassword, user.password);
 
     if (is_valid_password) {
       const hashed_password = await bcrypt.hash(newPassword, 10);
+
       const updated_user: SanitizedUserDto = await this.updateUser(id, {
         password: hashed_password,
       });
@@ -111,16 +113,21 @@ export class UserService {
     throw { error: 'Old password is incorrect', UnauthorizedException };
   }
 
-  async createUser(
-    userObject: Omit<RegisterDto, 'confirmPassword'>,
-  ): Promise<SanitizedUserDto> {
+  async createUser(userObject: Omit<RegisterDto, 'confirmPassword'>): Promise<SanitizedUserDto> {
     const created_user: User = await this.userRepository.createUser(userObject);
     const { password, isAdmin, ...filtered } = created_user;
 
     return filtered;
   }
 
-  @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, BadRequestException)
+  async createWaiter(userObject: Omit<RegisterDto, 'confirmPassword'>, restaurant: Restaurant): Promise<SanitizedUserDto> {
+    const created_user: User = await this.userRepository.createWaiter(userObject, restaurant);
+    const { password, isAdmin, ...filtered } = created_user;
+
+    return filtered;
+  }
+
+  @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
   async getUserById(id: string): Promise<SanitizedUserDto> {
     const { password, isAdmin, ...filtered_user } =
       await this.getRawUserById(id);
