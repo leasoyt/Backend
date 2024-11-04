@@ -54,8 +54,8 @@ export class UserController {
   // }npm
 
   @Get('profile')
-  //@ApiBearerAuth()
-  //@UseGuards(AuthGuard)
+  // @ApiBearerAuth()
+  // @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Obtener el perfil del usuario autenticado',
   })
@@ -82,9 +82,10 @@ export class UserController {
     if (ranked_up.role === body.rank) {
       return { message: HttpMessagesEnum.RANKING_UP_SUCCESS };
     }
-    return { message: HttpMessagesEnum.DISH_DELETE_FAIL };
+    return { message: HttpMessagesEnum.RANKING_UP_FAIL };
   }
 
+  // Para no tener uso 
   // @ApiBearerAuth()
   @Get(':id')
   @UseGuards(AdminGuard)
