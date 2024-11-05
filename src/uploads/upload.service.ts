@@ -4,6 +4,7 @@ import cloudinary from '../config/cloudinary.config';
 @Injectable()
 export class UploadService {
   async uploadToCloudinary(file: Express.Multer.File): Promise<string> {
+    
     return new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         { folder: 'RestO' },

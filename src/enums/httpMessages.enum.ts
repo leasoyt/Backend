@@ -6,6 +6,7 @@ export enum HttpMessagesEnum {
 
     PASSWORD_UPDATE_SUCCESS = "Contraseña actualizada correctamente",
     PASSWORD_UPDATE_FAILED = "Error al actualizar la contraseña",
+    USER_DELETED = "Este usuario fue eliminado!",
 
     USER_UPDATE_FAILED = "Error al actualizar el usuario",
     RANKING_UP_FAIL = "Error al mejorar el rango del usuario",

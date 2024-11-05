@@ -40,10 +40,7 @@ export class UserController {
     summary: 'obtiene todos los usuarios',
     description: 'debe ser ejecutado por un usuario con rol admin',
   })
-  async getUsers(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 100,
-  ): Promise<SanitizedUserDto[]> {
+  async getUsers(    @Query('page') page: number = 1,    @Query('limit') limit: number = 100  ): Promise<SanitizedUserDto[]> {
     return await this.userService.getUsers(page, limit);
   }
 
@@ -106,7 +103,7 @@ export class UserController {
 
   @Put(':id')
   @ApiBearerAuth()
-  @Roles(UserRole.MANAGER, UserRole.CONSUMER)
+  @Roles(UserRole.MANAGER, UserRole.CONSUMER, UserRole.ADMIN)
   @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'actualiza la informacion de un usuario, por id y body',
@@ -137,9 +134,9 @@ export class UserController {
   }
   
   @Put('deactivate/:id')
-  // @ApiBearerAuth()
-  // @Roles(UserRole.MANAGER, UserRole.CONSUMER)
-  // @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Hace un soft delete a un usuario',
     description: 'recibe el id de un usuario por parametro y le hace un soft delete',

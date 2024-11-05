@@ -126,7 +126,7 @@ export class AuthService {
     const user: User | undefined = await this.userService.getUserByMail(email);
 
     if (user.was_deleted) {
-      throw { error: 'Este usuario fue eliminado!' };
+      throw { error: HttpMessagesEnum.USER_DELETED, exception: BadRequestException};
     }
 
     if (isNotEmpty(user)) {
@@ -143,9 +143,10 @@ export class AuthService {
           isAdmin: user.isAdmin
         });
 
-        console.log('isadmin', user.isAdmin);
+        // console.log('isadmin', user.isAdmin);
 
-
+        console.log("AAAAAAAAAAAAAAAaaa");
+        console.log(user.was_deleted);
         return {
           message: HttpMessagesEnum.LOGIN_SUCCESS,
           token,
@@ -155,7 +156,8 @@ export class AuthService {
             email: user.email,
             country: user.country,
             profile_image: user.profile_image,
-            role: user.role
+            role: user.role,
+            was_deleted: user.was_deleted,
           },
         };
       }
