@@ -62,7 +62,7 @@ export class ReservationService {
         });
     }
 
-    @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
+    @TryCatchWrapper(HttpMessagesEnum.NO_RESERVATIONS_IN_RESTAURANT, NotFoundException)
     async getRestaurantReservations(id: string): Promise<ReservationResponseDto[]> {
         const restaurant: Restaurant = await this.restaurantService.getRestaurantById(id);
         const reservations: Reservation[] = await this.reservationRepository.getRestaurantReservations(restaurant);

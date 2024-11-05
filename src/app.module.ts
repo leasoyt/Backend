@@ -81,7 +81,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     UploadModule,
     ReservationModule,
     ChatModule,
-    NotificationsModule,
+    // NotificationsModule,
     MailModule
   ],
   controllers: [],

@@ -19,7 +19,7 @@ export class Restaurant {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({nullable: false})
+  @Column({ nullable: false })
   name: string;
 
   @Column()
@@ -46,7 +46,7 @@ export class Restaurant {
   menu: Menu;
 
   @OneToMany(() => Restaurant_Table, (table) => table.restaurant, {
-    cascade: true, 
+    cascade: true,
     nullable: true
   })
   tables: Restaurant_Table[];
@@ -60,13 +60,13 @@ export class Restaurant {
   manager: User;
 
   @OneToMany(() => RestaurantSchedule, (schedule) => schedule.restaurant, {
-    cascade: true, 
+    cascade: true,
     nullable: true
   })
   schedules: RestaurantSchedule[];
 
   @OneToMany(() => Reservation, (reserv) => reserv.restaurant, {
-    cascade: true, 
+    cascade: true,
     nullable: true
   })
   reservations: Reservation[];
@@ -77,4 +77,7 @@ export class Restaurant {
       this.menu = new Menu();
     }
   }
+
+  @Column({ nullable: false, default: false })
+  was_deleted: boolean;
 }

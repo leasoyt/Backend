@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { BadRequestException, forwardRef, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { RestaurantRepository } from './restaurant.repository';
 import { Restaurant } from 'src/entities/restaurant.entity';
@@ -12,19 +13,42 @@ import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 import { TryCatchWrapper } from 'src/decorators/generic-error.decorator';
 import { RestaurantQueryManyDto } from 'src/dtos/restaurant/restaurant-query-many.dto';
 import { Menu } from 'src/entities/menu.entity';
-import { isUUID } from 'class-validator';
+import { isEmpty, isUUID } from 'class-validator';
 import { NotificationsService } from '../notifications/notifications.service';
 import { UuidBodyDto } from 'src/dtos/generic-uuid-body.dto';
+import { SanitizedUserDto } from '../../dtos/user/sanitized-user.dto';
 
 @Injectable()
 export class RestaurantService {
-
   constructor(
-    private readonly restaurantRepository: RestaurantRepository, 
-    private readonly userService: UserService, 
+    private readonly restaurantRepository: RestaurantRepository,
+    private readonly userService: UserService,
     @Inject(forwardRef(() => MenuService)) private readonly menuService: MenuService,
     private readonly notificationService: NotificationsService
   ) { }
+
+  @TryCatchWrapper(HttpMessagesEnum.USER_NOT_FOUND, NotFoundException)
+  async getRestaurantWaiters(id: string): Promise<SanitizedUserDto[]> {
+    let restaurant: Restaurant;
+    let found_waiters: User[]
+    try {
+      restaurant = await this.getRestaurantById(id);
+    } catch (err) {
+      throw err || { error: HttpMessagesEnum.RESTAURANT_NOT_FOUND, exception: NotFoundException }
+    }
+    try {
+      found_waiters = await this.userService.getRestaurantWaiters(restaurant);
+    } catch (err) {
+      throw err || { error: HttpMessagesEnum.NO_WAITERS_IN_RESTAURANT, exception: NotFoundException }
+    }
+
+    const sanitized_waiters: SanitizedUserDto[] = found_waiters.map((user) => {
+      const { password, isAdmin, ...rest } = user;
+      return rest;
+    });
+
+    return sanitized_waiters;
+  }
 
   async getRestaurantById(id: string): Promise<Restaurant> {
     const found_restaurant: Restaurant | undefined = await this.restaurantRepository.getRestaurantById(id);
@@ -126,4 +150,29 @@ export class RestaurantService {
   // async getRestaurantOrders(restaurantInstance: Restaurant): Promise<Order[]> {
   //   const found_orders: Order[] = await this.restaurantRepository.getRestaurantOrders(restaurantInstance);
   // }
+
+  async deactivateRestaurant(id: string) {
+    const found_restaurant: Restaurant | undefined = await this.restaurantRepository.getRestaurantById(id);
+
+    if (isEmpty(found_restaurant)) {
+      throw new BadRequestException('El restuarante indicado no existe')
+    }
+    try {
+      const updated_restaurant = await this.restaurantRepository.deactivateRestaurant(found_restaurant);
+      if (updated_restaurant.was_deleted) {
+        const managerRestaurantId: string = updated_restaurant.managerId;
+        await this.userService.rankUpTo(managerRestaurantId, UserRole.CONSUMER)
+        return {
+          message: 'El restaurante se eliminó correctamente'
+        }
+      } else {
+        return {
+          message: 'No se pudo eliminar el restaurante'
+        }
+      }    
+    } catch (error) {
+      console.log(error)
+      throw error;
+    }
+  }
 }

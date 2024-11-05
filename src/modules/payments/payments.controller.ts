@@ -10,6 +10,9 @@ import { CancelSubscriptionDto } from 'src/dtos/payment/cancelPayment.dto';
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
+  @ApiOperation({
+    summary: 'Endpoint de prueba para obtener todas las suscripciones'
+  })
   @Get()
   async getAllSuscription(){
     await this.paymentsService.getAllSuscription()

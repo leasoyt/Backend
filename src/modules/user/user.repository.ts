@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { isEmpty } from 'class-validator';
 import { RegisterDto } from 'src/dtos/auth/register.dto';
 import { UpdateUserDto } from 'src/dtos/user/update-user.dto';
+import { Restaurant } from 'src/entities/restaurant.entity';
 import { User } from 'src/entities/user.entity';
 import { UserRole } from 'src/enums/roles.enum';
 import { SubscriptionStatus } from 'src/enums/subscriptionStatus.enum';
@@ -11,7 +12,6 @@ import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class UserRepository {
-
   constructor(@InjectRepository(User) private userRepository: Repository<User>) { }
 
   async getUsers(page: number, limit: number): Promise<Omit<User, 'password'>[]> {
@@ -55,13 +55,21 @@ export class UserRepository {
     await this.userRepository.save(actual_user);
   }
 
+  async createWaiter(userObject: Omit<RegisterDto, "confirmPassword">, restaurant: Restaurant): Promise<User> {
+    const created_user: User = this.userRepository.create(userObject);
+    created_user.waiterRestaurant = restaurant;
+    return await this.userRepository.save(created_user);
+  }
+
   async updateSubscriptionStatus(status: string, idSubscription: string): Promise<void> {
-    const found_user: User | undefined = await this.userRepository.findOne({where: {
-      subscription: idSubscription
-    }})
+    const found_user: User | undefined = await this.userRepository.findOne({
+      where: {
+        subscription: idSubscription
+      }
+    })
     if (!found_user) {
       throw new Error('User not found');
-      }
+    }
     switch (status) {
       case 'pending':
         found_user.subscriptionStatus = SubscriptionStatus.PENDING;
@@ -83,6 +91,11 @@ export class UserRepository {
 
   async getUserByMail(email: string): Promise<User> {
     return await this.userRepository.findOne({ where: { email: email } });
+  }
+
+  async getRestaurantWaiters(restaurant: Restaurant): Promise<User[] | undefined> {
+    const found_waiters: User[] | null | undefined = await this.userRepository.find({ where: { waiterRestaurant: restaurant } });
+    return found_waiters === null || found_waiters === null ? undefined : found_waiters;
   }
 
   async getUserBySuscriptions(idsSubscription: string[]): Promise<User[]> {
@@ -114,5 +127,10 @@ export class UserRepository {
     return await this.getUserById(userInstance.id);
   }
 
-
+  async deactivateUser(userToDeactivate: User): Promise<boolean>{
+    if (userToDeactivate.was_deleted === true) throw new BadRequestException('El usario ya fue eliminado')
+    userToDeactivate.was_deleted = true;
+    const response: User = await this.userRepository.save(userToDeactivate);
+    return response.was_deleted === true;
+  }
 }

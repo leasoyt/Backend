@@ -13,6 +13,7 @@ import { TryCatchWrapper } from "src/decorators/generic-error.decorator";
 import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 import { filterNullFields } from "src/utils/objectNullFilter";
 import { UuidBodyDto } from "src/dtos/generic-uuid-body.dto";
+import { SanitizedUserDto } from "src/dtos/user/sanitized-user.dto";
 
 @ApiTags('Restaurant')
 @Controller('restaurant')
@@ -29,6 +30,16 @@ export class RestaurantController {
     @ApiOperation({ summary: "QueryParameter complejo para obtener una lista de restaurantes organizada" })
     async getRestaurantsQuery(@Query("page") page: number = 1, @Query("limit") limit: number = 10, @Query("rating") rating?: number, @Query("search") search?: string): Promise<RestaurantQueryManyDto> {
         return await this.restaurantService.getRestaurantsQuery(page, limit, rating, search);
+    }
+
+    @Get("waiters/:id")
+    // @Roles(UserRole.MANAGER, UserRole.ADMIN)
+    // @UseGuards(AuthGuard)
+    // @ApiBearerAuth()
+    @ApiParam({name: "id", description: "Id de restaurante"})
+    @ApiOperation({summary: "Obtiene los meseros de un restaurante", description: "Id recibido por parametro"})
+    async getRestaurantWaiters(@Param("id", ParseUUIDPipe) id: string): Promise<SanitizedUserDto[]> {
+        return await this.restaurantService.getRestaurantWaiters(id);
     }
 
     @Get(':id')
@@ -82,6 +93,18 @@ export class RestaurantController {
     @ApiOperation({ summary: "Actualiza un restaurante", description: "Id de restaurante y objeto de modificacion" })
     async updateRestaurant(@Param("id", ParseUUIDPipe) id: string, @Body() restaurantObject: UpdateRestaurant): Promise<Restaurant> {
         return await this.restaurantService.updateRestaurant(id, restaurantObject);
+    }
+
+    @Put('deactivate/:id')
+    // @ApiBearerAuth()
+    // @Roles(UserRole.MANAGER, UserRole.CONSUMER)
+    // @UseGuards(AuthGuard)
+    @ApiOperation({
+        summary: 'Hace un soft delete a un restaurante',
+        description: 'recibe el id de un restaurante por parametro y le hace un soft delete',
+    })
+    async deactivateUser(@Param('id', ParseUUIDPipe) id: string){
+        return this.restaurantService.deactivateRestaurant(id)
     }
 
     @Delete(':id')

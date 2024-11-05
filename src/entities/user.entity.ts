@@ -65,16 +65,12 @@ export class User {
   /**
    * Asociación para gerentes (un gerente puede estar en varios restaurantes)
    */
-  @OneToMany(() => Restaurant, (restaurant) => restaurant.manager, {
-    nullable: true,
-  })
+  @OneToMany(() => Restaurant, (restaurant) => restaurant.manager, { nullable: true })
   managedRestaurants: Restaurant[];
 
-  @OneToMany(() => Reservation, (reservation) => reservation.user, {
-    nullable: true,
-  })
+  @OneToMany(() => Reservation, (reservation) => reservation.user, { nullable: true })
   reservations: Reservation[];
 
-  // @OneToMany(() => Review, (review) => review.user, { nullable: true, onDelete: 'CASCADE' })
-  // reviews: Review[];
+  @Column({ nullable: false, default: false })
+  was_deleted: boolean;
 }

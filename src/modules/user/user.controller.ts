@@ -25,17 +25,17 @@ import { UserProfileDto } from 'src/dtos/user/profile-user.dto';
 import { UuidBodyDto } from 'src/dtos/generic-uuid-body.dto';
 import { HttpResponseDto } from 'src/dtos/http-response.dto';
 import { User } from 'src/entities/user.entity';
-import { AdminGuard } from 'src/guards/admin.guard';
 import { GetUser } from 'src/decorators/get-user.decorator';
 
 @ApiTags('User')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Get('all')
   @ApiBearerAuth()
-  @UseGuards(AdminGuard, AuthGuard)
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'obtiene todos los usuarios',
     description: 'debe ser ejecutado por un usuario con rol admin',
@@ -54,6 +54,8 @@ export class UserController {
   //     return await this.userService.assignRoleUser(id, rol)
   // }npm
 
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Get('profile')
   async getProfile(@GetUser() user: any): Promise<UserProfileDto> {
     try {
@@ -71,9 +73,9 @@ export class UserController {
   }
 
   @Put('rankup')
-  // @ApiBearerAuth()
-  // @UseGuards(AuthGuard)
-  // @Roles(UserRole.ADMIN, UserRole.CONSUMER)
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.ADMIN, UserRole.CONSUMER)
   @ApiBody({
     schema: {
       example: {
@@ -82,23 +84,23 @@ export class UserController {
       },
     },
   })
-  async rankUp(
-    @Body() body: UuidBodyDto & { rank: UserRole },
-  ): Promise<HttpResponseDto> {
+  async rankUp(@Body() body: UuidBodyDto & { rank: UserRole }): Promise<HttpResponseDto> {
+
     const ranked_up: User = await this.userService.rankUpTo(body.id, body.rank);
     if (ranked_up.role === body.rank) {
       return { message: HttpMessagesEnum.RANKING_UP_SUCCESS };
     }
-    return { message: HttpMessagesEnum.DISH_DELETE_FAIL };
+    return { message: HttpMessagesEnum.RANKING_UP_FAIL };
   }
 
+  // Parace no tener uso 
   // @ApiBearerAuth()
+  @ApiBearerAuth()
   @Get(':id')
-  @UseGuards(AdminGuard)
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'obtiene un usuario por su id' })
-  async getUser(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<SanitizedUserDto> {
+  async getUser(@Param('id', ParseUUIDPipe) id: string): Promise<SanitizedUserDto> {
     return await this.userService.getUserById(id);
   }
 
@@ -118,10 +120,8 @@ export class UserController {
       },
     },
   })
-  async updateUser(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() modified_user: UpdateUserDto,
-  ): Promise<SanitizedUserDto> {
+  async updateUser(@Param('id', ParseUUIDPipe) id: string, @Body() modified_user: UpdateUserDto): Promise<SanitizedUserDto> {
+
     if (!isNotEmptyObject(modified_user)) {
       throw new BadRequestException({
         message: HttpMessagesEnum.USER_UPDATE_FAILED,
@@ -130,13 +130,22 @@ export class UserController {
     }
 
     if (isNotEmpty(modified_user.password)) {
-      throw new BadRequestException({
-        message: HttpMessagesEnum.USER_UPDATE_FAILED,
-        error: "You can't modify passwords in this endpoint!",
-      });
+      throw { message: HttpMessagesEnum.USER_UPDATE_FAILED, exception: BadRequestException };
     }
 
     return await this.userService.updateUser(id, modified_user);
+  }
+  
+  @Put('deactivate/:id')
+  // @ApiBearerAuth()
+  // @Roles(UserRole.MANAGER, UserRole.CONSUMER)
+  // @UseGuards(AuthGuard)
+  @ApiOperation({
+    summary: 'Hace un soft delete a un usuario',
+    description: 'recibe el id de un usuario por parametro y le hace un soft delete',
+  })
+  async deactivateUser(@Param('id', ParseUUIDPipe) id: string){
+    return this.userService.deactivateUser(id)
   }
 
   @Delete(':id')
