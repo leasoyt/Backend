@@ -158,11 +158,14 @@ export class RestaurantService {
       throw new BadRequestException('El restuarante indicado no existe')
     }
     try {
-      const updated_restaurant: boolean = await this.restaurantRepository.deactivateRestaurant(found_restaurant);
-      if (updated_restaurant) return {
-        message: 'Eliminado correctamente'
-      }
-      else {
+      const updated_restaurant = await this.restaurantRepository.deactivateRestaurant(found_restaurant);
+      if (updated_restaurant.was_deleted) {
+        const managerRestaurantId: string = updated_restaurant.managerId;
+        await this.userService.rankUpTo(managerRestaurantId, UserRole.CONSUMER)
+        return {
+          message: 'El restaurante se eliminó correctamente'
+        }
+      } else {
         return {
           message: 'No se pudo eliminar el restaurante'
         }

@@ -126,10 +126,18 @@ export class RestaurantRepository {
 
   // }
 
-  async deactivateRestaurant(found_restaurant: Restaurant): Promise<boolean> {
+  async deactivateRestaurant(found_restaurant: Restaurant) {
     if (found_restaurant.was_deleted === true) throw new BadRequestException('El restaurante ya fue eliminado')
     found_restaurant.was_deleted = true;
     const response: Restaurant = await this.restaurantRepository.save(found_restaurant);
-    return response.was_deleted === true;
+    const managerRestaurant: Restaurant = await this.restaurantRepository.findOne({
+      where: { id: response.id },
+      relations: ['manager'],
+    });
+    const managerRestaurantId: string = managerRestaurant.manager.id
+    return {
+      was_deleted : true,
+      managerId: managerRestaurantId
+    }
   }
 }
