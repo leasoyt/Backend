@@ -21,6 +21,7 @@ import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { MailModule } from './modules/mail/mail.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -41,7 +42,7 @@ import { ScheduleModule } from '@nestjs/schedule';
           from: '"nest-modules" <modules@nestjs.com>',
         },
         template: {
-          dir: 'src/templates',
+          dir: join(__dirname, '..', 'src/templates'),
           adapter: new PugAdapter(),
           options: {
             strict: true,
