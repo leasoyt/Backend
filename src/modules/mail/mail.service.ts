@@ -28,24 +28,38 @@ export class MailService {
       });
   }
 
-  // @Cron(CronExpression.EVERY_DAY_AT_11AM)
+  @Cron(CronExpression.EVERY_DAY_AT_11AM)
   async sendNotificationEmail(): Promise<void>{
-    const suscripciones = await this.paymentService.getAllSuscription();
-    // const suscripciones = suscripcionesPrueba;
+    console.log('expresión cron funcionando')
+    let suscripciones = await this.paymentService.getAllSuscription();
+    // suscripciones = suscripcionesPrueba;
     const diaActual = new Date()
     const idSubscriptiions = suscripciones
-      .filter(suscripcion => {
-        const fechaInicio = new Date(suscripcion.date_created);
+      .map(suscription => {
+        const fechaInicio = new Date(suscription.date_created);
         const fechaConUnMes = new Date(fechaInicio)
         fechaConUnMes.setMonth(fechaInicio.getMonth() + 1);
-        return fechaConUnMes.toDateString() === diaActual.toDateString();
+        const fechaConDosMeses = new Date(fechaInicio);
+        fechaConDosMeses.setMonth(fechaInicio.getMonth() + 2)
+        if (fechaConUnMes.toDateString() === diaActual.toDateString()) {
+          return { id: suscription.id, freeTrial: 1, message: 'ha pasado un mes' }
+        }
+        else if (fechaConDosMeses.toDateString() === diaActual.toDateString()) {
+          return { id: suscription.id, freeTrial: 2, message: 'han pasado dos meses' }
+        }
+        else {
+          return { id: suscription.id, freeTrial: 3 }
+        }
       })
-      .map(suscripcion => (suscripcion.id));
+      .filter(suscripcion => {
+        return suscripcion.freeTrial === 1 || suscripcion.freeTrial === 2;
+      })
+    // console.log(idSubscriptiions);
     if( idSubscriptiions.length > 0 ) {
       const usuarioParaEnviarMail: SanitizedUserDto[] = await this.userService.getUsersBySuscription(idSubscriptiions);
       try {
         // const usuarioParaEnviarMail = [
-        //   {name: 'Mario', email:'fportodos32@gmail.com'}
+        //   {name: 'Mario', email:'fportodos32@gmail.com', freeTrial: 1, message: 'ha pasado un mes'}
         // ]
         for await (const usuario of usuarioParaEnviarMail) {
           await this.mailerService.sendMail({
