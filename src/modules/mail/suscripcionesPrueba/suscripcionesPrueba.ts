@@ -9,7 +9,7 @@ export const suscripcionesPrueba =
       back_url: 'https://www.your-app.com/confirmation',
       collector_id: 2049054865,
       application_id: 7920252870111813,
-      date_created: '2024-10-02T11:16:55.662-04:00',
+      date_created: '2024-09-05T11:16:55.662-04:00',
       last_modified: '2024-10-27T11:16:55.833-04:00',
       init_point: 'https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_id=03c4f42402334580b70e3e16dfd36cd0',
       auto_recurring: {
@@ -32,7 +32,7 @@ export const suscripcionesPrueba =
       back_url: 'https://www.your-app.com/confirmation',
       collector_id: 2049054865,
       application_id: 7920252870111813,
-      date_created: '2024-10-01T11:25:02.084-04:00',
+      date_created: '2024-10-05T11:25:02.084-04:00',
       last_modified: '2024-10-27T11:25:02.329-04:00',
       init_point: 'https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_id=7d3444954a434561ab550cf02f6b9d8e',
       auto_recurring: {
