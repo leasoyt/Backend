@@ -31,6 +31,8 @@ export class AuthController {
   })
   @ApiOperation({ summary: 'registro de usuario' })
   async userRegistration(@Body() userObject: RegisterDto): Promise<SanitizedUserDto> {
+    console.log('user',userObject);
+    
     const created_user = await this.authService.userRegistration(userObject);
     return created_user;
   }
@@ -52,6 +54,8 @@ export class AuthController {
   })
   @ApiOperation({ summary: 'Login de usuario' })
   async userLogin(@Body() userCredentials: LoginDto): Promise<LoginResponseDto> {
+    console.log('user',userCredentials);
+    
     return await this.authService.userLogin(userCredentials);
   }
 
