@@ -2,7 +2,6 @@ import { Body, Controller, Delete, Get, NotFoundException, Param, ParseUUIDPipe,
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { TableService } from './table.service';
 import { TableNumberDto } from 'src/dtos/table/table-creation.dto';
-import { TableDeletionDto } from 'src/dtos/table/table-deletion.dto';
 import { UserRole } from 'src/enums/roles.enum';
 import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
@@ -17,9 +16,9 @@ export class TableController {
   constructor(private readonly tableService: TableService) { }
 
   @Get(':id')
-  // @ApiBearerAuth()
-  // @Roles(UserRole.MANAGER, UserRole.CONSUMER)
-  // @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @Roles(UserRole.MANAGER, UserRole.CONSUMER)
+  @UseGuards(AuthGuard)
   @ApiParam({ name: "id", description: "ID del restaurante" })
   @ApiOperation({ summary: 'Conseguir una mesa y toda su informacion', description: 'id de la mesa' })
   @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
@@ -28,9 +27,9 @@ export class TableController {
   }
 
   @Get('all/:id')
-  // @ApiBearerAuth()
-  // @Roles(UserRole.MANAGER, UserRole.CONSUMER)
-  // @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @Roles(UserRole.MANAGER, UserRole.CONSUMER)
+  @UseGuards(AuthGuard)
   @ApiParam({ name: "id", description: "ID del restaurante" })
   @ApiOperation({ summary: 'Conseguir una lista de las mesas', description: 'Uuid del negocio' })
   async getTables(@Param('id', ParseUUIDPipe) id: string,): Promise<TableResponseDto[]> {
@@ -38,9 +37,9 @@ export class TableController {
   }
 
   @Post('create/:id')
-  // @ApiBearerAuth()
-  // @Roles(UserRole.MANAGER)
-  // @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @Roles(UserRole.MANAGER)
+  @UseGuards(AuthGuard)
   @ApiBody({
     schema: {
       example: {
@@ -55,17 +54,9 @@ export class TableController {
   }
 
   @Delete('remove/:id')
-  // @ApiBearerAuth()
-  // @Roles(UserRole.MANAGER, UserRole.CONSUMER)
-  // @UseGuards(AuthGuard)
-  @ApiBody({
-    schema: {
-      example: {
-        restaurant_id: 'uuid...',
-        table_id: 'uuid...',
-      },
-    },
-  })
+  @ApiBearerAuth()
+  @Roles(UserRole.MANAGER)
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Eliminar una mesa del restaurante', description: 'Uuid del negocio y uuid de la mesa', })
   async deleteTable(@Param("id", ParseUUIDPipe) id: string): Promise<HttpResponseDto> {
     return await this.tableService.deleteTable(id);

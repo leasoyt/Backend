@@ -40,7 +40,7 @@ export class UserController {
     summary: 'obtiene todos los usuarios',
     description: 'debe ser ejecutado por un usuario con rol admin',
   })
-  async getUsers(    @Query('page') page: number = 1,    @Query('limit') limit: number = 100  ): Promise<SanitizedUserDto[]> {
+  async getUsers(@Query('page') page: number = 1, @Query('limit') limit: number = 100): Promise<SanitizedUserDto[]> {
     return await this.userService.getUsers(page, limit);
   }
 
@@ -52,7 +52,7 @@ export class UserController {
   // }npm
 
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get('profile')
   async getProfile(@GetUser() user: any): Promise<UserProfileDto> {
     try {
@@ -92,10 +92,10 @@ export class UserController {
 
   // Parace no tener uso 
   // @ApiBearerAuth()
-  @ApiBearerAuth()
+  // @ApiBearerAuth()
   @Get(':id')
-  @UseGuards(AuthGuard)
-  @Roles(UserRole.ADMIN)
+  // @UseGuards(AuthGuard)
+  // @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'obtiene un usuario por su id' })
   async getUser(@Param('id', ParseUUIDPipe) id: string): Promise<SanitizedUserDto> {
     return await this.userService.getUserById(id);
@@ -132,7 +132,7 @@ export class UserController {
 
     return await this.userService.updateUser(id, modified_user);
   }
-  
+
   @Put('deactivate/:id')
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
@@ -141,7 +141,7 @@ export class UserController {
     summary: 'Hace un soft delete a un usuario',
     description: 'recibe el id de un usuario por parametro y le hace un soft delete',
   })
-  async deactivateUser(@Param('id', ParseUUIDPipe) id: string){
+  async deactivateUser(@Param('id', ParseUUIDPipe) id: string) {
     return this.userService.deactivateUser(id)
   }
 
