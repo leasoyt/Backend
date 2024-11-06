@@ -19,6 +19,8 @@ COPY --from=development /usr/src/app/node_modules ./node_modules
 COPY . .
 
 RUN npm run build
+
+RUN mkdir -p dist/templates && cp -r src/templates dist/templates
  
 RUN npm ci --only=production && npm cache clean --force
 

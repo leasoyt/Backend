@@ -14,7 +14,7 @@ export const BodyToPreaprobalAnnual = {
         },
     },
     payer_email: 'test_user_992596436@testuser.com',
-    back_url: 'https://rest0front.vercel.app/pagoExitoso',
+    back_url: 'https://rest0front.vercel.app/login',
     status: "pending",
     notification_url: 'https://7e60-200-92-174-158.ngrok-free.app/payments/webhook'
     //   start_date: new Date().toISOString(),
