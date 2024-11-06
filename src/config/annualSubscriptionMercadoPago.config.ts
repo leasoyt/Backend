@@ -14,7 +14,7 @@ export const BodyToPreaprobalAnnual = {
         },
     },
     payer_email: 'test_user_992596436@testuser.com',
-    back_url: { 
+    back_urls: { 
         success: 'https://rest0front.vercel.app/pagoExitoso',
         // pending: 'https://rest0front.vercel.app/login',
         // failure: 'https://rest0front.vercel.app/login'
