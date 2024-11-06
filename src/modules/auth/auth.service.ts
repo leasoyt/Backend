@@ -36,6 +36,8 @@ export class AuthService {
 
     const is_existent: User | undefined =
       await this.userService.getUserByMail(email);
+      console.log('is existent',is_existent);
+      
     if (isNotEmpty(is_existent)) {
       throw { error: 'Este correo ya esta registrado!', exception: ConflictException };
     }
@@ -124,6 +126,8 @@ export class AuthService {
     const { email, password } = credentials;
 
     const user: User | undefined = await this.userService.getUserByMail(email);
+    console.log('user',user);
+    
 
     if (user.was_deleted) {
       throw { error: 'Este usuario fue eliminado!' };
