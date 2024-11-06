@@ -18,9 +18,9 @@ import { ReservationModule } from './modules/reservation/reservation.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
-import { NotificationsModule } from './modules/notifications/notifications.module';
 import { MailModule } from './modules/mail/mail.module';
 import { ScheduleModule } from '@nestjs/schedule';
+// Para desarrollo
 import { join } from 'path';
 
 @Module({
@@ -42,7 +42,11 @@ import { join } from 'path';
           from: '"nest-modules" <modules@nestjs.com>',
         },
         template: {
-          dir: join(__dirname, '..', 'src/templates'),
+          // Para desarrollo
+          // dir: join(__dirname, '..', 'src/templates'),
+
+          // Para producción
+          dir: 'dist/templates',
           adapter: new PugAdapter(),
           options: {
             strict: true,

@@ -34,7 +34,7 @@ export class TableService {
         return found_table;
     }
 
-    @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
+    @TryCatchWrapper(HttpMessagesEnum.NO_TABLES_IN_RESTAURANT, NotFoundException)
     async getRestaurantTables(restaurantId: string): Promise<TableResponseDto[]> {
         const restaurant: Restaurant = await this.restaurantService.getRestaurantById(restaurantId);
         const found_tables: undefined | Restaurant_Table[] = await this.tableRepository.getTablesByRestaurant(restaurant);

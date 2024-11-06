@@ -6,6 +6,7 @@ export enum HttpMessagesEnum {
 
     PASSWORD_UPDATE_SUCCESS = "Contraseña actualizada correctamente",
     PASSWORD_UPDATE_FAILED = "Error al actualizar la contraseña",
+    USER_DELETED = "Este usuario fue eliminado!",
 
     USER_UPDATE_FAILED = "Error al actualizar el usuario",
     RANKING_UP_FAIL = "Error al mejorar el rango del usuario",
@@ -64,6 +65,10 @@ export enum HttpMessagesEnum {
     TOKEN_EXPIRED = "La sesion ha expirado!",
     TOKEN_NOT_FOUND = "No se encontró ningún token en esta solicitud",
     INSUFFICIENT_PERMISSIONS = "No tienes permisos para hacer eso",
-    NOT_ALLOWED_HERE = "No estás permitido aqui!"
+    NOT_ALLOWED_HERE = "No estás permitido aqui!",
+
+    RESERVATION_DELETION_FAILED = "No se pudo eliminar esta reservacion",
+    RESERVATION_DELETION_SUCCESS = "Reservacion eliminada correctamente",
+    RESERVATION_NOT_FOUND = "No se pudo encontrar esta reservacion"
 
 }
