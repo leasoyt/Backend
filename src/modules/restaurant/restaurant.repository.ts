@@ -70,6 +70,10 @@ export class RestaurantRepository {
     rating?: number,
     search?: string,
   ): Promise<RestaurantQueryManyDto> {
+
+    const restaurntss=await this.restaurantRepository.find()
+    console.log('restauranes',restaurntss);
+    
     const queryBuilder =
       this.restaurantRepository.createQueryBuilder('restaurant');
 

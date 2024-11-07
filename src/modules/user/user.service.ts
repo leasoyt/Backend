@@ -147,9 +147,13 @@ export class UserService {
   }
 
   async getUserByMail(mail: string): Promise<User | undefined> {
-    const user: User | undefined =
-      await this.userRepository.getUserByMail(mail);
+    const user: User | undefined =      await this.userRepository.getUserByMail(mail);
     return user ? user : undefined;
+  }
+
+  async getUserBySub(sub: string): Promise<User | undefined> {
+    const user: User | undefined = await this.userRepository.getUserBySub(sub);
+    return user;
   }
 
   async deleteUser(id: string): Promise<SanitizedUserDto> {
