@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, UseGuards } from "@nestjs/common";
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { OrderService } from "./order.service";
 import { CreateOrderDto } from "src/dtos/order/create-order.dto";
 import { Roles } from "src/decorators/roles.decorator";
@@ -37,6 +37,7 @@ export class OrderController {
     }
 
     @Put("status/:id")
+    @ApiExcludeEndpoint()
     // @Roles(UserRole.WAITER, UserRole.MANAGER)
     // @UseGuards(AuthGuard)
     // @ApiBearerAuth()
@@ -55,6 +56,7 @@ export class OrderController {
     // @Roles(UserRole.WAITER, UserRole.MANAGER)
     // @UseGuards(AuthGuard)
     // @ApiBearerAuth()
+    @ApiOperation({summary: "obtiene una orden por su id"})
     @ApiParam({name: "id", type: String, description: "ID de la mesa"})
     async getOrderByTable(@Param("id", ParseUUIDPipe)id: string): Promise<OrderResponseDto> {
         return await this.orderService.getOrderByTable(id);

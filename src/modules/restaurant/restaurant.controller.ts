@@ -1,5 +1,5 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, Query, UseGuards } from "@nestjs/common";
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiOperation, ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { RegisterRestaurantDto } from "src/dtos/restaurant/register-restaurant.dto";
 import { RestaurantService } from "./restaurant.service";
 import { Restaurant } from "src/entities/restaurant.entity";
@@ -33,6 +33,7 @@ export class RestaurantController {
     }
 
     @Get("waiters/:id")
+    @ApiExcludeEndpoint()
     // @Roles(UserRole.MANAGER, UserRole.ADMIN)
     // @UseGuards(AuthGuard)
     // @ApiBearerAuth()
@@ -108,6 +109,7 @@ export class RestaurantController {
     }
 
     @Delete(':id')
+    @ApiExcludeEndpoint()
     @Roles(UserRole.MANAGER)
     @UseGuards()
     @ApiBearerAuth()
