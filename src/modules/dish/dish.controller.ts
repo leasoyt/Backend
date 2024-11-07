@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, NotFoundException, Param, ParseUUIDPipe, Post, Put, UseGuards } from "@nestjs/common";
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { DishService } from "./dish.service";
 import { CreateDishDto } from "src/dtos/dish/create-dish.dto";
 import { UpdateDishDto } from "src/dtos/dish/update-dish.dto";
@@ -73,6 +73,8 @@ export class DishController {
     @ApiBearerAuth()
     @Roles(UserRole.MANAGER)
     @UseGuards(AuthGuard)
+    @ApiOperation({summary: "Elimina un plato por su id"})
+    @ApiParam({name: "id", description: "id de plato"})
     async deleteDish(@Param("id", ParseUUIDPipe) id: string): Promise<HttpResponseDto> {
         return await this.dishService.deleteDish(id);
     }

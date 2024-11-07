@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
-import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ReservationCreateDto } from 'src/dtos/reservation/reservation-create.dto';
 import { UserRole } from 'src/enums/roles.enum';
 import { Roles } from 'src/decorators/roles.decorator';
@@ -26,6 +26,7 @@ export class ReservationController {
   // @ApiBearerAuth()
   // @Roles(UserRole.MANAGER, UserRole.CONSUMER)
   // @UseGuards(AuthGuard)
+  @ApiOperation({summary: "obtiene todas las reservas de un usuario", description: "id de usuario"})
   async getUserReservations(@Param('id', ParseUUIDPipe) id: string): Promise<ReservationResponseDto[]> {
     return await this.reservationService.getUserReservations(id);
   }
@@ -34,6 +35,7 @@ export class ReservationController {
   @ApiBearerAuth()
   @Roles(UserRole.MANAGER)
   @UseGuards(AuthGuard)
+  @ApiOperation({summary: "obtiene todas las reservas de un restaurante", description: "id de restaurante"})
   async getRestaurantReservations(@Param("id", ParseUUIDPipe) id: string): Promise<ReservationResponseDto[]> {
     return await this.reservationService.getRestaurantReservations(id);
   }
@@ -60,6 +62,7 @@ export class ReservationController {
       },
     },
   })
+  @ApiOperation({summary: "crea una nueva reservacion", description: "objeto de reservacion"})
   async createReservation(@Body() reservationObject: ReservationCreateDto): Promise<ReservationResponseDto> {
     return await this.reservationService.createReservation(reservationObject);
   }
@@ -79,6 +82,7 @@ export class ReservationController {
   @Delete('delete/:id')
   @ApiBearerAuth()
   @Roles(UserRole.MANAGER, UserRole.CONSUMER)
+  @ApiOperation({summary: "Elimina una reserva del sistema", description: "id de reserva"})
   @UseGuards(AuthGuard)
   async deleteReservation(@Param('id') id: string): Promise<HttpResponseDto> { 
     return await this.reservationService.deleteReservation(id);
