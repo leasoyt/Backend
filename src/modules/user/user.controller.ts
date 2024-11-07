@@ -55,13 +55,15 @@ export class UserController {
   // }npm
 
   @Get('profile')
+  @UseGuards(AuthGuard)
   async getProfile(@GetUser() user: any): Promise<UserProfileDto> {
     try {
-      console.log('User:', user); // Imprime el objeto user
-      if (!user) {
+      console.log('User:', user); // Imprime el objeto user para depuración
+      if (!user || !user.id) {
+        // Comprueba si el usuario y su id están definidos
         throw new UnauthorizedException('Usuario no autenticado');
       }
-      return await this.userService.getUserById(user.id);
+      return await this.userService.getUserById(user.id); // Usa el id del usuario autenticado
     } catch (error) {
       console.error('Error en getProfile:', error);
       throw new InternalServerErrorException(
@@ -104,7 +106,6 @@ export class UserController {
 
   @Put(':id')
   @ApiBearerAuth()
-  @Roles(UserRole.MANAGER, UserRole.CONSUMER)
   @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'actualiza la informacion de un usuario, por id y body',
