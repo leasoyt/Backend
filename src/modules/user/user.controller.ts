@@ -15,7 +15,7 @@ import {
 import { UpdateUserDto } from 'src/dtos/user/update-user.dto';
 import { UserService } from './user.service';
 import { isNotEmpty, isNotEmptyObject } from 'class-validator';
-import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { SanitizedUserDto } from 'src/dtos/user/sanitized-user.dto';
 import { UserRole } from 'src/enums/roles.enum';
 import { Roles } from 'src/decorators/roles.decorator';
@@ -55,9 +55,9 @@ export class UserController {
   // }npm
 
   @Get('profile')
-  @ApiExcludeEndpoint()
   // @UseGuards(AuthGuard)
-  @Get('profile')
+  @ApiBearerAuth()
+  @ApiOperation({summary: "obtiene la informacion de perfil de usuario", description: "solo el header del mismo usuario"})
   async getProfile(@GetUser() user: any): Promise<UserProfileDto> {
     try {
       console.log('User:', user); // Imprime el objeto user para depuración
@@ -86,6 +86,7 @@ export class UserController {
       },
     },
   })
+  @ApiOperation({summary: "Actualiza el rango de un usuario", description: "id y rango valido manager | consumer | admin"})
   async rankUp(@Body() body: UuidBodyDto & { rank: UserRole }): Promise<HttpResponseDto> {
 
     const ranked_up: User = await this.userService.rankUpTo(body.id, body.rank);
