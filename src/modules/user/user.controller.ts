@@ -51,9 +51,10 @@ export class UserController {
   //     return await this.userService.assignRoleUser(id, rol)
   // }npm
 
-  @ApiBearerAuth()
-  // @UseGuards(AuthGuard)
   @Get('profile')
+  @ApiExcludeEndpoint()
+  // @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   async getProfile(@GetUser() user: any): Promise<UserProfileDto> {
     try {
       console.log('User:', user); // Imprime el objeto user
