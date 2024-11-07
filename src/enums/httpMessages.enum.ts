@@ -3,6 +3,7 @@ export enum HttpMessagesEnum {
     LOGIN_SUCCESS = "Logeado correctamente",
     LOGIN_FAIL = "Error al iniciar sesión",
     REGISTRATION_FAIL = "Error al registrar el usuario",
+    REGISTRATION_SUCCESS = "Registrado correctamente",
 
     PASSWORD_UPDATE_SUCCESS = "Contraseña actualizada correctamente",
     PASSWORD_UPDATE_FAILED = "Error al actualizar la contraseña",

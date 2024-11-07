@@ -5,6 +5,7 @@ import { PaymentsService } from '../payments/payments.service';
 import { suscripcionesPrueba } from './suscripcionesPrueba/suscripcionesPrueba';
 import { UserService } from '../user/user.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { User } from 'src/entities/user.entity';
 
 @Injectable()
 export class MailService {
@@ -12,24 +13,24 @@ export class MailService {
     private readonly mailerService: MailerService,
     private readonly paymentService: PaymentsService,
     private readonly userService: UserService
-  ) {}
+  ) { }
 
 
-  async sendWelcomeEmail(userData:SanitizedUserDto):Promise<void>{
-      console.log('Sending welcome email to:', userData.email);
-      await this.mailerService.sendMail({
-          from: 'Welcome <noreply@rest0.com>', // sender address
-          to: userData.email, // destinatario
-          subject: 'Welcome to our app',
-          template: 'welcome',
-          context: {
-              userData, // Aquí pasamos el userData al template
-            },
-      });
+  async sendWelcomeEmail(userData: Partial<User>): Promise<void> {
+    console.log('Sending welcome email to:', userData.email);
+    await this.mailerService.sendMail({
+      from: 'Welcome <noreply@rest0.com>', // sender address
+      to: userData.email, // destinatario
+      subject: 'Welcome to our app',
+      template: 'welcome',
+      context: {
+        userData, // Aquí pasamos el userData al template
+      },
+    });
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_11AM)
-  async sendNotificationEmail(): Promise<void>{
+  async sendNotificationEmail(): Promise<void> {
     console.log('expresión cron funcionando')
     let suscripciones = await this.paymentService.getAllSuscription();
     // suscripciones = suscripcionesPrueba;
@@ -55,7 +56,7 @@ export class MailService {
         return suscripcion.freeTrial === 1 || suscripcion.freeTrial === 2;
       })
     // console.log(idSubscriptiions);
-    if( idSubscriptiions.length > 0 ) {
+    if (idSubscriptiions.length > 0) {
       const usuarioParaEnviarMail: SanitizedUserDto[] = await this.userService.getUsersBySuscription(idSubscriptiions);
       try {
         // const usuarioParaEnviarMail = [
@@ -68,8 +69,8 @@ export class MailService {
             subject: 'RestO notification',
             template: 'notification',
             context: {
-                usuario, // Aquí pasamos el userData al template
-              },
+              usuario, // Aquí pasamos el userData al template
+            },
           })
           console.log(`Correo enviado a ${usuario.email}`);
         }
@@ -77,7 +78,7 @@ export class MailService {
         console.log(error)
         throw error
       }
-    } 
+    }
   }
 
 }
