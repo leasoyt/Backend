@@ -20,8 +20,8 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
 import { MailModule } from './modules/mail/mail.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { config as dotenvConfig } from 'dotenv';
-dotenvConfig({ path: './env' });
+// Para desarrollo
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -42,7 +42,11 @@ dotenvConfig({ path: './env' });
           from: '"nest-modules" <modules@nestjs.com>',
         },
         template: {
-          dir: process.env.NODEMAILER_TEMPLATE_PATH,
+          // Para desarrollo
+          // dir: join(__dirname, '..', 'src/templates'),
+
+          // Para producción
+          dir: 'dist/templates',
           adapter: new PugAdapter(),
           options: {
             strict: true,
