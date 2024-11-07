@@ -36,4 +36,16 @@ export class ReservationRepository {
 
         return reservations;
     }
+
+    async deleteReservation(reservationInstance: Reservation): Promise<Reservation | undefined> {
+        const deleted: Reservation = await this.reservationRepository.remove(reservationInstance);
+        return deleted === undefined || deleted === null ? undefined : deleted;
+    }
+
+    async getReservation(id: string): Promise<Reservation> {
+        const found: Reservation = await this.reservationRepository.findOne({where: {id: id}})
+
+        return found === undefined || found === null ? undefined : found;
+    }
+
 }

@@ -9,6 +9,7 @@ import { Restaurant } from './restaurant.entity';
 import { Reservation } from './reservation.entity';
 import { UserRole } from 'src/enums/roles.enum';
 import { SubscriptionStatus } from 'src/enums/subscriptionStatus.enum';
+import { AccountType } from 'src/enums/account.type.enum';
 // import { Review } from './review.entity';
 
 @Entity({ name: 'users' })
@@ -31,7 +32,7 @@ export class User {
   @Column({ length: 50, nullable: true })
   country: string;
 
-  @Column({ length: 128, nullable: false })
+  @Column({ length: 128, nullable: true })
   password: string;
 
   @Column({ default: false })
@@ -65,16 +66,23 @@ export class User {
   /**
    * Asociación para gerentes (un gerente puede estar en varios restaurantes)
    */
-  @OneToMany(() => Restaurant, (restaurant) => restaurant.manager, {
-    nullable: true,
-  })
+  @OneToMany(() => Restaurant, (restaurant) => restaurant.manager, { nullable: true })
   managedRestaurants: Restaurant[];
 
-  @OneToMany(() => Reservation, (reservation) => reservation.user, {
-    nullable: true,
-  })
+  @OneToMany(() => Reservation, (reservation) => reservation.user, { nullable: true })
   reservations: Reservation[];
 
-  // @OneToMany(() => Review, (review) => review.user, { nullable: true, onDelete: 'CASCADE' })
-  // reviews: Review[];
+  @Column({ nullable: false, default: false })
+  was_deleted: boolean;
+
+  @Column({
+    type: 'enum',
+    enum: AccountType,
+    default: AccountType.LOCAL,
+  })
+  account_type: AccountType;
+
+  @Column({ nullable: true })
+  sub: string;
+
 }

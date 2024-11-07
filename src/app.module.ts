@@ -18,9 +18,13 @@ import { ReservationModule } from './modules/reservation/reservation.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
-import { NotificationsModule } from './modules/notifications/notifications.module';
 import { MailModule } from './modules/mail/mail.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { config as dotenvConfig } from 'dotenv';
+dotenvConfig({ path: './env' });
+// Para desarrollo
+import { join } from 'path';
+import { UserAuthModule } from './modules/user-auth/user-auth.module';
 
 @Module({
   imports: [
@@ -41,7 +45,11 @@ import { ScheduleModule } from '@nestjs/schedule';
           from: '"nest-modules" <modules@nestjs.com>',
         },
         template: {
-          dir: 'src/templates',
+          // Para desarrollo
+          // dir: join(__dirname, '..', 'src/templates'),
+
+          // Para producción
+          dir: process.env.NODEMAILER_TEMPLATE_PATH,
           adapter: new PugAdapter(),
           options: {
             strict: true,
@@ -76,12 +84,13 @@ import { ScheduleModule } from '@nestjs/schedule';
     MenuModule,
     OrderModule,
     MenuCategoryModule,
+    UserAuthModule,
     RestaurantModule,
     PaymentsModule,
     UploadModule,
     ReservationModule,
     ChatModule,
-    NotificationsModule,
+    // NotificationsModule,
     MailModule
   ],
   controllers: [],

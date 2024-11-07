@@ -14,7 +14,12 @@ export const BodyToPreaprobalAnnual = {
         },
     },
     payer_email: 'test_user_992596436@testuser.com',
-    back_url: 'https://rest0front.vercel.app/',
+    // back_urls: { 
+    //     success: 'https://rest0front.vercel.app/pagoExitoso',
+    //     // pending: 'https://rest0front.vercel.app/login',
+    //     // failure: 'https://rest0front.vercel.app/login'
+    //     },
+    back_url: 'https://resto-omega-nine.vercel.app/pagoExitoso',
     status: "pending",
     notification_url: 'https://7e60-200-92-174-158.ngrok-free.app/payments/webhook'
     //   start_date: new Date().toISOString(),

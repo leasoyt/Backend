@@ -1,6 +1,6 @@
 import { PickType } from "@nestjs/swagger";
 import { RegisterDto } from "./register.dto";
-import { IsEnum, IsNotEmpty, IsString, IsUUID, NotContains, ValidateNested } from "class-validator";
+import { IsBoolean, IsEnum, IsNotEmpty, IsString, IsUUID, NotContains, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
 import { HttpMessagesEnum } from "../../enums/httpMessages.enum";
 import { UserRole } from "src/enums/roles.enum";
@@ -11,7 +11,7 @@ import { UserRole } from "src/enums/roles.enum";
 export class LoginResponseDto {
     @IsNotEmpty()
     @IsString()
-    message: HttpMessagesEnum.LOGIN_SUCCESS | HttpMessagesEnum.LOGIN_FAIL;
+    message: HttpMessagesEnum.LOGIN_SUCCESS | HttpMessagesEnum.REGISTRATION_SUCCESS;
 
     @IsNotEmpty()
     @IsString()
@@ -32,4 +32,8 @@ class InnerResponseInfo extends PickType(RegisterDto, ["name", "email", "country
     @IsNotEmpty()
     @IsEnum(UserRole)
     role: UserRole;
+
+    @IsBoolean()
+    @IsNotEmpty()
+    was_deleted: boolean;
  }

@@ -14,6 +14,7 @@ import { HttpMessagesEnum } from "src/enums/httpMessages.enum";
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
+
   constructor(private readonly authService: AuthService) { }
 
   @Post('register')
@@ -30,9 +31,17 @@ export class AuthController {
   })
   @ApiOperation({ summary: 'registro de usuario' })
   async userRegistration(@Body() userObject: RegisterDto): Promise<SanitizedUserDto> {
+    console.log('user',userObject);
+    
     const created_user = await this.authService.userRegistration(userObject);
     return created_user;
   }
+
+  // @Post("register-for/:id")
+  // async waiterRegistration(@Param("id", ParseUUIDPipe) id: string, @Body() userObject: RegisterDto): Promise<SanitizedUserDto> {
+  //   const created_user = await this.authService.waiterRegistration(userObject, id);
+  //   return created_user;
+  // }
 
   @Post('login')
   @ApiBody({
@@ -45,6 +54,8 @@ export class AuthController {
   })
   @ApiOperation({ summary: 'Login de usuario' })
   async userLogin(@Body() userCredentials: LoginDto): Promise<LoginResponseDto> {
+    console.log('user',userCredentials);
+    
     return await this.authService.userLogin(userCredentials);
   }
 

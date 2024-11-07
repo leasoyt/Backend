@@ -13,9 +13,11 @@ import { TryCatchWrapper } from "src/decorators/generic-error.decorator";
 import { RestaurantService } from "../restaurant/restaurant.service";
 import { Restaurant } from "src/entities/restaurant.entity";
 import { ReservationResponseDto } from "src/dtos/reservation/reservation-response.dto";
+import { HttpResponseDto } from "../../dtos/http-response.dto";
 
 @Injectable()
 export class ReservationService {
+
     constructor(
         private readonly reservationRepository: ReservationRepository,
         private readonly tableService: TableService,
@@ -34,7 +36,7 @@ export class ReservationService {
         if (isEmpty(datedto)) {
             throw { error: "Date format is invalid", exception: BadRequestException };
         }
-        
+
         const created_reservation = await this.reservationRepository.createReservation(found_restaurant, found_user, { ...rest, date: datedto });
         return this.formatReservation(created_reservation);
     }
@@ -44,7 +46,7 @@ export class ReservationService {
             const { id, date, status, seats, restaurant, user, table } = unFormated;
             return { id, date, status, seats, restaurant: restaurant?.id || undefined, user: user?.id || undefined, table: table?.id || undefined };
         } catch (err) {
-            throw {error: `${err}`};
+            throw { error: `${err}` };
         }
     }
 
@@ -62,7 +64,7 @@ export class ReservationService {
         });
     }
 
-    @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
+    @TryCatchWrapper(HttpMessagesEnum.NO_RESERVATIONS_IN_RESTAURANT, NotFoundException)
     async getRestaurantReservations(id: string): Promise<ReservationResponseDto[]> {
         const restaurant: Restaurant = await this.restaurantService.getRestaurantById(id);
         const reservations: Reservation[] = await this.reservationRepository.getRestaurantReservations(restaurant);
@@ -88,5 +90,22 @@ export class ReservationService {
         return reservations.map((x) => {
             return this.formatReservation(x);
         });
+    }
+
+    @TryCatchWrapper(HttpMessagesEnum.RESERVATION_DELETION_FAILED, BadRequestException)
+    async deleteReservation(id: string): Promise<HttpResponseDto> {
+        const found: Reservation | undefined = await this.reservationRepository.getReservation(id);
+
+        if (found === undefined) {
+            throw {error: HttpMessagesEnum.RESERVATION_NOT_FOUND, exception: NotFoundException}
+        }
+
+        const deleted: Reservation | undefined = await this.reservationRepository.deleteReservation(found);
+
+        if (deleted === undefined) {
+            throw { error: HttpMessagesEnum.RESERVATION_DELETION_FAILED, exception: BadRequestException };
+        }
+
+        return { message: HttpMessagesEnum.RESERVATION_DELETION_SUCCESS };
     }
 }
