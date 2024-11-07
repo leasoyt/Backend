@@ -29,6 +29,27 @@ export class MailService {
     });
   }
 
+  async sendNotificationPrueba(usuario: {name: string, email: string, freeTrial: 1, message: string}) {
+    try {
+      console.log('Sending welcome email to:', usuario.email);
+      await this.mailerService.sendMail({
+        from: 'Rest0<noreply@rest0.com>', // sender address
+        to: usuario.email, // destinatario
+        subject: 'RestO notification',
+        template: 'notification',
+        context: {
+          usuario, // Aquí pasamos el userData al template
+        },
+      });
+      return {
+        message: 'mensaje enviado correctamente'
+      }
+    } catch (error) {
+      console.log(error)
+      throw error
+    }
+  }
+
   @Cron(CronExpression.EVERY_DAY_AT_11AM)
   async sendNotificationEmail(): Promise<void> {
     console.log('expresión cron funcionando')
