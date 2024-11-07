@@ -24,3 +24,5 @@ Thumbs.db
 .git
 .gitignore
 .github
+
+docker-compose.yaml

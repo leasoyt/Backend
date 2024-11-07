@@ -30,7 +30,7 @@ import { GetUser } from 'src/decorators/get-user.decorator';
 @ApiTags('User')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @Get('all')
   @ApiBearerAuth()
@@ -40,7 +40,10 @@ export class UserController {
     summary: 'obtiene todos los usuarios',
     description: 'debe ser ejecutado por un usuario con rol admin',
   })
-  async getUsers(@Query('page') page: number = 1, @Query('limit') limit: number = 100): Promise<SanitizedUserDto[]> {
+  async getUsers(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 100,
+  ): Promise<SanitizedUserDto[]> {
     return await this.userService.getUsers(page, limit);
   }
 
@@ -54,14 +57,15 @@ export class UserController {
   @Get('profile')
   @ApiExcludeEndpoint()
   // @UseGuards(AuthGuard)
-  @ApiBearerAuth()
+  @Get('profile')
   async getProfile(@GetUser() user: any): Promise<UserProfileDto> {
     try {
-      console.log('User:', user); // Imprime el objeto user
-      if (!user) {
+      console.log('User:', user); // Imprime el objeto user para depuración
+      if (!user || !user.id) {
+        // Comprueba si el usuario y su id están definidos
         throw new UnauthorizedException('Usuario no autenticado');
       }
-      return await this.userService.getUserById(user.id);
+      return await this.userService.getUserById(user.id); // Usa el id del usuario autenticado
     } catch (error) {
       console.error('Error en getProfile:', error);
       throw new InternalServerErrorException(
@@ -82,7 +86,6 @@ export class UserController {
       },
     },
   })
-  @ApiOperation({summary: "Actualiza el rango de un usuario", description: "id y rango valido manager | consumer | admin"})
   async rankUp(@Body() body: UuidBodyDto & { rank: UserRole }): Promise<HttpResponseDto> {
 
     const ranked_up: User = await this.userService.rankUpTo(body.id, body.rank);
@@ -92,20 +95,21 @@ export class UserController {
     return { message: HttpMessagesEnum.RANKING_UP_FAIL };
   }
 
-  // Parace no tener uso 
+  // Parace no tener uso
   // @ApiBearerAuth()
   // @ApiBearerAuth()
   @Get(':id')
   // @UseGuards(AuthGuard)
   // @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'obtiene un usuario por su id' })
-  async getUser(@Param('id', ParseUUIDPipe) id: string): Promise<SanitizedUserDto> {
+  async getUser(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<SanitizedUserDto> {
     return await this.userService.getUserById(id);
   }
 
   @Put(':id')
   @ApiBearerAuth()
-  @Roles(UserRole.MANAGER, UserRole.CONSUMER, UserRole.ADMIN)
   @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'actualiza la informacion de un usuario, por id y body',
@@ -119,8 +123,10 @@ export class UserController {
       },
     },
   })
-  async updateUser(@Param('id', ParseUUIDPipe) id: string, @Body() modified_user: UpdateUserDto): Promise<SanitizedUserDto> {
-
+  async updateUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() modified_user: UpdateUserDto,
+  ): Promise<SanitizedUserDto> {
     if (!isNotEmptyObject(modified_user)) {
       throw new BadRequestException({
         message: HttpMessagesEnum.USER_UPDATE_FAILED,
@@ -129,7 +135,10 @@ export class UserController {
     }
 
     if (isNotEmpty(modified_user.password)) {
-      throw { message: HttpMessagesEnum.USER_UPDATE_FAILED, exception: BadRequestException };
+      throw {
+        message: HttpMessagesEnum.USER_UPDATE_FAILED,
+        exception: BadRequestException,
+      };
     }
 
     return await this.userService.updateUser(id, modified_user);
@@ -141,10 +150,11 @@ export class UserController {
   @Roles(UserRole.ADMIN)
   @ApiOperation({
     summary: 'Hace un soft delete a un usuario',
-    description: 'recibe el id de un usuario por parametro y le hace un soft delete',
+    description:
+      'recibe el id de un usuario por parametro y le hace un soft delete',
   })
   async deactivateUser(@Param('id', ParseUUIDPipe) id: string) {
-    return this.userService.deactivateUser(id)
+    return this.userService.deactivateUser(id);
   }
 
   @Delete(':id')
