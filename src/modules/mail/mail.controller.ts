@@ -11,7 +11,7 @@ export class MailController {
 
     @ApiOperation({
         description: 'Endpoint de prueba para enviar notificaciones por email sobre actuailzaciones del estado de la suscripción de un usuario',
-        summary: 'Endpoint de prueba para enviar notificación por emal a un usuario'
+        summary: 'Endpoint para probar la función cron, envia notificación por email a un usuario'
     })
     @Post()
     @ApiBody({
