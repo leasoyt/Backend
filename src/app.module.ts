@@ -22,6 +22,7 @@ import { MailModule } from './modules/mail/mail.module';
 import { ScheduleModule } from '@nestjs/schedule';
 // Para desarrollo
 import { join } from 'path';
+import { UserAuthModule } from './modules/user-auth/user-auth.module';
 
 @Module({
   imports: [
@@ -81,6 +82,7 @@ import { join } from 'path';
     MenuModule,
     OrderModule,
     MenuCategoryModule,
+    UserAuthModule,
     RestaurantModule,
     PaymentsModule,
     UploadModule,
