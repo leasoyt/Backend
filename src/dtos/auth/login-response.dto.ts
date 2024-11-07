@@ -11,7 +11,7 @@ import { UserRole } from "src/enums/roles.enum";
 export class LoginResponseDto {
     @IsNotEmpty()
     @IsString()
-    message: HttpMessagesEnum.LOGIN_SUCCESS | HttpMessagesEnum.LOGIN_FAIL;
+    message: HttpMessagesEnum.LOGIN_SUCCESS | HttpMessagesEnum.REGISTRATION_SUCCESS;
 
     @IsNotEmpty()
     @IsString()

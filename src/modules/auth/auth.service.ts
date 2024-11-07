@@ -56,6 +56,7 @@ export class AuthService {
       email,
       password: hashed_password,
     });
+
     try {
       await this.mailService.sendWelcomeEmail(user);
     } catch (error) {
@@ -130,13 +131,11 @@ export class AuthService {
     
 
     if (user.was_deleted) {
-      throw { error: HttpMessagesEnum.USER_DELETED, exception: BadRequestException};
+      throw { error: HttpMessagesEnum.USER_DELETED, exception: BadRequestException };
     }
 
     if (isNotEmpty(user)) {
       const is_valid_password = await bcrypt.compare(password, user.password);
-
-
 
 
       if (is_valid_password) {
@@ -147,10 +146,7 @@ export class AuthService {
           isAdmin: user.isAdmin
         });
 
-        // console.log('isadmin', user.isAdmin);
 
-        console.log("AAAAAAAAAAAAAAAaaa");
-        console.log(user.was_deleted);
         return {
           message: HttpMessagesEnum.LOGIN_SUCCESS,
           token,

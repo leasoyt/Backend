@@ -22,6 +22,9 @@ import { MailModule } from './modules/mail/mail.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { config as dotenvConfig } from 'dotenv';
 dotenvConfig({ path: './env' });
+// Para desarrollo
+import { join } from 'path';
+import { UserAuthModule } from './modules/user-auth/user-auth.module';
 
 @Module({
   imports: [
@@ -81,6 +84,7 @@ dotenvConfig({ path: './env' });
     MenuModule,
     OrderModule,
     MenuCategoryModule,
+    UserAuthModule,
     RestaurantModule,
     PaymentsModule,
     UploadModule,
