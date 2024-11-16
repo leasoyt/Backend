@@ -17,9 +17,11 @@ import { isEmpty, isUUID } from 'class-validator';
 import { NotificationsService } from '../notifications/notifications.service';
 import { UuidBodyDto } from 'src/dtos/generic-uuid-body.dto';
 import { SanitizedUserDto } from '../../dtos/user/sanitized-user.dto';
+import { CustomHttpException } from 'src/helpers/custom-error-class';
 
 @Injectable()
 export class RestaurantService {
+
   constructor(
     private readonly restaurantRepository: RestaurantRepository,
     private readonly userService: UserService,
@@ -27,28 +29,21 @@ export class RestaurantService {
     private readonly notificationService: NotificationsService
   ) { }
 
-  @TryCatchWrapper(HttpMessagesEnum.USER_NOT_FOUND, NotFoundException)
+
+  @TryCatchWrapper(HttpMessagesEnum.NO_WAITERS_IN_RESTAURANT, NotFoundException)
   async getRestaurantWaiters(id: string): Promise<SanitizedUserDto[]> {
-    let restaurant: Restaurant;
-    let found_waiters: User[]
-    try {
-      restaurant = await this.getRestaurantById(id);
-    } catch (err) {
-      throw err || { error: HttpMessagesEnum.RESTAURANT_NOT_FOUND, exception: NotFoundException }
-    }
-    try {
-      found_waiters = await this.userService.getRestaurantWaiters(restaurant);
-    } catch (err) {
-      throw err || { error: HttpMessagesEnum.NO_WAITERS_IN_RESTAURANT, exception: NotFoundException }
-    }
+    const restaurant: Restaurant = await this.getRestaurantById(id);
+
+    const found_waiters: User[] = await this.userService.getRestaurantWaiters(restaurant);
 
     const sanitized_waiters: SanitizedUserDto[] = found_waiters.map((user) => {
-      const { password, isAdmin, ...rest } = user;
+      const { password, ...rest } = user;
       return rest;
     });
 
     return sanitized_waiters;
   }
+
 
   async getRestaurantById(id: string): Promise<Restaurant> {
     const found_restaurant: Restaurant | undefined = await this.restaurantRepository.getRestaurantById(id);
@@ -59,6 +54,7 @@ export class RestaurantService {
 
     return found_restaurant;
   }
+
 
   @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_NOT_FOUND, InternalServerErrorException)
   async getRestaurantByManager(id: string): Promise<UuidBodyDto> {
@@ -80,7 +76,7 @@ export class RestaurantService {
     return await this.restaurantRepository.getRestaurantByName(name)
   }
 
-  @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_DELETION_FAILED, InternalServerErrorException)
+
   @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_DELETION_FAILED, InternalServerErrorException)
   async deleteRestaurant(id: string): Promise<HttpResponseDto> {
     const found_restaurant: Restaurant = await this.getRestaurantById(id);
@@ -93,21 +89,25 @@ export class RestaurantService {
     return { message: HttpMessagesEnum.RESTAURANT_DELETION_SUCCESS };
   }
 
-  @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_CREATION_FAILED, InternalServerErrorException)
+
+  @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_CREATION_FAILED, BadRequestException)
   async createRestaurant(restaurantObject: RegisterRestaurantDto): Promise<Restaurant> {
     let id = "";
+
     try {
       const future_manager: User = await this.userService.rankUpTo(restaurantObject.future_manager, UserRole.MANAGER);
+
       const created_menu: Menu = await this.menuService.createMenu();
       const created_restaurant: Restaurant | undefined = await this.restaurantRepository.createRestaurant(future_manager, restaurantObject, created_menu);
 
       if (created_restaurant === undefined) {
-        throw { message: HttpMessagesEnum.RESTAURANT_CREATION_FAILED, exception: InternalServerErrorException }
+        // throw { message: HttpMessagesEnum.RESTAURANT_CREATION_FAILED, exception: InternalServerErrorException }
+        throw new CustomHttpException(null, InternalServerErrorException).throw;
       }
 
       await this.menuService.updateMenu(created_menu, created_restaurant);
       id = created_restaurant.id;
-      this.notificationService.sendNotification('Se ha registrado un nuevo restaurante a Rest0')
+
       return await this.getRestaurantById(created_restaurant.id);
 
     } catch (err) {
@@ -118,14 +118,16 @@ export class RestaurantService {
         await this.deleteRestaurant(id);
       }
 
-      throw err;
+      throw new CustomHttpException(null, InternalServerErrorException, err).throw;
     }
   }
+
 
   async updateRestaurant(id: string, updateData: UpdateRestaurant): Promise<Restaurant> {
     const found_restaurant: Restaurant = await this.getRestaurantById(id);
     return this.restaurantRepository.updateRestaurant(found_restaurant, updateData);
   }
+
 
   @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, InternalServerErrorException)
   async getRestaurantsQuery(page: number, limit: number, rating?: number, search?: string): Promise<RestaurantQueryManyDto> {
@@ -142,37 +144,41 @@ export class RestaurantService {
     return found_restaurants;
   }
 
+
   @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, InternalServerErrorException)
   async getAllRestaurantNames(): Promise<string[]> {
     return await this.restaurantRepository.getAllRestaurantNames()
   }
 
-  // async getRestaurantOrders(restaurantInstance: Restaurant): Promise<Order[]> {
-  //   const found_orders: Order[] = await this.restaurantRepository.getRestaurantOrders(restaurantInstance);
-  // }
 
-  async deactivateRestaurant(id: string) {
+  @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_DELETION_FAILED, BadRequestException)
+  async banOrUnbanRestaurant(id: string): Promise<HttpResponseDto> {
+
     const found_restaurant: Restaurant | undefined = await this.restaurantRepository.getRestaurantById(id);
 
-    if (isEmpty(found_restaurant)) {
-      throw new BadRequestException('El restuarante indicado no existe')
+    if (found_restaurant === undefined) {
+      throw new CustomHttpException(HttpMessagesEnum.RESTAURANT_NOT_FOUND, NotFoundException).throw;
     }
-    try {
-      const updated_restaurant = await this.restaurantRepository.deactivateRestaurant(found_restaurant);
-      if (updated_restaurant.was_deleted) {
-        const managerRestaurantId: string = updated_restaurant.managerId;
-        await this.userService.rankUpTo(managerRestaurantId, UserRole.CONSUMER)
-        return {
-          message: 'El restaurante se eliminó correctamente'
-        }
-      } else {
-        return {
-          message: 'No se pudo eliminar el restaurante'
-        }
-      }    
-    } catch (error) {
-      console.log(error)
-      throw error;
+
+    const [updated_restaurant, status]: [Restaurant, string] = await this.restaurantRepository.banOrUnbanRestaurant(found_restaurant);
+
+    const manager_id: string = updated_restaurant.manager.id;
+
+    if (updated_restaurant.was_deleted && status === "deleted") {
+
+      await this.userService.rankUpTo(manager_id, UserRole.CONSUMER);
+
+      return { message: HttpMessagesEnum.RESTAURANT_DELETION_SUCCESS };
+
+    } else if (!updated_restaurant.was_deleted && status === "restored") {
+
+      await this.userService.rankUpTo(manager_id, UserRole.MANAGER);
+
+      return { message: HttpMessagesEnum.RESTAURANT_RESTORED };
+
     }
+
+    throw new CustomHttpException(HttpMessagesEnum.UNKNOWN_ERROR, BadRequestException).throw;
+
   }
 }

@@ -64,7 +64,7 @@ export class UserRepository {
 
   async createWaiter(userObject: Omit<RegisterDto, "confirmPassword">, restaurant: Restaurant): Promise<User> {
     const created_user: User = this.userRepository.create(userObject);
-    created_user.waiterRestaurant = restaurant;
+    created_user.waiter_in = restaurant;
     return await this.userRepository.save(created_user);
   }
 
@@ -101,7 +101,7 @@ export class UserRepository {
   }
 
   async getRestaurantWaiters(restaurant: Restaurant): Promise<User[] | undefined> {
-    const found_waiters: User[] | null | undefined = await this.userRepository.find({ where: { waiterRestaurant: restaurant } });
+    const found_waiters: User[] | null | undefined = await this.userRepository.find({ where: { waiter_in: restaurant } });
     return found_waiters === null || found_waiters === null ? undefined : found_waiters;
   }
 
@@ -134,10 +134,9 @@ export class UserRepository {
     return await this.getUserById(userInstance.id);
   }
 
-  async deactivateUser(userToDeactivate: User): Promise<boolean> {
-    if (userToDeactivate.was_deleted === true) throw new BadRequestException('El usario ya fue eliminado')
-    userToDeactivate.was_deleted = true;
-    const response: User = await this.userRepository.save(userToDeactivate);
-    return response.was_deleted === true;
+  async banOrUnbanUser(userToModify: User): Promise<[User, "deleted" | "restored"]> {
+    userToModify.was_deleted = !userToModify.was_deleted;
+    const user: User = await this.userRepository.save(userToModify);
+    return [user, user.was_deleted ? "deleted" : "restored"];
   }
 }

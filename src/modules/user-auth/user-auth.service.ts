@@ -40,7 +40,6 @@ export class UserAuthService {
                 id: user.id,
                 email: user.email,
                 role: user.role,
-                isAdmin: user.isAdmin
             });
 
             return {
@@ -86,7 +85,6 @@ export class UserAuthService {
             id: created_user.id,
             email: created_user.email,
             role: created_user.role,
-            isAdmin: created_user.isAdmin
         });
 
         try {

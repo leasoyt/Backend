@@ -1,13 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { isNotEmpty } from 'class-validator';
+import { isNotEmpty, isUUID } from 'class-validator';
 import { RegisterRestaurantDto } from 'src/dtos/restaurant/register-restaurant.dto';
 import { RestaurantQueryManyDto } from 'src/dtos/restaurant/restaurant-query-many.dto';
 import { UpdateRestaurant } from 'src/dtos/restaurant/updateRestaurant.dto';
 import { Menu } from 'src/entities/menu.entity';
 import { Restaurant } from 'src/entities/restaurant.entity';
 import { User } from 'src/entities/user.entity';
+import { HttpMessagesEnum } from 'src/enums/httpMessages.enum';
+import { CustomHttpException } from 'src/helpers/custom-error-class';
 import { DeleteResult, Repository } from 'typeorm';
 
 @Injectable()
@@ -37,7 +39,12 @@ export class RestaurantRepository {
   }
 
   async createRestaurant(future_manager: User, restaurantObject: RegisterRestaurantDto, created_menu: Menu,): Promise<Restaurant> {
-    // const created_menu: Menu = this.menuRepository.create();
+    const is_existent: Restaurant | null = await this.restaurantRepository.findOne({ where: { manager: future_manager } });
+
+    if (is_existent !== null) {
+      throw new CustomHttpException(HttpMessagesEnum.RESTAURANT_CONFLICT, BadRequestException).throw;
+    }
+
     const saved_restaurant: Restaurant = await this.restaurantRepository.save(this.restaurantRepository.create({
       ...restaurantObject,
       manager: future_manager,
@@ -59,7 +66,7 @@ export class RestaurantRepository {
   }
 
   async getRestaurantByManager(found_manager: User): Promise<Restaurant> {
-    const found_restaurant = await this.restaurantRepository.findOne({where:{manager: found_manager}});
+    const found_restaurant = await this.restaurantRepository.findOne({ where: { manager: found_manager } });
 
     return found_restaurant === null ? undefined : found_restaurant;
   }
@@ -71,9 +78,9 @@ export class RestaurantRepository {
     search?: string,
   ): Promise<RestaurantQueryManyDto> {
 
-    const restaurntss=await this.restaurantRepository.find()
-    console.log('restauranes',restaurntss);
-    
+    const restaurntss = await this.restaurantRepository.find()
+    console.log('restauranes', restaurntss);
+
     const queryBuilder =
       this.restaurantRepository.createQueryBuilder('restaurant');
 
@@ -119,7 +126,7 @@ export class RestaurantRepository {
   }
 
   async getAllRestaurantNames(): Promise<string[]> {
-    const restaurants = await this.restaurantRepository.find({ 
+    const restaurants = await this.restaurantRepository.find({
       select: ['name'],
     });
     const restaurantNames = restaurants.map(restaurant => restaurant.name);
@@ -130,18 +137,17 @@ export class RestaurantRepository {
 
   // }
 
-  async deactivateRestaurant(found_restaurant: Restaurant) {
-    if (found_restaurant.was_deleted === true) throw new BadRequestException('El restaurante ya fue eliminado')
-    found_restaurant.was_deleted = true;
-    const response: Restaurant = await this.restaurantRepository.save(found_restaurant);
-    const managerRestaurant: Restaurant = await this.restaurantRepository.findOne({
-      where: { id: response.id },
+  async banOrUnbanRestaurant(found_restaurant: Restaurant): Promise<[Restaurant, "deleted" | "restored"]> {
+    found_restaurant.was_deleted = !found_restaurant.was_deleted;
+
+    const saved_restaurant: Restaurant = await this.restaurantRepository.save(found_restaurant);
+
+    const get_restaurant: Restaurant = await this.restaurantRepository.findOne({
+      where: { id: saved_restaurant.id },
       relations: ['manager'],
     });
-    const managerRestaurantId: string = managerRestaurant.manager.id
-    return {
-      was_deleted : true,
-      managerId: managerRestaurantId
-    }
+
+
+    return [get_restaurant, saved_restaurant.was_deleted ? "deleted" : "restored"];
   }
 }

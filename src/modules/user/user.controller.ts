@@ -1,43 +1,25 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Delete,
-  Get,
-  InternalServerErrorException,
-  Param,
-  ParseUUIDPipe,
-  Put,
-  Query,
-  UnauthorizedException,
-  UseGuards,
-} from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, ParseUUIDPipe, Put, Query, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { UpdateUserDto } from 'src/dtos/user/update-user.dto';
 import { UserService } from './user.service';
 import { isNotEmpty, isNotEmptyObject } from 'class-validator';
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiExcludeEndpoint,
-  ApiOperation,
-  ApiParam,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SanitizedUserDto } from 'src/dtos/user/sanitized-user.dto';
 import { UserRole } from 'src/enums/roles.enum';
 import { Roles } from 'src/decorators/roles.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { HttpMessagesEnum } from 'src/enums/httpMessages.enum';
-import { UserProfileDto } from 'src/dtos/user/profile-user.dto';
 import { UuidBodyDto } from 'src/dtos/generic-uuid-body.dto';
 import { HttpResponseDto } from 'src/dtos/http-response.dto';
 import { User } from 'src/entities/user.entity';
 import { GetUser } from 'src/decorators/get-user.decorator';
+import { CustomHttpException } from 'src/helpers/custom-error-class';
 
 @ApiTags('User')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+
+  constructor(private readonly userService: UserService) { }
+
 
   @Get('all')
   @ApiBearerAuth()
@@ -47,47 +29,28 @@ export class UserController {
     summary: 'obtiene todos los usuarios',
     description: 'debe ser ejecutado por un usuario con rol admin',
   })
-  async getUsers(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 100,
-  ): Promise<SanitizedUserDto[]> {
+  async getUsers(@Query('page') page: number = 1, @Query('limit') limit: number = 100): Promise<SanitizedUserDto[]> {
     return await this.userService.getUsers(page, limit);
   }
 
-  // Sólo para probar la asignación de roles de Auth0
-
-  // @Get('assignAuth0rol')
-  // async assignRoleUser(@Param("id") id: string, @Body() rol: any){
-  //     return await this.userService.assignRoleUser(id, rol)
-  // }npm
 
   @Get('profile')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'obtiene la informacion de perfil de usuario',
-    description: 'solo el header del mismo usuario',
-  })
-  async getProfile(@GetUser() user: any): Promise<UserProfileDto> {
-    try {
-      console.log('User:', user); // Imprime el objeto user para depuración
-      if (!user || !user.id) {
-        // Comprueba si el usuario y su id están definidos
-        throw new UnauthorizedException('Usuario no autenticado');
-      }
-      return await this.userService.getUserById(user.id); // Usa el id del usuario autenticado
-    } catch (error) {
-      console.error('Error en getProfile:', error);
-      throw new InternalServerErrorException(
-        'Error al obtener el perfil del usuario',
-      );
+  @ApiOperation({ summary: 'obtiene la informacion de perfil de usuario', description: 'solo el header del mismo usuario' })
+  async getProfile(@GetUser() user: any): Promise<SanitizedUserDto> {
+    if (!user || !user.id) {
+      throw new CustomHttpException(HttpMessagesEnum.UNAUTHORIZED, UnauthorizedException).throw;
     }
+
+    return await this.userService.getUserById(user.id);
   }
+
 
   @Put('rankup')
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  @Roles(UserRole.ADMIN, UserRole.CONSUMER)
+  @Roles(UserRole.ADMIN, UserRole.CONSUMER, UserRole.MANAGER)
   @ApiBody({
     schema: {
       example: {
@@ -96,32 +59,25 @@ export class UserController {
       },
     },
   })
-  @ApiOperation({
-    summary: 'Actualiza el rango de un usuario',
-    description: 'id y rango valido manager | consumer | admin',
-  })
-  async rankUp(
-    @Body() body: UuidBodyDto & { rank: UserRole },
-  ): Promise<HttpResponseDto> {
+  @ApiOperation({ summary: 'Actualiza el rango de un usuario', description: 'id y rango valido manager | consumer | admin | waiter' })
+  async rankUp(@Body() body: UuidBodyDto & { rank: UserRole }): Promise<HttpResponseDto> {
     const ranked_up: User = await this.userService.rankUpTo(body.id, body.rank);
+
     if (ranked_up.role === body.rank) {
       return { message: HttpMessagesEnum.RANKING_UP_SUCCESS };
     }
-    return { message: HttpMessagesEnum.RANKING_UP_FAIL };
+
+    throw new CustomHttpException(HttpMessagesEnum.RANKING_UP_FAIL, BadRequestException).throw;
+
   }
 
-  // Parace no tener uso
-  // @ApiBearerAuth()
-  // @ApiBearerAuth()
+
   @Get(':id')
-  // @UseGuards(AuthGuard)
-  // @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'obtiene un usuario por su id' })
-  async getUser(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<SanitizedUserDto> {
+  async getUser(@Param('id', ParseUUIDPipe) id: string): Promise<SanitizedUserDto> {
     return await this.userService.getUserById(id);
   }
+
 
   @Put(':id')
   @ApiBearerAuth()
@@ -138,47 +94,33 @@ export class UserController {
       },
     },
   })
-  async updateUser(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() modified_user: UpdateUserDto,
-  ): Promise<SanitizedUserDto> {
+  async updateUser(@Param('id', ParseUUIDPipe) id: string, @Body() modified_user: UpdateUserDto): Promise<SanitizedUserDto> {
+
     if (!isNotEmptyObject(modified_user)) {
-      throw new BadRequestException({
-        message: HttpMessagesEnum.USER_UPDATE_FAILED,
-        error: 'body values are empty',
-      });
+      // throw new BadRequestException({ message: HttpMessagesEnum.USER_UPDATE_FAILED, error: 'body values are empty', });
+      throw new CustomHttpException(HttpMessagesEnum.USER_UPDATE_FAILED, BadRequestException, "body values are empty").throw;
     }
 
     if (isNotEmpty(modified_user.password)) {
-      throw {
-        message: HttpMessagesEnum.USER_UPDATE_FAILED,
-        exception: BadRequestException,
-      };
+      // throw { message: HttpMessagesEnum.USER_UPDATE_FAILED, exception: BadRequestException, };
+      throw new CustomHttpException(HttpMessagesEnum.USER_UPDATE_FAILED, BadRequestException, "password can't be updated from this endpoint").throw;
     }
 
     return await this.userService.updateUser(id, modified_user);
   }
 
-  @Put('deactivate/:id')
+
+  @Put('ban-unban/:id')
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Roles(UserRole.ADMIN)
   @ApiOperation({
-    summary: 'Hace un soft delete a un usuario',
+    summary: 'Agrega o quita un soft delete a un usuario',
     description:
-      'recibe el id de un usuario por parametro y le hace un soft delete',
+      'recibe el id de un usuario por parametro y actualiza el estado de softdelete del usuario',
   })
-  async deactivateUser(@Param('id', ParseUUIDPipe) id: string) {
-    return this.userService.deactivateUser(id);
+  async banOrUnbanUser(@Param('id', ParseUUIDPipe) id: string): Promise<HttpResponseDto> {
+    return this.userService.banOrUnbanUser(id);
   }
 
-  @Delete(':id')
-  @ApiExcludeEndpoint()
-  @ApiOperation({
-    summary: 'elimina un usuario por su id (posiblemente no se vaya a usar)',
-  })
-  async deleteUser(@Param('id', ParseUUIDPipe) id: string): Promise<any> {
-    return 'mala idea ' + id;
-    // return await this.userService.deleteUser(id);
-  }
 }

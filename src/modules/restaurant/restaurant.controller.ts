@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, Query, UseGuards } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Get, Param, ParseUUIDPipe, Post, Put, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiOperation, ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { RegisterRestaurantDto } from "src/dtos/restaurant/register-restaurant.dto";
 import { RestaurantService } from "./restaurant.service";
@@ -18,7 +18,7 @@ import { SanitizedUserDto } from "src/dtos/user/sanitized-user.dto";
 @ApiTags('Restaurant')
 @Controller('restaurant')
 export class RestaurantController {
-    
+
     constructor(private readonly restaurantService: RestaurantService) { }
 
     @Get('query')
@@ -34,11 +34,11 @@ export class RestaurantController {
 
     @Get("waiters/:id")
     @ApiExcludeEndpoint()
-    // @Roles(UserRole.MANAGER, UserRole.ADMIN)
-    // @UseGuards(AuthGuard)
-    // @ApiBearerAuth()
-    @ApiParam({name: "id", description: "Id de restaurante"})
-    @ApiOperation({summary: "Obtiene los meseros de un restaurante", description: "Id recibido por parametro"})
+    @Roles(UserRole.MANAGER, UserRole.ADMIN)
+    @UseGuards(AuthGuard)
+    @ApiBearerAuth()
+    @ApiParam({ name: "id", description: "Id de restaurante" })
+    @ApiOperation({ summary: "Obtiene los meseros de un restaurante", description: "Id recibido por parametro" })
     async getRestaurantWaiters(@Param("id", ParseUUIDPipe) id: string): Promise<SanitizedUserDto[]> {
         return await this.restaurantService.getRestaurantWaiters(id);
     }
@@ -62,7 +62,10 @@ export class RestaurantController {
             }
         }
     })
-    @ApiOperation({ summary: "Obtiene los detalles de un restaurante", description: "Id del manager" })
+    @ApiOperation({
+        summary: "Obtiene los detalles de un restaurante",
+        description: "Id del manager"
+    })
     @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_NOT_FOUND, BadRequestException)
     async getRestaurantByManager(@Body() id: UuidBodyDto): Promise<UuidBodyDto> {
         return await this.restaurantService.getRestaurantByManager(id.id);
@@ -91,29 +94,23 @@ export class RestaurantController {
     @Roles(UserRole.MANAGER)
     @UseGuards(AuthGuard)
     @ApiBearerAuth()
-    @ApiOperation({ summary: "Actualiza un restaurante", description: "Id de restaurante y objeto de modificacion" })
+    @ApiOperation({
+        summary: "Actualiza un restaurante",
+        description: "Id de restaurante y objeto de modificacion"
+    })
     async updateRestaurant(@Param("id", ParseUUIDPipe) id: string, @Body() restaurantObject: UpdateRestaurant): Promise<Restaurant> {
         return await this.restaurantService.updateRestaurant(id, restaurantObject);
     }
 
-    @Put('deactivate/:id')
-    // @ApiBearerAuth()
-    // @Roles(UserRole.MANAGER, UserRole.CONSUMER)
-    // @UseGuards(AuthGuard)
-    @ApiOperation({
-        summary: 'Hace un soft delete a un restaurante',
-        description: 'recibe el id de un restaurante por parametro y le hace un soft delete',
-    })
-    async deactivateUser(@Param('id', ParseUUIDPipe) id: string){
-        return this.restaurantService.deactivateRestaurant(id)
-    }
-
-    @Delete(':id')
-    @ApiExcludeEndpoint()
-    @Roles(UserRole.MANAGER)
-    @UseGuards()
+    @Put('ban-unban/:id')
     @ApiBearerAuth()
-    async deleteRestaurant(@Param("id", ParseUUIDPipe) id: string): Promise<HttpResponseDto> {
-        return await this.restaurantService.deleteRestaurant(id);
+    @Roles(UserRole.MANAGER, UserRole.ADMIN)
+    @UseGuards(AuthGuard)
+    @ApiOperation({
+        summary: 'Quita o agrega un soft delete a un restaurante',
+        description: 'recibe el id de un restaurante por parametro'
+    })
+    async banOrUnbanRestaurant(@Param('id', ParseUUIDPipe) id: string): Promise<HttpResponseDto> {
+        return this.restaurantService.banOrUnbanRestaurant(id)
     }
 }
