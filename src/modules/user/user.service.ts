@@ -1,11 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { isEmpty } from 'class-validator';
 import { User } from 'src/entities/user.entity';
 import { UserRepository } from './user.repository';
@@ -22,52 +16,59 @@ import { TryCatchWrapper } from 'src/decorators/generic-error.decorator';
 import { UserProfileDto } from 'src/dtos/user/profile-user.dto';
 import { error } from 'console';
 import { Restaurant } from 'src/entities/restaurant.entity';
+import { HttpResponseDto } from 'src/dtos/http-response.dto';
+import { CustomHttpException } from 'src/helpers/custom-error-class';
 
 dotenvConfig({ path: './env' });
 
 @Injectable()
 export class UserService {
-  constructor(
-    private readonly userRepository: UserRepository,
-    private readonly httpService: HttpService,
-  ) { }
+  constructor(private readonly userRepository: UserRepository, private readonly httpService: HttpService) { }
+
 
   @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
   async getProfile(id: string): Promise<UserProfileDto> {
     const user = await this.userRepository.getUserById(id);
+
     if (!user) {
-      throw { error: HttpMessagesEnum.USER_NOT_FOUND, exception: NotFoundException };
+      // throw { error: HttpMessagesEnum.USER_NOT_FOUND, exception: NotFoundException };
+      throw new CustomHttpException(HttpMessagesEnum.USER_NOT_FOUND, NotFoundException).throw;
     }
+
     return new UserProfileDto(user);
   }
+
 
   async getRestaurantWaiters(restaurant: Restaurant): Promise<User[]> {
     const waiters: User[] | undefined = await this.userRepository.getRestaurantWaiters(restaurant);
 
     if (waiters === undefined || waiters.length === 0) {
-      throw { error: HttpMessagesEnum.NO_WAITERS_IN_RESTAURANT, exception: NotFoundException };
+      // throw { error: HttpMessagesEnum.NO_WAITERS_IN_RESTAURANT, exception: NotFoundException };
+      throw new CustomHttpException(HttpMessagesEnum.NO_WAITERS_IN_RESTAURANT, NotFoundException);
     }
 
     return waiters;
-
   }
 
+
+  @TryCatchWrapper(HttpMessagesEnum.RANKING_UP_FAIL, BadRequestException)
   async rankUpTo(id: string, role: UserRole): Promise<User> {
     const found_user: User = await this.getRawUserById(id);
-    const ranked_up: User | undefined = await this.userRepository.rankUpTo(
-      found_user,
-      role,
-    );
+
+    if (found_user.was_deleted) {
+      throw new CustomHttpException(null, BadRequestException, `This ${found_user.role} was banned!`).throw;
+    }
+
+    const ranked_up: User | undefined = await this.userRepository.rankUpTo(found_user, role);
 
     if (ranked_up === undefined) {
-      throw {
-        error: HttpMessagesEnum.RANKING_UP_FAIL,
-        exception: NotFoundException,
-      };
+      // throw { error: HttpMessagesEnum.RANKING_UP_FAIL, exception: NotFoundException };
+      throw new CustomHttpException(null, NotFoundException, "Something went wrong trying to rank up user").throw;
     }
 
     return ranked_up;
   }
+
 
   @TryCatchWrapper(HttpMessagesEnum.UNKNOWN_ERROR, InternalServerErrorException)
   async getUsers(page: number, limit: number): Promise<Omit<User, 'password'>[]> {
@@ -80,22 +81,24 @@ export class UserService {
     return found_users;
   }
 
+
   @TryCatchWrapper(HttpMessagesEnum.USER_UPDATE_FAILED, BadRequestException)
   async updateUser(id: string, modified_user: UpdateUserDto): Promise<SanitizedUserDto> {
     const found_user: User | undefined = await this.userRepository.getUserById(id);
 
     if (isEmpty(found_user)) {
-      throw { error: 'user not found', exception: NotFoundException };
+      throw new CustomHttpException(null, NotFoundException).throw;
     }
 
     const updated_user: User = await this.userRepository.updateUser(
       found_user,
       modified_user,
     );
-    const { password, isAdmin, ...filtered_user } = updated_user;
+    const { password, ...filtered_user } = updated_user;
 
     return filtered_user;
   }
+
 
   async updatePassword(id: string, oldPassword: string, newPassword: string): Promise<SanitizedUserDto> {
     const user = await this.getRawUserById(id);
@@ -113,26 +116,30 @@ export class UserService {
     throw { error: 'Old password is incorrect', UnauthorizedException };
   }
 
+
   async createUser(userObject: Omit<RegisterDto, 'confirmPassword'>): Promise<SanitizedUserDto> {
     const created_user: User = await this.userRepository.createUser(userObject);
-    const { password, isAdmin, ...filtered } = created_user;
+    const { password, ...filtered } = created_user;
 
     return filtered;
   }
+
 
   async createWaiter(userObject: Omit<RegisterDto, 'confirmPassword'>, restaurant: Restaurant): Promise<SanitizedUserDto> {
     const created_user: User = await this.userRepository.createWaiter(userObject, restaurant);
-    const { password, isAdmin, ...filtered } = created_user;
+    const { password, ...filtered } = created_user;
 
     return filtered;
   }
 
+
   @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, NotFoundException)
   async getUserById(id: string): Promise<SanitizedUserDto> {
-    const { password, isAdmin, ...filtered_user } =
+    const { password, ...filtered_user } =
       await this.getRawUserById(id);
     return filtered_user;
   }
+
 
   async getRawUserById(id: string): Promise<User> {
     const user: User | undefined = await this.userRepository.getUserById(id);
@@ -146,15 +153,18 @@ export class UserService {
     return user;
   }
 
+
   async getUserByMail(mail: string): Promise<User | undefined> {
-    const user: User | undefined =      await this.userRepository.getUserByMail(mail);
+    const user: User | undefined = await this.userRepository.getUserByMail(mail);
     return user ? user : undefined;
   }
+
 
   async getUserBySub(sub: string): Promise<User | undefined> {
     const user: User | undefined = await this.userRepository.getUserBySub(sub);
     return user;
   }
+
 
   async deleteUser(id: string): Promise<SanitizedUserDto> {
     const to_delete: User | undefined =
@@ -162,13 +172,14 @@ export class UserService {
     return await this.userRepository.deleteUser(to_delete);
   }
 
+
   // Para asignarle un Rol a un usuario de Auth0
   async assignRoleUser(idUserAuth0: string, rol: UserRole) {
-    let roleId: string;
+    // let roleId: string;
     const managerRolId: string = 'rol_jpBPeHyzDQ1DUuhV';
     const waiterRolId: string = 'rol_C5w7SEkBGdqxoQL8';
     // if(rol === UserRole.MANAGER) {
-    roleId = 'rol_jpBPeHyzDQ1DUuhV';
+    const roleId = 'rol_jpBPeHyzDQ1DUuhV';
     // await this.deleteRolUser(idUserAuth0, consumerRolId);
     // } else if (rol === UserRole.WAITER) {
     //     roleId = 'rol_C5w7SEkBGdqxoQL8';
@@ -197,6 +208,7 @@ export class UserService {
     }
   }
 
+
   // Para quitar un Rol a un usuario de Auth0
   async deleteRolUser(idUserAuth0: string, idAuth0Rol: string) {
     const userId = 'auth0|6719d2b707c0856cec1febf0';
@@ -223,63 +235,59 @@ export class UserService {
     }
   }
 
-  @TryCatchWrapper(HttpMessagesEnum.USER_NOT_FOUND, BadRequestException)
-  async addSubscriptionToUser(
-    emailUser: string,
-    idSubscription: string,
-    status: string,
-  ) {
-    const foundedUser: User | undefined = await this.getUserByMail(emailUser);
-    if (!foundedUser) throw new error();
-    await this.userRepository.addSubscriptionToUser(
-      foundedUser,
-      idSubscription,
-      status,
-    );
-  }
 
   @TryCatchWrapper(HttpMessagesEnum.USER_NOT_FOUND, BadRequestException)
-  async updateSubscriptionStatus(
-    idSubscription: string,
-    statusSubscription: string,
-  ) {
-    await this.userRepository.updateSubscriptionStatus(
-      statusSubscription,
-      idSubscription,
-    );
+  async addSubscriptionToUser(emailUser: string, idSubscription: string, status: string): Promise<void> {
+    const foundedUser: User | undefined = await this.getUserByMail(emailUser);
+    if (!foundedUser) throw new error();
+
+    await this.userRepository.addSubscriptionToUser(foundedUser, idSubscription, status);
   }
+
+
+  @TryCatchWrapper(HttpMessagesEnum.USER_NOT_FOUND, BadRequestException)
+  async updateSubscriptionStatus(idSubscription: string, statusSubscription: string): Promise<void> {
+
+    await this.userRepository.updateSubscriptionStatus(statusSubscription, idSubscription);
+  }
+
 
   @TryCatchWrapper(HttpMessagesEnum.RESOURCE_NOT_FOUND, BadRequestException)
   async getUsersBySuscription(idsSubscription: string[]): Promise<SanitizedUserDto[]> {
     const found_users: User[] = await this.userRepository.getUserBySuscriptions(idsSubscription);
     const sanitizedUsers: SanitizedUserDto[] = found_users.map((found_user) => {
-      const { password, isAdmin, ...filtered } = found_user;
+      const { password, ...filtered } = found_user;
       return filtered
     })
     return sanitizedUsers;
   }
 
+
   @TryCatchWrapper(HttpMessagesEnum.USER_UPDATE_FAILED, BadRequestException)
-  async deactivateUser(id: string) {
+  async banOrUnbanUser(id: string): Promise<HttpResponseDto> {
     const found_user: User | undefined = await this.userRepository.getUserById(id);
 
     if (isEmpty(found_user)) {
-      throw { error: 'user not found', exception: NotFoundException };
+      throw new CustomHttpException("user not found with the provided id", NotFoundException).throw;
     }
+
     try {
-      const updated_user: boolean = await this.userRepository.deactivateUser(found_user);
-      if (updated_user) return {
-        message: 'Eliminado correctamente'
+      const [updated_user, status]: [User, string] = await this.userRepository.banOrUnbanUser(found_user);
+
+      if (updated_user && status === "deletd") {
+        return { message: HttpMessagesEnum.USER_DELETED };
+
+      } else if (updated_user && status === "restored") {
+        return { message: HttpMessagesEnum.USER_RESTORED };
+
       }
-      else {
-        return {
-          message: 'No se pudo eliminar el usuario'
-        }
-      }
+
+      throw new CustomHttpException("something went wrong trying to modify this", BadRequestException).throw;
+
     } catch (error) {
-      console.log(error)
-      throw error
+      throw new CustomHttpException(error?.message, BadRequestException, error).throw;
+
     }
-    
+
   }
 }

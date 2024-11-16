@@ -1,8 +1,10 @@
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Restaurant } from './restaurant.entity';
@@ -35,9 +37,6 @@ export class User {
   @Column({ length: 128, nullable: true })
   password: string;
 
-  @Column({ default: false })
-  isAdmin: boolean;
-
   @Column({
     type: 'enum',
     enum: SubscriptionStatus,
@@ -61,13 +60,15 @@ export class User {
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.waiters, {
     nullable: true,
   })
-  waiterRestaurant: Restaurant;
+  @JoinColumn({name: "waiter_in"})
+  waiter_in: Restaurant;
 
   /**
-   * Asociación para gerentes (un gerente puede estar en varios restaurantes)
+   * Asociación para gerentes (un gerente UN SOLO restaurante)
    */
-  @OneToMany(() => Restaurant, (restaurant) => restaurant.manager, { nullable: true })
-  managedRestaurants: Restaurant[];
+  @OneToOne(() => Restaurant, (restaurant) => restaurant.manager, { nullable: true })
+  @JoinColumn({name: "owns_restaurant"})
+  owns_restaurant: Restaurant[];
 
   @OneToMany(() => Reservation, (reservation) => reservation.user, { nullable: true })
   reservations: Reservation[];

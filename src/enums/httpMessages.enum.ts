@@ -4,17 +4,22 @@ export enum HttpMessagesEnum {
     LOGIN_FAIL = "Error al iniciar sesión",
     REGISTRATION_FAIL = "Error al registrar el usuario",
     REGISTRATION_SUCCESS = "Registrado correctamente",
+    INVALID_CREDENTIALS = "Credenciales invalidas!",
 
     PASSWORD_UPDATE_SUCCESS = "Contraseña actualizada correctamente",
     PASSWORD_UPDATE_FAILED = "Error al actualizar la contraseña",
-    USER_DELETED = "Este usuario fue eliminado!",
 
+    USER_DELETED = "Este usuario fue eliminado!",
+    USER_DELETION_FAILED = "No se pudo eliminar este usuario",
+    USER_RESTORED = "Usuario restaurado correctamente",
+    USER_NOT_FOUND = "Usuario no encontrado",
     USER_UPDATE_FAILED = "Error al actualizar el usuario",
+
     RANKING_UP_FAIL = "Error al mejorar el rango del usuario",
     RANKING_UP_SUCCESS = "El rol de este usuario ha cambiado",
-    USER_NOT_FOUND = "Usuario no encontrado",
-    NO_WAITERS_IN_RESTAURANT = "Aun no hay meseros para este restaurante",
 
+    NO_WAITERS_IN_RESTAURANT = "Aun no hay meseros para este restaurante",
+    
     DISH_CREATION_FAILED = "Error al crear un nuevo plato",
     DISH_UPDATE_FAILED = "Error al actualizar el plato",
     DISH_DELETE_FAIL = "Error al eliminar el plato",
@@ -26,6 +31,8 @@ export enum HttpMessagesEnum {
     RESTAURANT_DELETION_FAILED = "Error al eliminar el restaurante",
     RESTAURANT_NOT_FOUND = "Restaurante no encontrado",
     RESTAURANT_DELETION_SUCCESS = "Restaurante eliminado correctamente",
+    RESTAURANT_RESTORED = "Restaurante restaurado correctamente",
+    RESTAURANT_CONFLICT = "Este usuario ya posee un restaurante",
 
     UNKNOWN_ERROR = "Algo salió mal",
     RESOURCE_NOT_FOUND = "Recurso no encontrado",

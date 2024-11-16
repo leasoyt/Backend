@@ -4,6 +4,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { RegisterDto } from 'src/dtos/auth/register.dto';
 import { UserService } from '../user/user.service';
@@ -20,6 +21,7 @@ import { TryCatchWrapper } from 'src/decorators/generic-error.decorator';
 import { MailService } from '../mail/mail.service';
 import { Restaurant } from 'src/entities/restaurant.entity';
 import { RestaurantService } from '../restaurant/restaurant.service';
+import { CustomHttpException } from 'src/helpers/custom-error-class';
 
 @Injectable()
 export class AuthService {
@@ -36,8 +38,8 @@ export class AuthService {
 
     const is_existent: User | undefined =
       await this.userService.getUserByMail(email);
-      console.log('is existent',is_existent);
-      
+    console.log('is existent', is_existent);
+
     if (isNotEmpty(is_existent)) {
       throw { error: 'Este correo ya esta registrado!', exception: ConflictException };
     }
@@ -127,11 +129,10 @@ export class AuthService {
     const { email, password } = credentials;
 
     const user: User | undefined = await this.userService.getUserByMail(email);
-    console.log('user',user);
-    
+
 
     if (user.was_deleted) {
-      throw { error: HttpMessagesEnum.USER_DELETED, exception: BadRequestException };
+      throw new CustomHttpException(HttpMessagesEnum.USER_DELETED, UnauthorizedException).throw;
     }
 
     if (isNotEmpty(user)) {
@@ -143,7 +144,6 @@ export class AuthService {
           id: user.id,
           email: user.email,
           role: user.role,
-          isAdmin: user.isAdmin
         });
 
 
@@ -162,6 +162,6 @@ export class AuthService {
         };
       }
     }
-    throw { error: 'Credenciales invalidas!' };
+    throw new CustomHttpException(HttpMessagesEnum.INVALID_CREDENTIALS , UnauthorizedException).throw;
   }
 }

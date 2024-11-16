@@ -1,13 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToMany,
-  OneToOne,
-  JoinColumn,
-  ManyToOne,
-  BeforeInsert,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn, BeforeInsert, Unique } from 'typeorm';
 import { User } from './user.entity';
 import { Restaurant_Table } from './tables.entity';
 import { Menu } from './menu.entity';
@@ -15,6 +6,7 @@ import { RestaurantSchedule } from './restaurantSchedule.entity';
 import { Reservation } from './reservation.entity';
 
 @Entity()
+@Unique(["manager"])
 export class Restaurant {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -52,11 +44,11 @@ export class Restaurant {
   tables: Restaurant_Table[];
 
   // Asociación inversa para meseros
-  @OneToMany(() => User, (user) => user.waiterRestaurant, { nullable: true })
+  @OneToMany(() => User, (user) => user.waiter_in, { nullable: true })
   waiters: User[];
 
-  // Asociación inversa para el gerente (solo un gerente por restaurante)
-  @ManyToOne(() => User, (user) => user.managedRestaurants, { nullable: false })
+  @OneToOne(() => User, (user) => user.owns_restaurant, { nullable: true })
+  @JoinColumn({name: "manager"})
   manager: User;
 
   @OneToMany(() => RestaurantSchedule, (schedule) => schedule.restaurant, {
