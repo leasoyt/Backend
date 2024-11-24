@@ -71,15 +71,7 @@ export class RestaurantRepository {
     return found_restaurant === null ? undefined : found_restaurant;
   }
 
-  async getRestaurantsQuery(
-    page: number,
-    limit: number,
-    rating?: number,
-    search?: string,
-  ): Promise<RestaurantQueryManyDto> {
-
-    const restaurntss = await this.restaurantRepository.find()
-    console.log('restauranes', restaurntss);
+  async getRestaurantsQuery(page: number, limit: number, rating?: number, search?: string): Promise<RestaurantQueryManyDto> {
 
     const queryBuilder =
       this.restaurantRepository.createQueryBuilder('restaurant');
@@ -137,8 +129,8 @@ export class RestaurantRepository {
 
   // }
 
-  async banOrUnbanRestaurant(found_restaurant: Restaurant): Promise<[Restaurant, "deleted" | "restored"]> {
-    found_restaurant.was_deleted = !found_restaurant.was_deleted;
+  async banOrUnbanRestaurant(found_restaurant: Restaurant, flag: boolean): Promise<[Restaurant, "deleted" | "restored"]> {
+    found_restaurant.was_deleted = !flag;
 
     const saved_restaurant: Restaurant = await this.restaurantRepository.save(found_restaurant);
 

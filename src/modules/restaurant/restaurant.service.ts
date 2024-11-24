@@ -152,18 +152,20 @@ export class RestaurantService {
 
 
   @TryCatchWrapper(HttpMessagesEnum.RESTAURANT_DELETION_FAILED, BadRequestException)
-  async banOrUnbanRestaurant(id: string): Promise<HttpResponseDto> {
-
+  async banOrUnbanRestaurant(id: string, flag: boolean): Promise<HttpResponseDto> {
     const found_restaurant: Restaurant | undefined = await this.restaurantRepository.getRestaurantById(id);
+    console.log("Rest");
+    console.log(found_restaurant);
 
     if (found_restaurant === undefined) {
       throw new CustomHttpException(HttpMessagesEnum.RESTAURANT_NOT_FOUND, NotFoundException).throw;
     }
 
-    const [updated_restaurant, status]: [Restaurant, string] = await this.restaurantRepository.banOrUnbanRestaurant(found_restaurant);
+    const [updated_restaurant, status]: [Restaurant, string] = await this.restaurantRepository.banOrUnbanRestaurant(found_restaurant, flag);
+    console.log("Manager");
+    console.log(updated_restaurant);
 
     const manager_id: string = updated_restaurant.manager.id;
-
     if (updated_restaurant.was_deleted && status === "deleted") {
 
       await this.userService.rankUpTo(manager_id, UserRole.CONSUMER);

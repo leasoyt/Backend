@@ -3,16 +3,16 @@ import {  IsNotEmpty,  IsOptional,  IsString,  IsUrl,  IsUUID,  Length,} from 'c
 export class RegisterRestaurantDto {
   @IsNotEmpty()
   @IsString()
-  @Length(3, 80)
+  @Length(3, 30)
   name: string;
 
   @IsNotEmpty()
-  @Length(5, 30)
+  @Length(5, 40)
   address: string;
 
   @IsOptional()
   @IsString()
-  @Length(0, 500)
+  @Length(0, 120)
   description?: string;
 
   @IsOptional()

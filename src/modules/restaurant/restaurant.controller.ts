@@ -102,15 +102,27 @@ export class RestaurantController {
         return await this.restaurantService.updateRestaurant(id, restaurantObject);
     }
 
-    @Put('ban-unban/:id')
+    @Put('ban/:id')
     @ApiBearerAuth()
     @Roles(UserRole.MANAGER, UserRole.ADMIN)
     @UseGuards(AuthGuard)
     @ApiOperation({
-        summary: 'Quita o agrega un soft delete a un restaurante',
+        summary: 'Agrega un soft delete a un restaurante',
+        description: 'recibe el id de un restaurante por parametro'
+    })
+    async banRestaurant(@Param('id', ParseUUIDPipe) id: string): Promise<HttpResponseDto> {
+        return this.restaurantService.banOrUnbanRestaurant(id, false);
+    }
+
+    @Put('unban/:id')
+    @ApiBearerAuth()
+    @Roles(UserRole.MANAGER, UserRole.ADMIN)
+    @UseGuards(AuthGuard)
+    @ApiOperation({
+        summary: 'Quita un soft delete a un restaurante',
         description: 'recibe el id de un restaurante por parametro'
     })
     async banOrUnbanRestaurant(@Param('id', ParseUUIDPipe) id: string): Promise<HttpResponseDto> {
-        return this.restaurantService.banOrUnbanRestaurant(id)
+        return this.restaurantService.banOrUnbanRestaurant(id, true);
     }
 }

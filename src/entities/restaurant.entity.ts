@@ -72,4 +72,7 @@ export class Restaurant {
 
   @Column({ nullable: false, default: false })
   was_deleted: boolean;
+
+  @Column({nullable: false, default: false})
+  was_hidden: boolean;
 }
